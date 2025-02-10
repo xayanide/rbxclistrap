@@ -90,4 +90,4 @@ Yes, after downloading a Roblox version, select the "6. Launch Roblox with args"
   - This project is a fork of `rbxcli`.
 
 - https://www.roblox.com/
-  - > [!IMPORTANT] Disclaimer: This project is an independent tool and is not affiliated with, endorsed by, or associated with Roblox Corporation.
+> [!IMPORTANT] Disclaimer: This project is an independent tool and is not affiliated with, endorsed by, or associated with Roblox Corporation.
