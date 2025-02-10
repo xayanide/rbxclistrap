@@ -21,7 +21,9 @@ const killProcesses = (processNames) => {
         processNames = [processNames];
     }
     const runningProcesses = processNames.filter(isProcessesRunning);
-    if (runningProcesses.length === 0) return;
+    if (runningProcesses.length === 0) {
+        return;
+    }
     logger.info(`Killing processes: ${runningProcesses.join(", ")}...`);
     for (let i = 0; i < runningProcesses.length; i++) {
         const processName = runningProcesses[i];
