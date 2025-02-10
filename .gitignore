@@ -1,0 +1,13 @@
+# Node
+node_modules
+
+# Roblox versions
+version-*
+
+# Configs
+/config.json
+/fflags.json
+
+# Bootstrapper logs
+logs
+*.log

@@ -1,0 +1,7 @@
+Windows Registry Editor Version 5.00
+
+[-HKEY_CURRENT_USER\SOFTWARE\Classes\roblox-studio]
+[-HKEY_CURRENT_USER\SOFTWARE\Classes\roblox-studio-auth]
+[-HKEY_CURRENT_USER\SOFTWARE\Classes\Roblox.Place]
+[-HKEY_CURRENT_USER\SOFTWARE\Classes\.rbxl]
+[-HKEY_CURRENT_USER\SOFTWARE\Classes\.rbxlx]

@@ -1,18 +1,32 @@
 {
-  "name": "rbxcli",
-  "version": "1.0.6",
-  "description": "A CLI alternative Roblox bootstrapper",
-  "main": "main.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node main.js"
+  "name": "rbxclistrap",
+  "version": "1.5.0",
+  "engines": {
+    "node": ">=20.18.3"
   },
-  "author": "HW Softworks",
-  "license": "ISC",
+  "description": "A CLI alternative Roblox Player and Roblox Studio bootstrapper",
+  "main": "launchBootstrapper.js",
+  "scripts": {
+    "start:player": "node launchBootstrapper.js WindowsPlayer",
+    "start:studio": "node launchBootstrapper.js WindowsStudio64",
+    "lint": "eslint . --ignore-pattern '**/.config/'",
+    "lint:fix": "eslint . --fix --ignore-pattern '**/.config/'",
+    "lint:format": "prettier . --write",
+    "lint:check": "prettier . --check"
+  },
+  "author": "xayanide",
+  "license": "GPL-3.0-only",
   "dependencies": {
-    "adm-zip": "^0.5.14",
-    "axios": "^1.7.2",
+    "adm-zip": "^0.5.16",
+    "axios": "^1.7.9",
     "cli-progress": "^3.12.0",
-    "fs": "^0.0.1-security"
+    "regedit": "^5.1.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.20.0",
+    "eslint": "^9.20.0",
+    "eslint-config-prettier": "^10.0.1",
+    "globals": "^15.14.0",
+    "prettier": "3.5.0"
   }
 }

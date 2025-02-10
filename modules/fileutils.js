@@ -1,30 +1,32 @@
-const fs = require('fs');
-const path = require('path');
-
-const checkExistingVersion = (versionPrefix) => {
-  const directories = fs.readdirSync('.').filter(f => fs.statSync(f).isDirectory() && f.startsWith(versionPrefix));
-
-  if (directories.length > 0) {
-    return directories[0];
-  }
-  return null;
-};
+const nodeFs = require("fs");
+const nodePath = require("path");
 
 const deleteFolderRecursive = (folderPath) => {
-  if (fs.existsSync(folderPath)) {
-    fs.readdirSync(folderPath).forEach((file, index) => {
-      const curPath = path.join(folderPath, file);
-      if (fs.lstatSync(curPath).isDirectory()) {
-        deleteFolderRecursive(curPath);
-      } else {
-        fs.unlinkSync(curPath);
-      }
+    if (!nodeFs.existsSync(folderPath)) {
+        return;
+    }
+    nodeFs.readdirSync(folderPath).forEach((file) => {
+        const currentPath = nodePath.join(folderPath, file);
+        if (!nodeFs.lstatSync(currentPath).isDirectory()) {
+            nodeFs.unlinkSync(currentPath);
+        }
+        deleteFolderRecursive(currentPath);
     });
-    fs.rmdirSync(folderPath);
-  }
+    nodeFs.rmdirSync(folderPath);
+};
+
+const saveJson = (filePath, data) => nodeFs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+
+const loadJson = (filePath, defaultData) => {
+    if (!nodeFs.existsSync(filePath)) {
+        saveJson(filePath, defaultData);
+        return defaultData;
+    }
+    return JSON.parse(nodeFs.readFileSync(filePath));
 };
 
 module.exports = {
-  checkExistingVersion,
-  deleteFolderRecursive
+    deleteFolderRecursive,
+    saveJson,
+    loadJson,
 };
