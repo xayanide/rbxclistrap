@@ -145,12 +145,11 @@ const launchAutoUpdater = async (binaryType) => {
     let selectedVersion = "";
     if (versions.length === 1) {
         selectedVersion = versions[0];
-        console.log(`${colors.GREEN}Skipping prompt. Only one version found: ${selectedVersion}${colors.RESET}`);
+        logger.info(`Skipping prompt. Only one version found: ${selectedVersion}`);
     } else {
         const answer = await createPrompt("Select a version (1/2/3...): ");
         const versionIndex = parseInt(answer) - 1;
         if (versionIndex < 0 || versionIndex >= versions.length) {
-            console.log(`${colors.RED}Invalid version selected.${colors.RESET}`);
             throw new Error("Invalid version selected.");
         }
         selectedVersion = versions[versionIndex];
@@ -441,7 +440,7 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
     const binaryName = isPlayerRunnerType(runnerType) ? "RobloxPlayerBeta.exe" : "RobloxStudioBeta.exe";
     const binaryPath = nodePath.join(selectedVersionPath, binaryName);
     if (!nodeFs.existsSync(binaryPath)) {
-        console.log(`${colors.RED}${binaryName} not found in ${selectedVersionPath}${colors.RESET}`);
+        logger.warn(`${binaryName} not found in ${selectedVersionPath}`);
         return;
     }
     await installEdgeWebView(selectedVersionPath);
@@ -467,10 +466,10 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
     }
     const argsArray = launchArgs.split(" ");
     const args = argsArray[0] === "" ? [] : argsArray;
-    console.log(`${colors.GREEN}Launching with command: ${binaryPath} ${launchArgs}${colors.RESET}`);
+    logger.info(`Launching with command: ${binaryPath} ${launchArgs}`);
     const childProcess = nodeChildProcess.spawn(binaryPath, args, { shell: true, detached: true, stdio: "ignore" });
     childProcess.unref();
-    console.log(`${colors.GREEN}Successfully launched ${binaryName}!${colors.RESET}`);
+    logger.info(`Successfully launched ${binaryName}!`);
 };
 
 const createPrompt = (query) => {
