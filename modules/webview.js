@@ -3,7 +3,6 @@ const nodePath = require("path");
 const nodeChildProcess = require("child_process");
 const logger = require("./logger.js");
 const { listRegistryItems } = require("./registry.js");
-
 const { WEBVIEW_REGISTRY_KEYPATHS, colors } = require("./constants.js");
 
 const checkEdgeWebView = async () => {
