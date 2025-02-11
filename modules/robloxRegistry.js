@@ -237,17 +237,17 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
         for (const itemValueName in item.values) {
             const itemValue = item.values[itemValueName];
             const putValue = valuesToPut[keyPath][getRegDefaultValueName(itemValueName)];
+            if (!putValue) {
+                break;
+            }
+            const putValueType = getRegSZValueType(putValue.type);
+            if (putValue.value !== itemValue.value || putValueType !== itemValue.type) {
+                break;
+            }
             /**
             The current key exists, currentValue's name, data and type are the same as the expected valueName, valueData and valueType
             from the bootstrapper, delete this specific key object from the valuesToPut object, excluding the key from being updated.
             */
-            if (!putValue) {
-                continue;
-            }
-            const putValueType = getRegSZValueType(putValue.type);
-            if (!(putValue.value === itemValue.value && putValueType === itemValue.type)) {
-                continue;
-            }
             delete filteredValues[keyPath];
         }
     }
