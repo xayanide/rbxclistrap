@@ -39,35 +39,35 @@ const getPlayerRegistryData = (binaryPath) => {
     const playerProtocolName = `URL:RobloxPlayerCLIStrap Protocol`;
     return {
         "HKCU\\Software\\Classes\\roblox": {
-            REG_DEFAULT: { value: playerProtocolName, type: "REG_DEFAULT" },
+            DEFAULT_VALUE_NAME: { value: playerProtocolName, type: "REG_DEFAULT" },
             "URL Protocol": { value: "", type: "REG_SZ" },
         },
         "HKCU\\Software\\Classes\\roblox\\DefaultIcon": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: playerDefaultIconPath,
                 type: "REG_DEFAULT",
             },
         },
-        "HKCU\\Software\\Classes\\roblox\\shell\\Open": { REG_DEFAULT: { value: "Open", type: "REG_DEFAULT" } },
+        "HKCU\\Software\\Classes\\roblox\\shell\\Open": { DEFAULT_VALUE_NAME: { value: "Open", type: "REG_DEFAULT" } },
         "HKCU\\Software\\Classes\\roblox\\shell\\Open\\command": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: playerOpenCommandPath,
                 type: "REG_DEFAULT",
             },
         },
         "HKCU\\Software\\Classes\\roblox-player": {
-            REG_DEFAULT: { value: playerProtocolName, type: "REG_DEFAULT" },
+            DEFAULT_VALUE_NAME: { value: playerProtocolName, type: "REG_DEFAULT" },
             "URL Protocol": { value: "", type: "REG_SZ" },
         },
         "HKCU\\Software\\Classes\\roblox-player\\DefaultIcon": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: playerDefaultIconPath,
                 type: "REG_DEFAULT",
             },
         },
-        "HKCU\\Software\\Classes\\roblox-player\\shell\\Open": { REG_DEFAULT: { value: "Open", type: "REG_DEFAULT" } },
+        "HKCU\\Software\\Classes\\roblox-player\\shell\\Open": { DEFAULT_VALUE_NAME: { value: "Open", type: "REG_DEFAULT" } },
         "HKCU\\Software\\Classes\\roblox-player\\shell\\Open\\command": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: playerOpenCommandPath,
                 type: "REG_DEFAULT",
             },
@@ -81,36 +81,38 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
     const studioProtocolName = `URL:RobloxStudioCLIStrap Protocol`;
     return {
         "HKCU\\Software\\Classes\\roblox-studio": {
-            REG_DEFAULT: { value: studioProtocolName, type: "REG_DEFAULT" },
+            DEFAULT_VALUE_NAME: { value: studioProtocolName, type: "REG_DEFAULT" },
             "URL Protocol": { value: "", type: "REG_SZ" },
         },
         "HKCU\\Software\\Classes\\roblox-studio\\DefaultIcon": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: studioDefaultIconPath,
                 type: "REG_DEFAULT",
             },
         },
-        "HKCU\\Software\\Classes\\roblox-studio\\shell\\open": { REG_DEFAULT: { value: "open", type: "REG_DEFAULT" } },
+        "HKCU\\Software\\Classes\\roblox-studio\\shell\\open": { DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" } },
         "HKCU\\Software\\Classes\\roblox-studio\\shell\\open\\command": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: studioOpenCommandPath,
                 type: "REG_DEFAULT",
             },
             version: { value: selectedVersion, type: "REG_SZ" },
         },
         "HKCU\\Software\\Classes\\roblox-studio-auth": {
-            REG_DEFAULT: { value: studioProtocolName, type: "REG_DEFAULT" },
+            DEFAULT_VALUE_NAME: { value: studioProtocolName, type: "REG_DEFAULT" },
             "URL Protocol": { value: "", type: "REG_SZ" },
         },
         "HKCU\\Software\\Classes\\roblox-studio-auth\\DefaultIcon": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: studioDefaultIconPath,
                 type: "REG_DEFAULT",
             },
         },
-        "HKCU\\Software\\Classes\\roblox-studio-auth\\shell\\open": { REG_DEFAULT: { value: "open", type: "REG_DEFAULT" } },
+        "HKCU\\Software\\Classes\\roblox-studio-auth\\shell\\open": {
+            DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
+        },
         "HKCU\\Software\\Classes\\roblox-studio-auth\\shell\\open\\command": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: studioOpenCommandPath,
                 type: "REG_DEFAULT",
             },
@@ -124,25 +126,25 @@ const getStudioPlaceRegistryData = (binaryPath) => {
     const placeOpenCommandPath = `"${studioRunPath}" "%1"`;
     return {
         "HKCU\\Software\\Classes\\Roblox.Place": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: "Roblox Place",
                 type: "REG_DEFAULT",
             },
         },
         "HKCU\\Software\\Classes\\Roblox.Place\\DefaultIcon": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: placeDefaultIconPath,
                 type: "REG_DEFAULT",
             },
         },
         "HKCU\\Software\\Classes\\Roblox.Place\\shell\\Open": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: "Open",
                 type: "REG_DEFAULT",
             },
         },
         "HKCU\\Software\\Classes\\Roblox.Place\\shell\\Open\\command": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: placeOpenCommandPath,
                 type: "REG_DEFAULT",
             },
@@ -153,44 +155,30 @@ const getStudioPlaceRegistryData = (binaryPath) => {
 const getStudioFileExtensionsRegistryData = () => {
     return {
         "HKCU\\Software\\Classes\\.rbxl": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: "Roblox.Place",
                 type: "REG_DEFAULT",
             },
         },
         "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place\\ShellNew": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: "Roblox.Place",
                 type: "REG_DEFAULT",
             },
         },
         "HKCU\\Software\\Classes\\.rbxlx": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: "Roblox.Place",
                 type: "REG_DEFAULT",
             },
         },
         "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place\\ShellNew": {
-            REG_DEFAULT: {
+            DEFAULT_VALUE_NAME: {
                 value: "Roblox.Place",
                 type: "REG_DEFAULT",
             },
         },
     };
-};
-
-const getRegSZValueType = (valueType) => {
-    if (valueType !== "REG_DEFAULT") {
-        return valueType;
-    }
-    return "REG_SZ";
-};
-
-const getRegDefaultValueName = (valueName) => {
-    if (valueName !== "") {
-        return valueName;
-    }
-    return "REG_DEFAULT";
 };
 
 const getRegistryDataKeyPaths = (registryKeys, parentPath = "", result = []) => {
@@ -205,38 +193,66 @@ const getRegistryDataKeyPaths = (registryKeys, parentPath = "", result = []) => 
     return result;
 };
 
+const getItemValueType = (valueName, valueType) => {
+    if (valueName === "" || valueType === "REG_DEFAULT" || (valueName === "" && valueType === "REG_SZ")) {
+        return "REG_DEFAULT";
+    }
+    return valueType;
+};
+
+const getPutValueName = (valueName, valueType) => {
+    if (valueName === "" || valueType === "REG_DEFAULT" || (valueName === "" && valueType === "REG_SZ")) {
+        return "DEFAULT_VALUE_NAME";
+    }
+    return valueName;
+};
+
 /**
 Bug fixes
 I was unable to set empty strings as value names.
-If a valueName is set to "", it should be a REG_DEFAULT type.
+If a valueName is set to "", it should have a REG_DEFAULT as the type.
 
-fix: Use REG_DEFAULT as the type and choose whatever value name, it'll be set as empty.
+fix: Use REG_DEFAULT as the type and choose whatever value name, it'll be set as empty as an empty string.
 https://github.com/kessler/node-regedit/issues/124
 Error: expected to have groups of 4 arguments for each valueData that is written to the registry
 https://github.com/kessler/node-regedit/blob/master/README.md#note-about-setting-default-values
 */
 const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
-    const filteredValues = { ...valuesToPut };
+    const filteredValues = {};
     for (const keyPath in currentRegistryItems) {
         const item = currentRegistryItems[keyPath];
-        if (!item.exists) {
+        const itemValues = item.values;
+        if (!item.exists === 0) {
             continue;
         }
-        for (const itemValueName in item.values) {
-            const itemValue = item.values[itemValueName];
-            const putValue = valuesToPut[keyPath][getRegDefaultValueName(itemValueName)];
+        for (const itemValueName in itemValues) {
+            const itemValue = itemValues[itemValueName];
+            const itemValueType = getItemValueType(itemValueName, itemValue.type);
+            const putValueName = getPutValueName(itemValueName, itemValueType);
+            const putValue = valuesToPut[keyPath][putValueName];
             if (!putValue) {
-                break;
+                continue;
             }
-            const putValueType = getRegSZValueType(putValue.type);
-            if (putValue.value !== itemValue.value || putValueType !== itemValue.type) {
-                break;
+            const putValueType = putValue.type;
+            const putValueData = putValue.value;
+            if (putValueData !== itemValue.value || putValueType !== itemValueType) {
+                if (!filteredValues[keyPath]) {
+                    filteredValues[keyPath] = {};
+                }
+                /**
+                Setting empty strings as value names are not allowed.
+                Change the type to REG_DEFAULT and set any placeholder name as the value name instead.
+                */
+                filteredValues[keyPath][putValueName] = {
+                    value: putValueData,
+                    /**
+                    When setting a value name as an empty string, its type should be REG_DEFAULT.
+                    After that, any value names you attempt to set will automatically be an empty string.
+                    */
+                    type: putValueType,
+                };
+                continue;
             }
-            /**
-            The current key exists, currentValue's name, data and type are the same as the expected valueName, valueData and valueType
-            from the bootstrapper, delete this specific key object from the valuesToPut object, excluding the key from being updated.
-            */
-            delete filteredValues[keyPath];
         }
     }
     return filteredValues;
