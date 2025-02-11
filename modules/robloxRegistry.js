@@ -36,7 +36,7 @@ const registryData = {
 const getPlayerRegistryData = (binaryPath) => {
     const playerDefaultIconPath = binaryPath;
     const playerOpenCommandPath = `"${playerRunPath}" "%1"`;
-    const playerProtocolName = `URL:RobloxPlayerCLI Protocol`;
+    const playerProtocolName = `URL:RobloxPlayerCLIStrap Protocol`;
     return {
         "HKCU\\Software\\Classes\\roblox": {
             REG_DEFAULT: { value: playerProtocolName, type: "REG_DEFAULT" },
@@ -78,7 +78,7 @@ const getPlayerRegistryData = (binaryPath) => {
 const getStudioRegistryData = (binaryPath, selectedVersion) => {
     const studioDefaultIconPath = binaryPath;
     const studioOpenCommandPath = `"${studioRunPath}" %1`;
-    const studioProtocolName = `URL:RobloxStudioCLI Protocol`;
+    const studioProtocolName = `URL:RobloxStudioCLIStrap Protocol`;
     return {
         "HKCU\\Software\\Classes\\roblox-studio": {
             REG_DEFAULT: { value: studioProtocolName, type: "REG_DEFAULT" },
