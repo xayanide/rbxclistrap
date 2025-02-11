@@ -1,18 +1,6 @@
 const nodeFs = require("fs");
 const nodePath = require("path");
 const { colors } = require("./constants.js");
-const deleteOldLogs = require("./deleteOldLogs.js");
-
-const logFileISOTimestamp = new Date().toISOString().split(":").join("-");
-const logsPath = nodePath.join(__dirname, "..", "logs");
-try {
-    if (!nodeFs.existsSync(logsPath)) {
-        nodeFs.mkdirSync(logsPath, { recursive: true });
-    }
-} catch (dirErr) {
-    console.error(`Error creating logs directory: ${dirErr.message}\n${dirErr.stack}`);
-}
-deleteOldLogs(logsPath);
 
 const LOG_LEVELS = {
     info: `${colors.GREEN}INFO${colors.RESET}`,
@@ -20,6 +8,38 @@ const LOG_LEVELS = {
     error: `${colors.RED}ERROR${colors.RESET}`,
     debug: `${colors.CYAN}DEBUG${colors.RESET}`,
 };
+
+const logFileISOTimestamp = new Date().toISOString().split(":").join("-");
+const logsPath = nodePath.join(__dirname, "..", "logs");
+
+try {
+    if (nodeFs.existsSync(logsPath)) {
+        return;
+    }
+    nodeFs.mkdirSync(logsPath, { recursive: true });
+} catch (dirErr) {
+    console.error(`Error creating logs directory: ${dirErr.message}\n${dirErr.stack}`);
+}
+
+const deleteOldLogs = (path) => {
+    const logFiles = nodeFs.readdirSync(path);
+    const currentDate = new Date();
+    // 3 days in milliseconds
+    const logExpireTime = 3 * 24 * 60 * 60 * 1000;
+    for (let i = 0; i < logFiles.length; i++) {
+        const logFile = logFiles[i];
+        const filePath = nodePath.join(path, logFile);
+        const fileStat = nodeFs.statSync(filePath);
+        const fileAgeDiffMillis = currentDate - fileStat.mtime;
+        if (fileAgeDiffMillis < logExpireTime) {
+            continue;
+        }
+        nodeFs.unlinkSync(filePath);
+        console.log(`Deleted old log file: ${logFile}`);
+    }
+};
+
+deleteOldLogs(logsPath);
 
 const logger = {
     binaryType: "Unknown",
