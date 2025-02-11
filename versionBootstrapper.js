@@ -37,7 +37,7 @@ const {
     getStudioRegistryValues,
     getStudioPlaceRegistryValues,
     getStudioFileExtensionsRegistryValues,
-    setupRobloxRegistryValues,
+    applyRegistryValues,
 } = require("./modules/robloxRegistry.js");
 const {
     folderMappings,
@@ -446,11 +446,11 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
     }
     await installEdgeWebView(selectedVersionPath);
     if (isPlayerRunnerType(runnerType)) {
-        await setupRobloxRegistryValues(getPlayerRegistryValues(binaryPath));
+        await applyRegistryValues(getPlayerRegistryValues(binaryPath));
     } else if (isStudioRunnerType(runnerType)) {
-        await setupRobloxRegistryValues(getStudioRegistryValues(binaryPath, selectedVersion));
-        await setupRobloxRegistryValues(getStudioPlaceRegistryValues(binaryPath));
-        await setupRobloxRegistryValues(getStudioFileExtensionsRegistryValues());
+        await applyRegistryValues(getStudioRegistryValues(binaryPath, selectedVersion));
+        await applyRegistryValues(getStudioPlaceRegistryValues(binaryPath));
+        await applyRegistryValues(getStudioFileExtensionsRegistryValues());
     }
     applyFflags(selectedVersionPath);
     let launchArgs = "";
