@@ -99,7 +99,7 @@ const applyFflags = (clientSettingsPath) => {
         if (!nodeFs.existsSync(clientSettingsFolderPath)) {
             nodeFs.mkdirSync(clientSettingsFolderPath, { recursive: true });
         }
-        logger.info(`Applying fflags.json...${colors.RESET}`);
+        logger.info(`Applying fflags.json...`);
         const clientAppSettingsJsonPath = nodePath.join(clientSettingsFolderPath, "ClientAppSettings.json");
         let existingSettings = "";
         if (nodeFs.existsSync(clientAppSettingsJsonPath)) {
@@ -107,13 +107,13 @@ const applyFflags = (clientSettingsPath) => {
         }
         const jsonFflags = JSON.stringify(runnerFflags, null, 2);
         if (existingSettings === jsonFflags) {
-            logger.info(`FFlags already applied. No changes made.${colors.RESET}`);
+            logger.info(`FFlags already applied. No changes made.`);
         } else {
             nodeFs.writeFileSync(clientAppSettingsJsonPath, jsonFflags);
-            logger.info(`Successfully applied fflags.json to ${clientAppSettingsJsonPath}${colors.RESET}`);
+            logger.info(`Successfully applied fflags.json to ${clientAppSettingsJsonPath}`);
         }
     } catch (fflagsErr) {
-        logger.error(`Error while verifying/applying fflags.json:\n${fflagsErr.message}\n${fflagsErr.stack}${colors.RESET}`);
+        logger.error(`Error while verifying/applying fflags.json:\n${fflagsErr.message}\n${fflagsErr.stack}`);
     }
 };
 
@@ -274,7 +274,7 @@ See: https://choosealicense.com/licenses/gpl-3.0`;
 const downloadLatestVersion = async () => {
     logger.info("Fetching the latest version from channel: Live");
     const latestVersion = await fetchLatestVersion(runnerType);
-    logger.info(`Successfully fetched the latest version from channel: Live!${colors.RESET}`);
+    logger.info(`Successfully fetched the latest version from channel: Live!`);
     logger.info(`Latest version: ${latestVersion}`);
     await downloadVersion(latestVersion);
 };
@@ -382,21 +382,21 @@ const launchAutoUpdater = async (binaryType) => {
     if (isPlayerRunnerType(runnerType)) {
         await attemptKillProcesses(runnerProcesses);
     }
-    logger.info(`Checking for ${runnerType} updates...${colors.RESET}`);
+    logger.info(`Checking for ${runnerType} updates...`);
     logger.info("Fetching the latest version of from channel: Live");
     const latestVersion = await fetchLatestVersion(runnerType);
-    logger.info(`Successfully fetched the latest version!${colors.RESET}`);
+    logger.info(`Successfully fetched the latest version!`);
     const versionsPath = nodePath.join(__dirname, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
     const versions = getExistingVersions(versionsPath);
     if (versions.length === 0) {
-        logger.warn(`No installed version found!${colors.RESET}`);
+        logger.warn(`No installed version found!`);
         await downloadVersion(latestVersion);
         return latestVersion;
     }
-    console.log(`${colors.MAGENTA}Available versions:${colors.RESET}`);
+    console.log(`${colors.MAGENTA}Available versions:`);
     for (let i = 0; i < versions.length; i++) {
         const version = versions[i];
-        console.log(`${colors.CYAN}${i + 1}. ${version}${colors.RESET}`);
+        console.log(`${colors.CYAN}${i + 1}. ${version}`);
     }
     let selectedVersion = "";
     if (versions.length === 1) {
@@ -413,19 +413,19 @@ const launchAutoUpdater = async (binaryType) => {
     logger.info(`Current version: ${selectedVersion}`);
     logger.info(`Latest version: ${latestVersion}`);
     if (latestVersion === "") {
-        logger.info(`Unable to determine the latest version.${colors.RESET}`);
+        logger.info(`Unable to determine the latest version.`);
         return selectedVersion;
     }
     if (selectedVersion === latestVersion) {
-        logger.info(`You're already on the latest version!${colors.RESET}`);
+        logger.info(`You're already on the latest version!`);
         return selectedVersion;
     }
-    logger.info(`A new version is available!${colors.RESET}`);
+    logger.info(`A new version is available!`);
     const existingVersionPath = nodePath.join(versionsPath, selectedVersion);
     try {
-        logger.info(`Deleting existing version folder: ${selectedVersion}...${colors.RESET}`);
+        logger.info(`Deleting existing version folder: ${selectedVersion}...`);
         deleteFolderRecursive(existingVersionPath);
-        logger.info(`Successfully deleted existing version folder: ${selectedVersion}!${colors.RESET}`);
+        logger.info(`Successfully deleted existing version folder: ${selectedVersion}!`);
     } catch (updateErr) {
         logger.error(`async launchAutoUpdater():\n${updateErr.message}\n${updateErr.stack}`);
         nodeProcess.exit(1);
