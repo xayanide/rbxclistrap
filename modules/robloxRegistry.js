@@ -231,11 +231,16 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
         if (!item.exists === 0) {
             continue;
         }
+        const valuesToPutValues = valuesToPut[keyPath];
+        if (Object.keys(itemValues).length === 0) {
+            filteredValues[keyPath] = valuesToPutValues;
+            continue;
+        }
         for (const itemValueName in itemValues) {
             const itemValue = itemValues[itemValueName];
             const itemValueType = getItemValueType(itemValueName, itemValue.type);
             const putValueName = getPutValueName(itemValueName, itemValueType);
-            const putValue = valuesToPut[keyPath][putValueName];
+            const putValue = valuesToPutValues[putValueName];
             if (!putValue) {
                 continue;
             }
@@ -277,6 +282,9 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
     const currentRegistryItems = options.currentRegistryItems;
     if (typeof currentRegistryItems !== "object" || currentRegistryItems === null || Array.isArray(currentRegistryItems)) {
         throw new Error("Invalid values provided for property 'currentRegistryItems'. Must be an object.");
+    }
+    if (Object.keys(currentRegistryItems).length === 0) {
+        return;
     }
     const filteredValuesToPut = filterRegistryValues(valuesToPut, currentRegistryItems);
     if (Object.keys(filteredValuesToPut).length === 0) {
