@@ -68,18 +68,19 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
       Type 5 and press enter key.
 
 > [!TIP]
-> Once you have ran either application at least once. Registry items related to protocols will be set. That allows you to run  RobloxPlayer and RobloxStudio from the browser and other sources through native Roblox deeplinks. The bootstrapper will be executed first before the binary.
+> Once you have ran either application at least once. Registry items related to protocols will be set. That allows you to run  RobloxPlayer and RobloxStudio from the browser and other sources through native Roblox launch flags, arguments and URIs (deeplinks). The bootstrapper will be executed first before the binary.
 
 ## FAQ
 
 #### How can I uninstall anything associated with rbxclistrap?
 
-Doing these will ensure complete removal of any registry entries associated with rbxclistrap from the system.
+Doing these will ensure complete removal of any set registry entries associated with rbxclistrap from the system.
 
-1. Navigate to registry-tools. Run the following files in any order:
+1. Navigate to the directory where `rbxclistrap` is installed, then open the `registry-tools` directory. Run the following files in any order:
    - `unregister-player-protocols.reg`
    - `unregister-studio-protocols.reg`
-2. Delete where you placed the `rbxclistrap` folder as a whole to complete the uninstallation.
+
+2. Delete the `rbxclistrap` directory to complete the uninstallation. This should also delete all associated `PlayerVersions` and `StudioVersions` stored within the directory.
 
 > [!WARNING]
 > The uninstallation is only for the bootstrapper. However, any user specific data made by Roblox itself will not be removed. Users should manually navigate through those files to completely remove Roblox because automating that process can result in loss of data so it was not implemented.
@@ -90,7 +91,9 @@ Yes, just select the "2. Download the last LIVE version (downgrade)" option in t
 
 #### Can this be used to launch Roblox games from [roblox.com](https://roblox.com)?
 
-Yes, there is protocol support for launching games directly from the website. Please note that rbxclistrap is not intended to replace the Roblox launcher or Bloxstrap.
+Yes, there is protocol support for launching games directly from the website.
+> [!NOTE]
+> rbxclistrap is not intended to replace the Roblox launcher or Bloxstrap.
 
 #### How does this work?
 
