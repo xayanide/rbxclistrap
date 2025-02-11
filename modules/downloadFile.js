@@ -18,7 +18,6 @@ const downloadFile = async (url, filePath, progressBar) => {
             });
             data.on("end", () => {
                 progressBar.stop();
-                logger.info(`Successfully downloaded ${filePath}!`);
                 resolve();
             });
             writeStream.on("error", (writeErr) => {
