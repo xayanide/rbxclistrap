@@ -9,6 +9,7 @@ const deleteFolderRecursive = (folderPath) => {
         const currentPath = nodePath.join(folderPath, file);
         if (!nodeFs.lstatSync(currentPath).isDirectory()) {
             nodeFs.unlinkSync(currentPath);
+            return;
         }
         deleteFolderRecursive(currentPath);
     });
