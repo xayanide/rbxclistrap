@@ -11,3 +11,6 @@ version-*
 # Bootstrapper logs
 logs
 *.log
+
+# Tests
+test
