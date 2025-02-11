@@ -33,9 +33,9 @@ const registryData = {
 };
 */
 
-const EMPTY_VALUE_DATA = { value: "DEFAULT_VALUE_DATA", type: "REG_DEFAULT" };
+const UNSET_VALUE = { value: "DEFAULT_VALUE_DATA", type: "REG_DEFAULT" };
 const DEFAULT_VALUE = {
-    DEFAULT_VALUE_NAME: EMPTY_VALUE_DATA,
+    DEFAULT_VALUE_NAME: UNSET_VALUE,
 };
 
 const getPlayerRegistryData = (binaryPath) => {
