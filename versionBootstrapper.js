@@ -314,9 +314,14 @@ const downloadVersion = async (version) => {
         nodeProcess.exit(0);
     }
     if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingFolders) {
-        logger.info(`Deleting existing folder: ${dumpDir}`);
-        deleteFolderRecursive(dumpDir);
-        logger.info(`Successfully deleted existing folder: ${dumpDir}`);
+        try {
+            logger.info(`Deleting existing folder: ${dumpDir}`);
+            deleteFolderRecursive(dumpDir);
+            logger.info(`Successfully deleted existing folder: ${dumpDir}`);
+        } catch (downloadErr) {
+            logger.error(`async downloadVersion():\n${downloadErr.message}\n${downloadErr.stack}`);
+            nodeProcess.exit(1);
+        }
     }
     nodeFs.mkdirSync(dumpDir, { recursive: true });
     let cdnBaseUrl = await getRobloxCDNBaseUrl();
@@ -421,15 +426,6 @@ const launchAutoUpdater = async (binaryType) => {
         return selectedVersion;
     }
     logger.info(`A new version is available!`);
-    const existingVersionPath = nodePath.join(versionsPath, selectedVersion);
-    try {
-        logger.info(`Deleting existing version folder: ${selectedVersion}...`);
-        deleteFolderRecursive(existingVersionPath);
-        logger.info(`Successfully deleted existing version folder: ${selectedVersion}!`);
-    } catch (updateErr) {
-        logger.error(`async launchAutoUpdater():\n${updateErr.message}\n${updateErr.stack}`);
-        nodeProcess.exit(1);
-    }
     await downloadVersion(latestVersion);
     return latestVersion;
 };
