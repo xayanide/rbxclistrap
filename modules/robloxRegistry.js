@@ -17,25 +17,25 @@ Each folder can hold multiple named values. Every named value has two properties
 Setting a value to type REG_DEFAULT makes its name insignificant and
 becomes equivalent to a value with a blank name '' (Named as '(Default)' in the Registy.).
 
-const registryData = {
-    keyPath1: {
+const registryKeys = {
+    "KEY\\PATH\\1": {
         valueName1: {
-            valueData: "",
-            valueType: "",
+            valueData: "Data1",
+            valueType: "Type1",
         },
-        valueName2: {
+        "": {
             valueData: "",
-            valueType: "",
+            valueType: "Type2",
         },
     },
-    keyPath2: {
+    "KEY\\PATH\\2": {
         valueName1: {
-            valueData: "",
-            valueType: "",
+            valueData: "Data1",
+            valueType: "Type1",
         },
-        valueName2: {
+        "": {
             valueData: "",
-            valueType: "",
+            valueType: "Type2",
         },
     },
 };
