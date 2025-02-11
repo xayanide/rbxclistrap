@@ -13,10 +13,9 @@ const logFileISOTimestamp = new Date().toISOString().split(":").join("-");
 const logsPath = nodePath.join(__dirname, "..", "logs");
 
 try {
-    if (nodeFs.existsSync(logsPath)) {
-        return;
+    if (!nodeFs.existsSync(logsPath)) {
+        nodeFs.mkdirSync(logsPath, { recursive: true });
     }
-    nodeFs.mkdirSync(logsPath, { recursive: true });
 } catch (dirErr) {
     console.error(`Error creating logs directory: ${dirErr.message}\n${dirErr.stack}`);
 }
