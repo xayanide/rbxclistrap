@@ -26,7 +26,7 @@ const logger = require("./modules/logger.js");
 const downloadFile = require("./modules/downloadFile.js");
 const verifyChecksum = require("./modules/verifyChecksum.js");
 const extractZip = require("./modules/extractZip.js");
-const fetchVersion = require("./modules/fetchVersion.js");
+const fetchLatestVersion = require("./modules/fetchLatestVersion.js");
 const fetchPreviousVersion = require("./modules/fetchPreviousVersion.js");
 const { killProcesses, isProcessesRunning } = require("./modules/processes.js");
 const { deleteFolderRecursive, saveJson, loadJson } = require("./modules/fileUtils.js");
@@ -273,7 +273,7 @@ See: https://choosealicense.com/licenses/gpl-3.0`;
 
 const downloadLatestVersion = async () => {
     logger.info("Fetching the latest version from channel: Live");
-    const latestVersion = await fetchVersion(runnerType);
+    const latestVersion = await fetchLatestVersion(runnerType);
     logger.info(`Successfully fetched the latest version from channel: Live!${colors.RESET}`);
     logger.info(`Latest version: ${latestVersion}`);
     await downloadVersion(latestVersion);
@@ -384,7 +384,7 @@ const launchAutoUpdater = async (binaryType) => {
     }
     logger.info(`Checking for ${runnerType} updates...${colors.RESET}`);
     logger.info("Fetching the latest version of from channel: Live");
-    const latestVersion = await fetchVersion(runnerType);
+    const latestVersion = await fetchLatestVersion(runnerType);
     logger.info(`Successfully fetched the latest version!${colors.RESET}`);
     const versionsPath = nodePath.join(__dirname, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
     const versions = getExistingVersions(versionsPath);
