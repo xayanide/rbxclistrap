@@ -22,7 +22,7 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
 
 ### Running Application
 > [!NOTE]
-> Navigate to the directory of rbxclistrap then run either type of applications at least once to set the registry keys required to support URIs and protocols.
+> Navigate to the directory of rbxclistrap then run either type of applications at least once for the bootstrapper to set the registry keys required to support deeplinks.
 
 - **Running RobloxPlayer**
     > Choose among the methods to run the RobloxPlayer.
@@ -68,7 +68,7 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
       Type 5 and press enter key.
 
 > [!TIP]
-> Once you have ran either application at least once. Registry items related to protocols will be set. That allows you to run  RobloxPlayer and RobloxStudio from the browser and other sources through native Roblox launch flags, arguments and URIs (deeplinks). The bootstrapper will be executed first before the binary.
+> Once you have run either application at least once, registry keys related to the application will be set. That allows you to run RobloxPlayer and RobloxStudio from the browser and other sources through native Roblox launch flags, arguments and URIs (deeplinks). The bootstrapper will be executed first before the binary.
 
 ## FAQ
 
