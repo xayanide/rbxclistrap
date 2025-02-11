@@ -117,6 +117,54 @@ const applyFflags = (clientSettingsPath) => {
     }
 };
 
+const showLicenseMenu = async () => {
+    console.clear();
+    const licenseInfo = `rbxclistrap - A CLI alternative Roblox Player and Roblox Studio bootstrapper
+    Copyright (C) 2025 xayanide
+    
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    GNU General Public License v3.0
+    
+    Permissions:
+    - Commercial use
+    - Modification
+    - Distribution
+    - Patent use
+    - Private use
+                
+    Limitations:
+    - Liability
+    - Warranty
+                
+    Conditions:
+    - License and copyright notice
+    
+    See: https://choosealicense.com/licenses/gpl-3.0`;
+    console.log(licenseInfo);
+    console.log(`${colors.RED}1. Back to main menu${colors.RESET}`);
+    const answer = await createPrompt("Select an option: ");
+    switch (answer) {
+        case "1":
+            await showMainMenu(runnerType);
+            break;
+        default:
+            console.log(`${colors.RED}Invalid option selected. Please try again.${colors.RESET}`);
+            await showLicenseMenu();
+            break;
+    }
+};
+
 const showSettingsMenu = async () => {
     console.clear();
     console.log(`${colors.MAGENTA}Settings Menu${colors.RESET}`);
@@ -132,21 +180,21 @@ const showSettingsMenu = async () => {
             console.log(`${colors.BLUE}Delete existing folders set to: ${runnerConfig.deleteExistingFolders}${colors.RESET}`);
             saveConfig();
             await createPrompt("Press Enter to continue...");
-            showSettingsMenu();
+            await showSettingsMenu();
             break;
         case "2":
             runnerConfig.forceUpdate = !runnerConfig.forceUpdate;
             console.log(`${colors.BLUE}Force update set to: ${runnerConfig.forceUpdate}${colors.RESET}`);
             saveConfig();
             await createPrompt("Press Enter to continue...");
-            showSettingsMenu();
+            await showSettingsMenu();
             break;
         case "3":
-            showMainMenu(runnerType);
+            await showMainMenu(runnerType);
             break;
         default:
             console.log(`${colors.RED}Invalid option selected. Please try again.${colors.RESET}`);
-            showSettingsMenu();
+            await showSettingsMenu();
             break;
     }
 };
@@ -221,43 +269,10 @@ ${colors.RED}9. Exit${colors.RESET}
             console.clear();
             await showSettingsMenu();
             break;
-        case "8": {
+        case "8":
             console.clear();
-            const licenseInfo = `rbxclistrap - A CLI alternative Roblox Player and Roblox Studio bootstrapper
-Copyright (C) 2025 xayanide
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-GNU General Public License v3.0
-
-Permissions:
-- Commercial use
-- Modification
-- Distribution
-- Patent use
-- Private use
-            
-Limitations:
-- Liability
-- Warranty
-            
-Conditions:
-- License and copyright notice
-
-See: https://choosealicense.com/licenses/gpl-3.0`;
-            console.log(licenseInfo);
+            await showLicenseMenu();
             break;
-        }
         case "9":
             console.clear();
             console.log(`${colors.BLUE}Exiting...${colors.RESET}`);
@@ -266,7 +281,7 @@ See: https://choosealicense.com/licenses/gpl-3.0`;
         default:
             console.clear();
             console.log(`${colors.RED}Invalid option selected. Please try again.${colors.RESET}`);
-            showMainMenu(runnerType);
+            await showMainMenu(runnerType);
             break;
     }
 };
