@@ -33,11 +33,11 @@ const { deleteFolderRecursive, saveJson, loadJson } = require("./modules/fileUti
 const { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } = require("./modules/robloxUrls.js");
 const { installEdgeWebView } = require("./modules/webview.js");
 const {
-    getPlayerRegistryValues,
-    getStudioRegistryValues,
-    getStudioPlaceRegistryValues,
-    getStudioFileExtensionsRegistryValues,
-    applyRegistryValues,
+    getPlayerRegistryData,
+    getStudioRegistryData,
+    getStudioPlaceRegistryData,
+    getStudioFileExtensionsRegistryData,
+    setRegistryData,
 } = require("./modules/robloxRegistry.js");
 const {
     folderMappings,
@@ -446,11 +446,11 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
     }
     await installEdgeWebView(selectedVersionPath);
     if (isPlayerRunnerType(runnerType)) {
-        await applyRegistryValues(getPlayerRegistryValues(binaryPath));
+        await setRegistryData(getPlayerRegistryData(binaryPath));
     } else if (isStudioRunnerType(runnerType)) {
-        await applyRegistryValues(getStudioRegistryValues(binaryPath, selectedVersion));
-        await applyRegistryValues(getStudioPlaceRegistryValues(binaryPath));
-        await applyRegistryValues(getStudioFileExtensionsRegistryValues());
+        await setRegistryData(getStudioRegistryData(binaryPath, selectedVersion));
+        await setRegistryData(getStudioPlaceRegistryData(binaryPath));
+        await setRegistryData(getStudioFileExtensionsRegistryData());
     }
     applyFflags(selectedVersionPath);
     let launchArgs = "";

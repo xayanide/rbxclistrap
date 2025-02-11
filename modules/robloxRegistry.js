@@ -6,10 +6,10 @@ const playerRunPath = nodePath.join(__dirname, "..", "run-player.bat");
 const studioRunPath = nodePath.join(__dirname, "..", "run-studio.bat");
 
 /**
-registryKeys Object Structure Example
-Used as reference.
+Registry Data Structure Example
+For reference.
 
-const registryKeys = {
+const registryData = {
     keyPath1: {
         valueName1: {
             valueData: "",
@@ -33,31 +33,7 @@ const registryKeys = {
 };
 */
 
-const getKeyPathsWithValues = (registryKeys, parentPath = "", result = []) => {
-    for (const keyPath in registryKeys) {
-        const fullPath = parentPath ? `${parentPath}\\${keyPath}` : keyPath;
-        result.push(fullPath);
-        const keyPathValues = registryKeys[keyPath];
-        if (typeof keyPathValues === "object" && !("value" in keyPathValues)) {
-            getKeyPaths(keyPathValues, fullPath, result);
-        }
-    }
-    return result;
-};
-
-const getKeyPaths = (registryKeys, parentPath = "", result = []) => {
-    for (const keyPath in registryKeys) {
-        const keyPathValues = registryKeys[keyPath];
-        if (typeof keyPathValues === "object" && !("value" in keyPathValues)) {
-            const fullPath = parentPath ? `${parentPath}\\${keyPath}` : keyPath;
-            result.push(fullPath);
-            getKeyPaths(keyPathValues, fullPath, result);
-        }
-    }
-    return result;
-};
-
-const getPlayerRegistryValues = (binaryPath) => {
+const getPlayerRegistryData = (binaryPath) => {
     const playerDefaultIconPath = binaryPath;
     const playerOpenCommandPath = `"${playerRunPath}" "%1"`;
     const playerProtocolName = `URL:RobloxPlayerCLI Protocol`;
@@ -99,7 +75,7 @@ const getPlayerRegistryValues = (binaryPath) => {
     };
 };
 
-const getStudioRegistryValues = (binaryPath, selectedVersion) => {
+const getStudioRegistryData = (binaryPath, selectedVersion) => {
     const studioDefaultIconPath = binaryPath;
     const studioOpenCommandPath = `"${studioRunPath}" %1`;
     const studioProtocolName = `URL:RobloxStudioCLI Protocol`;
@@ -143,7 +119,7 @@ const getStudioRegistryValues = (binaryPath, selectedVersion) => {
     };
 };
 
-const getStudioPlaceRegistryValues = (binaryPath) => {
+const getStudioPlaceRegistryData = (binaryPath) => {
     const placeDefaultIconPath = `${binaryPath},0`;
     const placeOpenCommandPath = `"${studioRunPath}" "%1"`;
     return {
@@ -174,7 +150,7 @@ const getStudioPlaceRegistryValues = (binaryPath) => {
     };
 };
 
-const getStudioFileExtensionsRegistryValues = () => {
+const getStudioFileExtensionsRegistryData = () => {
     return {
         "HKCU\\Software\\Classes\\.rbxl": {
             REG_DEFAULT: {
@@ -217,6 +193,18 @@ const getRegDefaultValueName = (valueName) => {
     return "REG_DEFAULT";
 };
 
+const getRegistryDataKeyPaths = (registryKeys, parentPath = "", result = []) => {
+    for (const keyPath in registryKeys) {
+        const keyPathValues = registryKeys[keyPath];
+        if (typeof keyPathValues === "object" && !("value" in keyPathValues)) {
+            const fullPath = parentPath ? `${parentPath}\\${keyPath}` : keyPath;
+            result.push(fullPath);
+            getRegistryDataKeyPaths(keyPathValues, fullPath, result);
+        }
+    }
+    return result;
+};
+
 /**
 Bug fixes
 I was unable to set empty strings as value names.
@@ -254,7 +242,7 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
     return filteredValues;
 };
 
-const putRobloxRegistryValues = async (valuesToPut, options = { overwrite: true, currentRegistryItems: {} }) => {
+const updateRegistryValues = async (valuesToPut, options = { overwrite: true, currentRegistryItems: {} }) => {
     const isOverwrite = options.overwrite;
     if (typeof isOverwrite !== "boolean") {
         throw new Error("Invalid values provided for property 'overwrite'. Must be a boolean.");
@@ -277,17 +265,17 @@ const putRobloxRegistryValues = async (valuesToPut, options = { overwrite: true,
     await putRegistryValues(filteredValuesToPut);
 };
 
-const applyRegistryValues = async (valuesToPut) => {
-    const keyPaths = getKeyPaths(valuesToPut);
+const setRegistryData = async (valuesToPut) => {
+    const keyPaths = getRegistryDataKeyPaths(valuesToPut);
     const registryItems = await listRegistryItems(keyPaths);
     await createRegistryKeys(registryItems);
-    await putRobloxRegistryValues(valuesToPut, { overwrite: false, currentRegistryItems: registryItems });
+    await updateRegistryValues(valuesToPut, { overwrite: false, currentRegistryItems: registryItems });
 };
 
 module.exports = {
-    getPlayerRegistryValues,
-    getStudioRegistryValues,
-    getStudioPlaceRegistryValues,
-    getStudioFileExtensionsRegistryValues,
-    applyRegistryValues,
+    getPlayerRegistryData,
+    getStudioRegistryData,
+    getStudioPlaceRegistryData,
+    getStudioFileExtensionsRegistryData,
+    setRegistryData,
 };
