@@ -411,11 +411,11 @@ const launchAutoUpdater = async (binaryType) => {
         selectedVersion = versions[versionIndex];
     }
     logger.info(`Current version: ${selectedVersion}`);
-    logger.info(`Latest version: ${latestVersion}`);
     if (latestVersion === "") {
         logger.info(`Unable to determine the latest version.`);
         return selectedVersion;
     }
+    logger.info(`Latest version: ${latestVersion}`);
     if (selectedVersion === latestVersion) {
         logger.info(`You're already on the latest version!`);
         return selectedVersion;
