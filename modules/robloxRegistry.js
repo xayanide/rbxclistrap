@@ -9,6 +9,14 @@ const studioRunPath = nodePath.join(__dirname, "..", "run-studio.bat");
 Registry Data Structure Example
 For reference.
 
+Inside registry data can have multiple different folders (Key or KeyPath).
+Each folder can hold multiple named values. Every named value has two properties:
+- valueData (value)
+- valueType (type)
+
+Setting a value to type REG_DEFAULT makes its name insignificant and
+becomes equivalent to a value with a blank name '' (Named as '(Default)' in the Registy.).
+
 const registryData = {
     keyPath1: {
         valueName1: {
