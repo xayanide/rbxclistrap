@@ -379,7 +379,7 @@ const launchAutoUpdater = async (binaryType) => {
     }
     runnerType = binaryType;
     const runnerProcesses = isPlayerRunnerType(runnerType) ? PLAYER_PROCESSES : STUDIO_PROCESSES;
-    if (binaryType === BINARY_TYPES.PLAYER) {
+    if (isPlayerRunnerType(runnerType)) {
         await attemptKillProcesses(runnerProcesses);
     }
     logger.info(`Checking for ${runnerType} updates...${colors.RESET}`);
