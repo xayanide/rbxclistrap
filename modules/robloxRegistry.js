@@ -248,7 +248,7 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
         throw new Error("Invalid values provided for property 'overwrite'. Must be a boolean.");
     }
     if (isOverwrite) {
-        logger.info("Overwriting registry values...");
+        logger.info("Force updating registry values...");
         await putRegistryValues(valuesToPut);
         return;
     }
@@ -258,7 +258,7 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
     }
     const filteredValuesToPut = filterRegistryValues(valuesToPut, currentRegistryItems);
     if (Object.keys(filteredValuesToPut).length === 0) {
-        logger.info("No missing or different registry values to update.");
+        logger.info("No registry values to update.");
         return;
     }
     logger.info("Updating registry values...");
