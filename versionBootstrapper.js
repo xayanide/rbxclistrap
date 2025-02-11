@@ -68,6 +68,13 @@ const loadFflags = () => {
     runnerFflags = loadJson(FFLAGS_FILE_PATH, DEFAULT_FFLAGS);
 };
 
+const getExistingVersions = (existingVersionsPath) => {
+    if (!nodeFs.existsSync(existingVersionsPath)) {
+        nodeFs.mkdirSync(existingVersionsPath, { recursive: true });
+    }
+    return nodeFs.readdirSync(existingVersionsPath).filter((f) => f.startsWith("version-"));
+};
+
 const attemptKillProcesses = async (processes) => {
     logger.info(`Checking for processes...`);
     if (!isProcessesRunning(processes)) {
@@ -108,74 +115,6 @@ const applyFflags = (clientSettingsPath) => {
     } catch (fflagsErr) {
         logger.error(`Error while verifying/applying fflags.json:\n${fflagsErr.message}\n${fflagsErr.stack}${colors.RESET}`);
     }
-};
-
-const getExistingVersions = (existingVersionsPath) => {
-    if (!nodeFs.existsSync(existingVersionsPath)) {
-        nodeFs.mkdirSync(existingVersionsPath, { recursive: true });
-    }
-    return nodeFs.readdirSync(existingVersionsPath).filter((f) => f.startsWith("version-"));
-};
-
-const launchAutoUpdater = async (binaryType) => {
-    if (!binaryType) {
-        throw new Error("Unknown binary type. Must be WindowsPlayer or WindowsStudio64.");
-    }
-    runnerType = binaryType;
-    const runnerProcesses = isPlayerRunnerType(runnerType) ? PLAYER_PROCESSES : STUDIO_PROCESSES;
-    if (binaryType === BINARY_TYPES.PLAYER) {
-        await attemptKillProcesses(runnerProcesses);
-    }
-    logger.info(`Checking for ${runnerType} updates...${colors.RESET}`);
-    logger.info("Fetching the latest version of from channel: Live");
-    const latestVersion = await fetchVersion(runnerType);
-    logger.info(`Successfully fetched the latest version!${colors.RESET}`);
-    const versionsPath = nodePath.join(__dirname, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
-    const versions = getExistingVersions(versionsPath);
-    if (versions.length === 0) {
-        logger.warn(`No installed version found!${colors.RESET}`);
-        await downloadVersion(latestVersion);
-        return latestVersion;
-    }
-    console.log(`${colors.MAGENTA}Available versions:${colors.RESET}`);
-    for (let i = 0; i < versions.length; i++) {
-        const robloxPlayerVersion = versions[i];
-        console.log(`${colors.CYAN}${i + 1}. ${robloxPlayerVersion}${colors.RESET}`);
-    }
-    let selectedVersion = "";
-    if (versions.length === 1) {
-        selectedVersion = versions[0];
-        logger.info(`Skipping prompt. Only one version found: ${selectedVersion}`);
-    } else {
-        const answer = await createPrompt("Select a version (1/2/3...): ");
-        const versionIndex = parseInt(answer) - 1;
-        if (versionIndex < 0 || versionIndex >= versions.length) {
-            throw new Error("Invalid version selected.");
-        }
-        selectedVersion = versions[versionIndex];
-    }
-    logger.info(`Current version: ${selectedVersion}`);
-    logger.info(`Latest version: ${latestVersion}`);
-    if (latestVersion === "") {
-        logger.info(`Unable to determine the latest version.${colors.RESET}`);
-        return selectedVersion;
-    }
-    if (selectedVersion === latestVersion) {
-        logger.info(`You're already on the latest version!${colors.RESET}`);
-        return selectedVersion;
-    }
-    logger.info(`A new version is available!${colors.RESET}`);
-    const existingVersionPath = nodePath.join(versionsPath, selectedVersion);
-    try {
-        logger.info(`Deleting existing version folder: ${selectedVersion}...${colors.RESET}`);
-        deleteFolderRecursive(existingVersionPath);
-        logger.info(`Successfully deleted existing version folder: ${selectedVersion}!${colors.RESET}`);
-    } catch (updateErr) {
-        logger.error(`async launchAutoUpdater():\n${updateErr.message}\n${updateErr.stack}`);
-        nodeProcess.exit(1);
-    }
-    await downloadVersion(latestVersion);
-    return latestVersion;
 };
 
 const showSettingsMenu = async () => {
@@ -432,6 +371,67 @@ const downloadVersion = async (version) => {
     logger.info(`Creating AppSettings.xml...`);
     nodeFs.writeFileSync(`${dumpDir}/AppSettings.xml`, AppSettings);
     logger.info(`Successfully created AppSettings.xml at root.`);
+};
+
+const launchAutoUpdater = async (binaryType) => {
+    if (!binaryType) {
+        throw new Error("Unknown binary type. Must be WindowsPlayer or WindowsStudio64.");
+    }
+    runnerType = binaryType;
+    const runnerProcesses = isPlayerRunnerType(runnerType) ? PLAYER_PROCESSES : STUDIO_PROCESSES;
+    if (binaryType === BINARY_TYPES.PLAYER) {
+        await attemptKillProcesses(runnerProcesses);
+    }
+    logger.info(`Checking for ${runnerType} updates...${colors.RESET}`);
+    logger.info("Fetching the latest version of from channel: Live");
+    const latestVersion = await fetchVersion(runnerType);
+    logger.info(`Successfully fetched the latest version!${colors.RESET}`);
+    const versionsPath = nodePath.join(__dirname, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
+    const versions = getExistingVersions(versionsPath);
+    if (versions.length === 0) {
+        logger.warn(`No installed version found!${colors.RESET}`);
+        await downloadVersion(latestVersion);
+        return latestVersion;
+    }
+    console.log(`${colors.MAGENTA}Available versions:${colors.RESET}`);
+    for (let i = 0; i < versions.length; i++) {
+        const robloxPlayerVersion = versions[i];
+        console.log(`${colors.CYAN}${i + 1}. ${robloxPlayerVersion}${colors.RESET}`);
+    }
+    let selectedVersion = "";
+    if (versions.length === 1) {
+        selectedVersion = versions[0];
+        logger.info(`Skipping prompt. Only one version found: ${selectedVersion}`);
+    } else {
+        const answer = await createPrompt("Select a version (1/2/3...): ");
+        const versionIndex = parseInt(answer) - 1;
+        if (versionIndex < 0 || versionIndex >= versions.length) {
+            throw new Error("Invalid version selected.");
+        }
+        selectedVersion = versions[versionIndex];
+    }
+    logger.info(`Current version: ${selectedVersion}`);
+    logger.info(`Latest version: ${latestVersion}`);
+    if (latestVersion === "") {
+        logger.info(`Unable to determine the latest version.${colors.RESET}`);
+        return selectedVersion;
+    }
+    if (selectedVersion === latestVersion) {
+        logger.info(`You're already on the latest version!${colors.RESET}`);
+        return selectedVersion;
+    }
+    logger.info(`A new version is available!${colors.RESET}`);
+    const existingVersionPath = nodePath.join(versionsPath, selectedVersion);
+    try {
+        logger.info(`Deleting existing version folder: ${selectedVersion}...${colors.RESET}`);
+        deleteFolderRecursive(existingVersionPath);
+        logger.info(`Successfully deleted existing version folder: ${selectedVersion}!${colors.RESET}`);
+    } catch (updateErr) {
+        logger.error(`async launchAutoUpdater():\n${updateErr.message}\n${updateErr.stack}`);
+        nodeProcess.exit(1);
+    }
+    await downloadVersion(latestVersion);
+    return latestVersion;
 };
 
 const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
