@@ -418,7 +418,7 @@ const downloadVersion = async (version) => {
             nodeFs.unlinkSync(filePath);
             continue;
         }
-        logger.info(`Successfully downloaded and verified file checksum: ${fileName}!`);
+        logger.info(`Successfully verified file checksum: ${fileName}!`);
         if (fileName.endsWith(".zip")) {
             logger.info(`Extracting zip file: ${fileName}...`);
             await extractZip(filePath, dumpDir, folderMappings);
