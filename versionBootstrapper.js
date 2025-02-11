@@ -313,7 +313,6 @@ const downloadVersion = async (version) => {
         logger.info(`Version ${version} is already downloaded...`);
         nodeProcess.exit(0);
     }
-    // launchAutoUpdater() used to delete existing folders
     if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingFolders) {
         try {
             logger.info(`Deleting existing folder: ${dumpDir}`);
