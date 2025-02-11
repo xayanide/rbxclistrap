@@ -109,17 +109,33 @@ const registerValues = async (values, options = { overwrite: true, listedRegistr
     if (typeof listedRegistryItems !== "object" || listedRegistryItems === null || Array.isArray(listedRegistryItems)) {
         throw new Error("Invalid values provided for property 'listedRegistryItems'. Must be an object.");
     }
-    for (const key in listedRegistryItems) {
-        if (listedRegistryItems[key].exists === false) {
+    for (const itemKey in listedRegistryItems) {
+        const listedItem = listedRegistryItems[itemKey];
+        if (listedItem.exists === false) {
             continue;
         }
-        delete valuesToPut[key];
+        const itemValues = listedItem.values;
+        const { valueKeyPath, valueName, valueData, valueType } = values.find((value) => value.valueKeyPath === itemKey);
+        const currentValue = itemValues[valueName];
+        if (!currentValue) {
+            continue;
+        }
+        const currentValueData = currentValue.value;
+        const currentValueType = currentValue.type;
+        if (currentValueData !== valueData && currentValueType !== valueType) {
+            continue;
+        }
+        /**
+        The current key exists, currentValue's data and type are the same as the expected valueData and valueType
+        from the bootstrapper, delete this specific key object from the valuesToPut object, excluding the key from being updated.
+        */
+        delete valuesToPut[valueKeyPath];
     }
     if (Object.keys(valuesToPut).length === 0) {
-        logger.info("No new values to register.");
+        logger.info("No missing or different registry values to update.");
         return;
     }
-    logger.info("Writing missing registry values...");
+    logger.info("Updating registry values...");
     await putRegistryValues(valuesToPut);
 };
 

@@ -199,9 +199,9 @@ const getStudioFileExtensionsRegistryValues = () => {
 };
 
 const setupRobloxRegistryValues = async (values) => {
-    const registryItems = await listValuesRegistryItems(values);
-    await createRegistryKeys(registryItems);
-    await registerValues(values, { overwrite: true });
+    const currentRegistryItems = await listValuesRegistryItems(values);
+    await createRegistryKeys(currentRegistryItems);
+    await registerValues(values, { overwrite: false, listedRegistryItems: currentRegistryItems });
 };
 
 module.exports = {
