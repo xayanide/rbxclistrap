@@ -12,36 +12,63 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
 
 ### Installation
 
-1. **Download the Source Code**
-
-2. **Install Dependencies**
+1. **Download the source code. Extract the archive if necessary.**
+2. **Navigate to the directory of the source code**
+3. **Install dependencies**
    - Open a terminal in the downloaded source code directory and run:
      ```bash
      npm install
      ```
 
-3. **Run the Application: RobloxPlayer**
-   - Make sure to run it once to set the registry items required for protocols.
-   Choose either method of running.
-   - Start application by running:
-     ```bash
-     npm run start:player
-     ```
-   - Start application by running:
+### Running Application
+> [!NOTE]
+> Navigate to the directory of rbxclistrap then run either type of applications at least once to set the registry keys required to support URIs and protocols.
+
+- **Running RobloxPlayer**
+    > Choose among the methods to run the RobloxPlayer.
+
+    - Start application by running file:
       `run-player.bat`
+    - Start application by running in terminal:
+      ```bash
+      npm run start:player
+      ```
+    - Start application by running in terminal:
+      ```bash
+      node launchBootstrapper.js WindowsPlayer
+      ```
+    - Start application by running in terminal (WindowsPlayer by default):
+      ```bash
+      node launchPlayerMainMenu.js
+      ```
+      Type 5 and press enter key.
+    - Start application by running in terminal:
+      ```bash
+      node launchPlayerMainMenu.js WindowsPlayer
+      ```
+      Type 5 and press enter key.
 
-4. **Run the Application: RobloxStudio**
-   - Make sure to run it once to set the registry items required for protocols.
-   Choose either method of running.
-   - Start application by running:
-     ```bash
-     npm run start:studio
-     ```
-   - Start application by running:
+- **Running RobloxStudio**
+    > Choose among the methods to run the RobloxStudio.
+
+    - Start application by running file:
       `run-studio.bat`
+    - Start application by running in terminal:
+      ```bash
+      npm run start:studio
+      ```
+    - Start application by running in terminal:
+      ```bash
+      node launchBootstrapper.js WindowsStudio64
+      ```
+    - Start application by running in terminal:
+      ```bash
+      node launchStudioMainMenu.js WindowsStudio64
+      ```
+      Type 5 and press enter key.
 
-5. **Protocols support**
-   - Once you have ran either application at least once. Registry items related to protocols will be set. That allows you to run RobloxPlayer and RobloxStudio from the browser and other sources through native Roblox deeplinks. The bootstrapper will be executed first before the binary.
+> [!TIP]
+> Once you have ran either application at least once. Registry items related to protocols will be set. That allows you to run  RobloxPlayer and RobloxStudio from the browser and other sources through native Roblox deeplinks. The bootstrapper will be executed first before the binary.
 
 ## FAQ
 
@@ -49,13 +76,13 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
 
 Doing these will ensure complete removal of any registry entries associated with rbxclistrap from the system.
 
-The uninstallation is only for the bootstrapper. However, any userdata-related files made by Roblox itself will not be removed. Users should manually navigate through those files to completely remove Roblox because automating that process
-can result in loss of data.
-
 1. Navigate to registry-tools. Run the following files in any order:
    - `unregister-player-protocols.reg`
    - `unregister-studio-protocols.reg`
 2. Delete where you placed the `rbxclistrap` folder as a whole to complete the uninstallation.
+
+> [!WARNING]
+> The uninstallation is only for the bootstrapper. However, any user specific data made by Roblox itself will not be removed. Users should manually navigate through those files to completely remove Roblox because automating that process can result in loss of data so it was not implemented.
 
 #### Can this be used to downgrade Roblox?
 
@@ -91,4 +118,4 @@ Yes, after downloading a Roblox version, select the "6. Launch Roblox with args"
 
 - https://www.roblox.com/
 > [!IMPORTANT]
-> Disclaimer: This project is an independent tool and is not affiliated with, endorsed by, or associated with Roblox Corporation.
+> Disclaimer: This project is an independent tool and is not affiliated with, endorsed by, or associated with Roblox and Roblox Corporation.
