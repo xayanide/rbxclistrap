@@ -351,7 +351,7 @@ const launchAutoUpdater = async (binaryType) => {
     console.log(`${colors.MAGENTA}Available versions:`);
     for (let i = 0; i < versions.length; i++) {
         const version = versions[i];
-        console.log(`${colors.CYAN}${i + 1}. ${version}`);
+        console.log(`${colors.CYAN}${i + 1}. ${version}${colors.RESET}`);
     }
     let selectedVersion = "";
     if (versions.length === 1) {
