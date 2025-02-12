@@ -402,18 +402,14 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
     if (hasArgs) {
         launchArgs = await createPrompt("Enter the launch arguments (e.g., roblox://...): ");
     }
-    const robloxFlags = argv[2] ?? "";
-    const nativeArgs = argv[3] ?? "";
-    const isArgsvEmpty = robloxFlags === "" && nativeArgs === "";
-    if (argv.length > 1 && isPlayerRunnerType(runnerType)) {
-        launchArgs = isArgsvEmpty ? launchArgs : `${robloxFlags} ${nativeArgs} ${launchArgs}`;
-    } else if (isStudioRunnerType(runnerType)) {
-        launchArgs = isArgsvEmpty ? launchArgs : `${robloxFlags} ${nativeArgs} ${launchArgs}`;
+    const robloxUri = argv[2];
+    if (argv.length > 1 && robloxUri) {
+        launchArgs = `${robloxUri} ${launchArgs}`;
     }
-    const argsArray = launchArgs.split(" ");
-    const args = argsArray[0] === "" ? [] : argsArray;
+    const args = launchArgs.trim().split(" ");
+    const spawnArgs = args.length > 0 && args[0] !== "" ? args : [];
     logger.info(`Launching with command: ${binaryPath} ${launchArgs}`);
-    const childProcess = nodeChildProcess.spawn(binaryPath, args, { shell: true, detached: true, stdio: "ignore" });
+    const childProcess = nodeChildProcess.spawn(binaryPath, spawnArgs, { shell: true, detached: true, stdio: "ignore" });
     childProcess.unref();
     logger.info(`Successfully launched ${binaryName}!`);
 };
