@@ -1,3 +1,4 @@
+"use strict";
 const nodeProcess = require("process");
 const { loadConfig, loadFflags, launchAutoUpdater, launchRoblox } = require("./versionBootstrapper.js");
 const { BINARY_TYPES } = require("./modules/constants.js");
@@ -13,14 +14,18 @@ under certain conditions.`);
         loadConfig();
         loadFflags();
         const argv = nodeProcess.argv;
-        const binaryType = argv.find((arg) => Object.values(BINARY_TYPES).includes(arg));
+        const binaryType = argv.find((arg) => {
+            return Object.values(BINARY_TYPES).includes(arg);
+        });
         if (!binaryType) {
             throw new Error(`Unknown binary type: ${binaryType}. Must be WindowsPlayer or Studio64.`);
         }
         logger.binaryType = binaryType;
         logger.info(`${binaryType} bootstrapper starting...`);
         const selectedVersion = await launchAutoUpdater(binaryType);
-        const filteredArgv = argv.filter((arg) => arg !== binaryType);
+        const filteredArgv = argv.filter((arg) => {
+            return arg !== binaryType;
+        });
         await launchRoblox(false, selectedVersion, filteredArgv);
         logger.info(`${binaryType} bootstrapper finished.`);
         nodeProcess.exit(0);

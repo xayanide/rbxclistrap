@@ -1,3 +1,4 @@
+"use strict";
 const nodeProcess = require("process");
 const { listRegistryItems, deleteRegistryKeys } = require("./modules/registry.js");
 

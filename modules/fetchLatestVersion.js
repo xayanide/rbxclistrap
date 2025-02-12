@@ -1,3 +1,4 @@
+"use strict";
 const nodeProcess = require("process");
 const axios = require("axios");
 const logger = require("./logger.js");

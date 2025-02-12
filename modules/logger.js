@@ -1,3 +1,4 @@
+"use strict";
 const nodeFs = require("fs");
 const nodePath = require("path");
 const { colors } = require("./constants.js");
@@ -55,10 +56,18 @@ const logger = {
             console.error(`log(): Error appending log message:\n${logErr.message}\n${logErr.stack}`);
         }
     },
-    info: (message) => logger.log(LOG_LEVELS.info, message),
-    warn: (message) => logger.log(LOG_LEVELS.warn, message),
-    error: (message) => logger.log(LOG_LEVELS.error, message),
-    debug: (message) => logger.log(LOG_LEVELS.debug, message),
+    info: (message) => {
+        return logger.log(LOG_LEVELS.info, message);
+    },
+    warn: (message) => {
+        return logger.log(LOG_LEVELS.warn, message);
+    },
+    error: (message) => {
+        return logger.log(LOG_LEVELS.error, message);
+    },
+    debug: (message) => {
+        return logger.log(LOG_LEVELS.debug, message);
+    },
 };
 
 module.exports = logger;

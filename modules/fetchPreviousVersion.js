@@ -1,3 +1,4 @@
+"use strict";
 const axios = require("axios");
 const logger = require("./logger.js");
 const { getRobloxCDNBaseUrl } = require("./robloxUrls.js");

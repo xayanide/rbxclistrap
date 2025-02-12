@@ -1,3 +1,4 @@
+"use strict";
 const nodeFs = require("fs");
 const nodePath = require("path");
 
@@ -17,7 +18,9 @@ const deleteFolderRecursive = (folderPath) => {
     nodeFs.rmdirSync(folderPath);
 };
 
-const saveJson = (filePath, data) => nodeFs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+const saveJson = (filePath, data) => {
+    return nodeFs.writeFileSync(filePath, JSON.stringify(data, null, 2));
+};
 
 const loadJson = (filePath, defaultData) => {
     if (!nodeFs.existsSync(filePath)) {

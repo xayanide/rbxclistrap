@@ -1,3 +1,4 @@
+"use strict";
 const nodePath = require("path");
 const AdmZip = require("adm-zip");
 

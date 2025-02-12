@@ -1,3 +1,4 @@
+"use strict";
 const nodePath = require("path");
 const { listRegistryItems, createRegistryKeys, putRegistryValues } = require("./registry.js");
 const logger = require("./logger.js");

@@ -1,3 +1,4 @@
+"use strict";
 const nodeFs = require("fs");
 const nodeProcess = require("process");
 const axios = require("axios");

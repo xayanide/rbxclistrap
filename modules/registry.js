@@ -1,3 +1,4 @@
+"use strict";
 const promisifiedRegedit = require("regedit").promisified;
 const logger = require("./logger.js");
 
@@ -13,7 +14,7 @@ const putRegistryValues = async (valuesToPut) => {
 
 const listRegistryItems = async (keysToList) => {
     try {
-        return promisifiedRegedit.list(keysToList);
+        return await promisifiedRegedit.list(keysToList);
     } catch (registryErr) {
         logger.error(`async listRegistryItems(): Error listing registry keys:\n${registryErr.message}\n${registryErr.stack}`);
     }
@@ -32,7 +33,9 @@ const getRegistryItemKeys = (registryItems, options = { exclude: "none" }) => {
         return registryItemKeys;
     }
     const isExistsExcluded = exclusion === "existing";
-    return registryItemKeys.filter((key) => registryItems[key].exists !== isExistsExcluded);
+    return registryItemKeys.filter((key) => {
+        return registryItems[key].exists !== isExistsExcluded;
+    });
 };
 
 const createRegistryKeys = async (registryItems) => {

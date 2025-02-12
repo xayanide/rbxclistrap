@@ -1,3 +1,4 @@
+"use strict";
 const nodeChildProcess = require("child_process");
 const logger = require("./logger.js");
 
@@ -5,7 +6,9 @@ const isProcessesRunning = (processNames) => {
     try {
         const stdout = nodeChildProcess.execSync("tasklist", { encoding: "utf8" }).toLowerCase();
         if (Array.isArray(processNames)) {
-            return processNames.some((name) => stdout.includes(name.toLowerCase()));
+            return processNames.some((name) => {
+                return stdout.includes(name.toLowerCase());
+            });
         }
         return stdout.includes(processNames.toLowerCase());
     } catch (processErr) {

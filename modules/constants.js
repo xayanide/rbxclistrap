@@ -1,3 +1,4 @@
+"use strict";
 const colors = {
     RESET: "\x1b[0m",
     RED: "\x1b[31m",

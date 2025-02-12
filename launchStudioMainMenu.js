@@ -1,3 +1,4 @@
+"use strict";
 const nodeProcess = require("process");
 const logger = require("./modules/logger.js");
 const { loadConfig, loadFflags, showMainMenu } = require("./versionBootstrapper.js");
