@@ -91,8 +91,9 @@ const ROBLOX_CDN_URLS = [
     { baseUrl: "https://setup-ak.rbxcdn.com", priority: 2 },
     { baseUrl: "https://roblox-setup.cachefly.net", priority: 2 },
     { baseUrl: "https://setup-cfly.rbxcdn.com", priority: 2 },
-    // A direct alias for S3. Avoid using this, HTTPS doesn't work properly on it.
-    // { url: "http://setup.roblox.com", priority: 2 },
+    /**  A direct alias for S3. Avoid using this, HTTPS doesn't work properly on it.
+    { url: "http://setup.roblox.com", priority: 2 },
+    */
     { baseUrl: "https://s3.amazonaws.com/setup.roblox.com", priority: 4 },
 ];
 
