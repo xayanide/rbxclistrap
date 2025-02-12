@@ -15,13 +15,13 @@ const stylisticFormattingRules = {
     "@stylistic/no-floating-decimal": "error",
     "@stylistic/indent": ["error", 4, { SwitchCase: 1, tabLength: 4 }],
     "@stylistic/no-multiple-empty-lines": ["error", { max: 1, maxEOF: 0, maxBOF: 0 }],
+    "@stylistic/multiline-comment-style": ["error", "bare-block"],
 };
 
 const eslintFormattingRules = {
     "arrow-body-style": ["error", "always"],
     curly: ["error", "all"],
     "no-inline-comments": "error",
-    "multiline-comment-style": ["error", "bare-block"],
 };
 
 const codeConsistencyRules = {
