@@ -9,7 +9,7 @@ const downloadFile = async (url, filePath, progressBar) => {
             responseType: "stream",
         });
         const totalLength = parseInt(headers["content-length"], 10);
-        // The content length for RobloxPlayerLauncher is sometimes wrong, maybe it's compressed, and the size received is decompressed.
+        // The content length for RobloxPlayerLauncher is sometimes wrong. Maybe it's compressed, then the size received is decompressed.
         logger.info(`Downloading ${filePath} (${totalLength} bytes) from ${url}`);
         progressBar.start(totalLength, 0);
         const writeStream = nodeFs.createWriteStream(filePath);
