@@ -15,44 +15,35 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-"use strict";
-const nodeFs = require("fs");
-const nodePath = require("path");
-const nodeProcess = require("process");
-const nodeReadline = require("readline");
-const nodeChildProcess = require("child_process");
-const cliProgress = require("cli-progress");
-const axios = require("axios");
-const logger = require("./modules/logger.js");
-const downloadFile = require("./modules/downloadFile.js");
-const verifyChecksum = require("./modules/verifyChecksum.js");
-const extractZip = require("./modules/extractZip.js");
-const fetchLatestVersion = require("./modules/fetchLatestVersion.js");
-const fetchPreviousVersion = require("./modules/fetchPreviousVersion.js");
-const { killProcesses, isProcessesRunning } = require("./modules/processes.js");
-const { deleteFolderRecursive, saveJson, loadJson } = require("./modules/fileUtils.js");
-const { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } = require("./modules/robloxUrls.js");
-const { installEdgeWebView } = require("./modules/webview.js");
-const {
+import * as nodeFs from "node:fs";
+import * as nodePath from "node:path";
+import * as nodeProcess from "node:process";
+import * as nodeReadline from "node:readline";
+import * as nodeChildProcess from "node:child_process";
+import cliProgress from "cli-progress";
+import axios from "axios";
+import logger from "./modules/logger.js";
+import downloadFile from "./modules/downloadFile.js";
+import verifyChecksum from "./modules/verifyChecksum.js";
+import extractZip from "./modules/extractZip.js";
+import fetchLatestVersion from "./modules/fetchLatestVersion.js";
+import fetchPreviousVersion from "./modules/fetchPreviousVersion.js";
+import { killProcesses, isProcessesRunning } from "./modules/processes.js";
+import { deleteFolderRecursive, saveJson, loadJson, getDirname } from "./modules/fileUtils.js";
+import { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } from "./modules/robloxUrls.js";
+import { installEdgeWebView } from "./modules/webview.js";
+import {
     getPlayerRegistryData,
     getStudioRegistryData,
     getStudioPlaceRegistryData,
     getStudioFileExtensionsRegistryData,
     setRegistryData,
-} = require("./modules/robloxRegistry.js");
-const {
-    folderMappings,
-    AppSettings,
-    colors,
-    PLAYER_PROCESSES,
-    STUDIO_PROCESSES,
-    BINARY_TYPES,
-    DEFAULT_CONFIG,
-    DEFAULT_FFLAGS,
-} = require("./modules/constants.js");
+} from "./modules/robloxRegistry.js";
+import { folderMappings, AppSettings, colors, PLAYER_PROCESSES, STUDIO_PROCESSES, BINARY_TYPES, DEFAULT_CONFIG, DEFAULT_FFLAGS } from "./modules/constants.js";
 
-const CONFIG_FILE_PATH = nodePath.join(__dirname, "./config.json");
-const FFLAGS_FILE_PATH = nodePath.join(__dirname, "./fflags.json");
+const metaUrl = import.meta.url;
+const CONFIG_FILE_PATH = nodePath.join(getDirname(metaUrl), "./config.json");
+const FFLAGS_FILE_PATH = nodePath.join(getDirname(metaUrl), "./fflags.json");
 
 let runnerConfig = { ...DEFAULT_CONFIG };
 let runnerFflags = { ...DEFAULT_FFLAGS };
@@ -77,10 +68,7 @@ const loadFflags = () => {
 
 const createPrompt = (query) => {
     return new Promise((resolve) => {
-        const readlineInterface = nodeReadline.createInterface({
-            input: nodeProcess.stdin,
-            output: nodeProcess.stdout,
-        });
+        const readlineInterface = nodeReadline.createInterface({ input: nodeProcess.stdin, output: nodeProcess.stdout });
         readlineInterface.question(query, (answer) => {
             readlineInterface.close();
             resolve(answer);
@@ -104,9 +92,7 @@ const attemptKillProcesses = async (processes) => {
         killProcesses(processes);
         return;
     }
-    const answer = await createPrompt(
-        "One of the processes is running in the background. Do you want to forcibly close it? (y/n): ",
-    );
+    const answer = await createPrompt("One of the processes is running in the background. Do you want to forcibly close it? (y/n): ");
     if (answer.toLowerCase() !== "y") {
         logger.info("One of the processes is still running.");
         nodeProcess.exit(0);
@@ -142,37 +128,37 @@ const applyFflags = (clientSettingsPath) => {
 const showLicenseMenu = async () => {
     console.clear();
     const licenseInfo = `rbxclistrap - A CLI alternative Roblox Player and Roblox Studio bootstrapper
-    Copyright (C) 2025 xayanide
-    
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-    
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-    
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <https://www.gnu.org/licenses/>.
-    GNU General Public License v3.0
-    
-    Permissions:
-    - Commercial use
-    - Modification
-    - Distribution
-    - Patent use
-    - Private use
-                
-    Limitations:
-    - Liability
-    - Warranty
-                
-    Conditions:
-    - License and copyright notice
-    
-    See: https://choosealicense.com/licenses/gpl-3.0`;
+Copyright (C) 2025 xayanide
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+GNU General Public License v3.0
+
+Permissions:
+- Commercial use
+- Modification
+- Distribution
+- Patent use
+- Private use
+
+Limitations:
+- Liability
+- Warranty
+
+Conditions:
+- License and copyright notice
+
+See: https://choosealicense.com/licenses/gpl-3.0`;
     console.log(licenseInfo);
     console.log(`${colors.RED}1. Back to main menu${colors.RESET}`);
     const answer = await createPrompt("Select an option: ");
@@ -190,9 +176,7 @@ const showLicenseMenu = async () => {
 const showSettingsMenu = async () => {
     console.clear();
     console.log(`${colors.MAGENTA}Settings Menu${colors.RESET}`);
-    console.log(
-        `${colors.GREEN}1. Toggle delete existing folders (Current: ${runnerConfig.deleteExistingFolders})${colors.RESET}`,
-    );
+    console.log(`${colors.GREEN}1. Toggle delete existing folders (Current: ${runnerConfig.deleteExistingFolders})${colors.RESET}`);
     console.log(`${colors.YELLOW}2. Toggle force update (Current: ${runnerConfig.forceUpdate})${colors.RESET}`);
     console.log(`${colors.RED}3. Back to main menu${colors.RESET}`);
     const answer = await createPrompt("Select an option: ");
@@ -225,7 +209,7 @@ const downloadVersion = async (version) => {
     const runnerProcesses = isPlayerRunnerType(runnerType) ? PLAYER_PROCESSES : STUDIO_PROCESSES;
     await attemptKillProcesses(runnerProcesses);
     const versionFolder = version.startsWith("version-") ? version : `version-${version}`;
-    const versionsPath = nodePath.join(__dirname, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
+    const versionsPath = nodePath.join(getDirname(metaUrl), isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
     const dumpDir = nodePath.join(versionsPath, versionFolder);
     if (nodeFs.existsSync(dumpDir) && !runnerConfig.forceUpdate) {
         logger.info(`Version ${version} is already downloaded...`);
@@ -321,9 +305,7 @@ const downloadFromChannel = async (channel) => {
         logger.info(`Version from channel ${channel}: ${version}`);
         await downloadVersion(version);
     } catch (downloadErr) {
-        logger.error(
-            `async downloadFromChannel(): Failed to fetch version from channel ${channel}:\n${downloadErr.message}\n${downloadErr.stack}`,
-        );
+        logger.error(`async downloadFromChannel(): Failed to fetch version from channel ${channel}:\n${downloadErr.message}\n${downloadErr.stack}`);
         nodeProcess.exit(1);
     }
 };
@@ -341,7 +323,7 @@ const launchAutoUpdater = async (binaryType) => {
     logger.info("Fetching the latest version of from channel: Live");
     const latestVersion = await fetchLatestVersion(runnerType);
     logger.info(`Successfully fetched the latest version!`);
-    const versionsPath = nodePath.join(__dirname, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
+    const versionsPath = nodePath.join(getDirname(metaUrl), isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
     const versions = getExistingVersions(versionsPath);
     if (versions.length === 0) {
         logger.warn(`No installed version found!`);
@@ -381,7 +363,7 @@ const launchAutoUpdater = async (binaryType) => {
 };
 
 const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
-    const versionsPath = nodePath.join(__dirname, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
+    const versionsPath = nodePath.join(getDirname(metaUrl), isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
     const selectedVersionPath = nodePath.join(versionsPath, selectedVersion);
     const binaryName = isPlayerRunnerType(runnerType) ? "RobloxPlayerBeta.exe" : "RobloxStudioBeta.exe";
     const binaryPath = nodePath.join(selectedVersionPath, binaryName);
@@ -501,10 +483,4 @@ ${colors.RED}9. Exit${colors.RESET}
     }
 }
 
-module.exports = {
-    loadConfig,
-    loadFflags,
-    showMainMenu,
-    launchAutoUpdater,
-    launchRoblox,
-};
+export { loadConfig, loadFflags, showMainMenu, launchAutoUpdater, launchRoblox };

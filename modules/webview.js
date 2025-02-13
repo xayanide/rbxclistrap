@@ -1,10 +1,9 @@
-"use strict";
-const nodeFs = require("fs");
-const nodePath = require("path");
-const nodeChildProcess = require("child_process");
-const logger = require("./logger.js");
-const { listRegistryItems } = require("./registry.js");
-const { WEBVIEW_REGISTRY_KEYPATHS } = require("./constants.js");
+import * as nodeFs from "node:fs";
+import * as nodePath from "node:path";
+import * as nodeChildProcess from "node:child_process";
+import logger from "./logger.js";
+import { listRegistryItems } from "./registry.js";
+import { WEBVIEW_REGISTRY_KEYPATHS } from "./constants.js";
 
 const checkEdgeWebView = async () => {
     logger.info("Checking for Microsoft Edge WebView2 Runtime...");
@@ -48,4 +47,4 @@ const installEdgeWebView = async (installPath) => {
     }
 };
 
-module.exports = { checkEdgeWebView, installEdgeWebView };
+export { checkEdgeWebView, installEdgeWebView };

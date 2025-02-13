@@ -1,4 +1,3 @@
-"use strict";
 const colors = {
     RESET: "\x1b[0m",
     RED: "\x1b[31m",
@@ -32,7 +31,8 @@ const folderMappings = {
         "content-terrain.zip": "PlatformContent/pc/terrain/",
         // Content-Platform
         "content-platform-fonts.zip": "PlatformContent/pc/fonts/",
-        "content-platform-dictionaries.zip": "PlatformContent/pc/shared_compression_dictionaries/",
+        "content-platform-dictionaries.zip":
+            "PlatformContent/pc/shared_compression_dictionaries/",
         // ExtraContent
         "extracontent-luapackages.zip": "ExtraContent/LuaPackages/",
         "extracontent-translations.zip": "ExtraContent/translations/",
@@ -107,15 +107,9 @@ const WEBVIEW_REGISTRY_KEYPATHS = [
     "HKCU\\Software\\Microsoft\\EdgeUpdate\\Clients\\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
 ];
 
-const BINARY_TYPES = {
-    PLAYER: "WindowsPlayer",
-    STUDIO: "WindowsStudio64",
-};
+const BINARY_TYPES = { PLAYER: "WindowsPlayer", STUDIO: "WindowsStudio64" };
 
-const DEFAULT_CONFIG = {
-    deleteExistingFolders: false,
-    forceUpdate: false,
-};
+const DEFAULT_CONFIG = { deleteExistingFolders: false, forceUpdate: false };
 
 const DEFAULT_FFLAGS = {
     FFlagAdServiceEnabled: "False",
@@ -149,7 +143,7 @@ const EXCLUDED_DEFAULT_FFLAGS = {
     DFIntVoiceChatRollOffMaxDistance: "1000",
 };
 
-module.exports = {
+export {
     colors,
     folderMappings,
     AppSettings,

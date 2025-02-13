@@ -1,6 +1,5 @@
-"use strict";
-const nodeChildProcess = require("child_process");
-const logger = require("./logger.js");
+import * as nodeChildProcess from "node:child_process";
+import logger from "./logger.js";
 
 const isProcessesRunning = (processNames) => {
     try {
@@ -39,7 +38,4 @@ const killProcesses = (processNames) => {
     }
 };
 
-module.exports = {
-    isProcessesRunning,
-    killProcesses,
-};
+export { isProcessesRunning, killProcesses };

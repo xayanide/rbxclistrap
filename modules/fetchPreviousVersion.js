@@ -1,20 +1,24 @@
-"use strict";
-const axios = require("axios");
-const logger = require("./logger.js");
-const { getRobloxCDNBaseUrl } = require("./robloxUrls.js");
-const { BINARY_TYPES } = require("./constants.js");
+import axios from "axios";
+import logger from "./logger.js";
+import { getRobloxCDNBaseUrl } from "./robloxUrls.js";
+import { BINARY_TYPES } from "./constants.js";
 
-const HISTORY_BINARY_TYPES = {
-    PLAYER: "WindowsPlayer",
-    STUDIO: "Studio64",
-};
+const HISTORY_BINARY_TYPES = { PLAYER: "WindowsPlayer", STUDIO: "Studio64" };
 
 const fetchPreviousVersion = async (runnerType) => {
     try {
-        if (runnerType !== BINARY_TYPES.PLAYER || runnerType !== BINARY_TYPES.STUDIO) {
-            throw new Error("Invalid runner type. Must be WindowsPlayer or WindowsStudio64");
+        if (
+            runnerType !== BINARY_TYPES.PLAYER ||
+            runnerType !== BINARY_TYPES.STUDIO
+        ) {
+            throw new Error(
+                "Invalid runner type. Must be WindowsPlayer or WindowsStudio64",
+            );
         }
-        const binaryType = runnerType === BINARY_TYPES.PLAYER ? HISTORY_BINARY_TYPES.PLAYER : HISTORY_BINARY_TYPES.STUDIO;
+        const binaryType =
+            runnerType === BINARY_TYPES.PLAYER
+                ? HISTORY_BINARY_TYPES.PLAYER
+                : HISTORY_BINARY_TYPES.STUDIO;
         const cdnBaseUrl = await getRobloxCDNBaseUrl();
         const url = `${cdnBaseUrl}/DeployHistory.txt`;
         logger.info(`Fetching DeployHistory from: ${url}...`);
@@ -43,9 +47,11 @@ const fetchPreviousVersion = async (runnerType) => {
         logger.info(`Previous ${binaryType} version: ${previousVersion}`);
         return previousVersion;
     } catch (error) {
-        logger.error(`async fetchPreviousVersion():\n${error.message}\n${error.stack}`);
+        logger.error(
+            `async fetchPreviousVersion():\n${error.message}\n${error.stack}`,
+        );
         return null;
     }
 };
 
-module.exports = fetchPreviousVersion;
+export default fetchPreviousVersion;

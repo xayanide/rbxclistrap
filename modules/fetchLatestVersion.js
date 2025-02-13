@@ -1,8 +1,7 @@
-"use strict";
-const nodeProcess = require("process");
-const axios = require("axios");
-const logger = require("./logger.js");
-const { getRobloxClientSettingsBaseUrl } = require("./robloxUrls.js");
+import * as nodeProcess from "node:process";
+import axios from "axios";
+import logger from "./logger.js";
+import { getRobloxClientSettingsBaseUrl } from "./robloxUrls.js";
 
 const fetchLatestVersion = async (runnerType) => {
     try {
@@ -19,4 +18,4 @@ const fetchLatestVersion = async (runnerType) => {
     }
 };
 
-module.exports = fetchLatestVersion;
+export default fetchLatestVersion;

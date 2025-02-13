@@ -1,15 +1,22 @@
-"use strict";
-const axios = require("axios");
-const logger = require("./logger.js");
+import axios from "axios";
+import logger from "./logger.js";
 
-const testUrl = async (url, endpoint, priority, abortSignal, expectedData = null) => {
+const testUrl = async (
+    url,
+    endpoint,
+    priority,
+    abortSignal,
+    expectedData = null,
+) => {
     await new Promise((resolve) => {
         return setTimeout(resolve, priority * 1000);
     });
     const fullUrl = endpoint === "" ? url : `${url}${endpoint}`;
     logger.info(`Testing URL: ${fullUrl}...`);
     try {
-        const { status, data } = await axios.get(fullUrl, { signal: abortSignal });
+        const { status, data } = await axios.get(fullUrl, {
+            signal: abortSignal,
+        });
         if (status !== 200 || (expectedData && data !== expectedData)) {
             return null;
         }
@@ -18,7 +25,9 @@ const testUrl = async (url, endpoint, priority, abortSignal, expectedData = null
         if (axios.isCancel(error)) {
             logger.info(`async testUrl(): Canceled testing ${fullUrl}`);
         } else {
-            logger.error(`async testUrl(): Failed testing ${fullUrl}:\n${error.message}\n${error.stack}`);
+            logger.error(
+                `async testUrl(): Failed testing ${fullUrl}:\n${error.message}\n${error.stack}`,
+            );
         }
         return error;
     }
@@ -27,7 +36,13 @@ const testUrl = async (url, endpoint, priority, abortSignal, expectedData = null
 const findOptimalUrl = async (baseUrls, endpoint, expectedData = null) => {
     const abortController = new AbortController();
     const testedUrls = baseUrls.map(async ({ baseUrl, priority }) => {
-        return await testUrl(baseUrl, endpoint, priority, abortController.signal, expectedData);
+        return await testUrl(
+            baseUrl,
+            endpoint,
+            priority,
+            abortController.signal,
+            expectedData,
+        );
     });
     const exceptions = [];
     for await (const result of testedUrls) {
@@ -42,7 +57,9 @@ const findOptimalUrl = async (baseUrls, endpoint, expectedData = null) => {
         logger.info(`Using ${result} as the optimal URL`);
         return result;
     }
-    throw exceptions.length ? exceptions[0] : new Error("All test connection attempts failed.");
+    throw exceptions.length
+        ? exceptions[0]
+        : new Error("All test connection attempts failed.");
 };
 
-module.exports = findOptimalUrl;
+export default findOptimalUrl;

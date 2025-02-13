@@ -1,10 +1,7 @@
-"use strict";
-const eslint = require("@eslint/js");
-const eslintStylisticPlugin = require("@stylistic/eslint-plugin");
-const globals = require("globals");
-const prettier = {
-    configs: { recommended: require("eslint-config-prettier") },
-};
+import globals from "globals";
+import eslintPluginJs from "@eslint/js";
+import eslintConfigPrettier from "eslint-config-prettier";
+import stylisticEslintPlugin from "@stylistic/eslint-plugin";
 
 const stylisticFormattingRules = {
     "@stylistic/no-trailing-spaces": ["error", { skipBlankLines: false, ignoreComments: true }],
@@ -18,13 +15,9 @@ const stylisticFormattingRules = {
     "@stylistic/multiline-comment-style": ["error", "bare-block"],
 };
 
-const eslintFormattingRules = {
-    "arrow-body-style": ["error", "always"],
-    curly: ["error", "all"],
-    "no-inline-comments": "error",
-};
+const eslintFormattingRules = { "arrow-body-style": ["error", "always"], curly: ["error", "all"], "no-inline-comments": "error" };
 
-const codeConsistencyRules = {
+const eslintCodeQualityRules = {
     "func-style": ["off", "declaration", { overrides: { namedExports: "ignore" } }],
     "no-console": "off",
     radix: ["error", "always"],
@@ -33,22 +26,8 @@ const codeConsistencyRules = {
     "no-unneeded-ternary": ["error", { defaultAssignment: true }],
     "no-nested-ternary": "error",
     "no-var": "error",
-    "no-use-before-define": [
-        "error",
-        {
-            functions: false,
-            classes: true,
-            variables: true,
-            allowNamedExports: false,
-        },
-    ],
-    "prefer-const": [
-        "error",
-        {
-            destructuring: "any",
-            ignoreReadBeforeAssign: false,
-        },
-    ],
+    "no-use-before-define": ["error", { functions: false, classes: true, variables: true, allowNamedExports: false }],
+    "prefer-const": ["error", { destructuring: "any", ignoreReadBeforeAssign: false }],
     "require-await": "error",
     strict: ["error", "global"],
     yoda: "error",
@@ -59,42 +38,20 @@ const codeConsistencyRules = {
  * @see https://eslint.org/docs/latest/use/configure
  * @type {import('eslint').Linter.Config[]}
  */
-module.exports = [
-    eslint.configs.recommended,
-    prettier.configs.recommended,
+export default [
+    eslintPluginJs.configs.recommended,
+    eslintConfigPrettier,
     {
         name: "xayanide/personal",
         files: ["**/*.js"],
-        languageOptions: {
-            sourceType: "commonjs",
-            globals: {
-                ...globals.node,
-                ...globals.es2025,
-            },
-        },
-        plugins: {
-            "@stylistic": eslintStylisticPlugin,
-        },
-        rules: {
-            ...stylisticFormattingRules,
-            ...eslintFormattingRules,
-            ...codeConsistencyRules,
-        },
+        languageOptions: { sourceType: "module", globals: { ...globals.node, ...globals.es2025 } },
+        plugins: { "@stylistic": stylisticEslintPlugin },
+        rules: { ...stylisticFormattingRules, ...eslintFormattingRules, ...eslintCodeQualityRules },
     },
     /**
     Global ignores:
     https://eslint.org/docs/latest/use/configure/configuration-files#globally-ignoring-files-with-ignores
     https://github.com/eslint/eslint/discussions/18304#discussioncomment-9069706
     */
-    {
-        ignores: [
-            "**/node_modules/",
-            "**/.git/",
-            "**/logs/",
-            "**/dist/",
-            "**/PlayerVersions",
-            "**/StudioVersions",
-            "**/version-*/",
-        ],
-    },
+    { ignores: ["**/node_modules/", "**/.git/", "**/logs/", "**/dist/", "**/PlayerVersions", "**/StudioVersions", "**/version-*/"] },
 ];

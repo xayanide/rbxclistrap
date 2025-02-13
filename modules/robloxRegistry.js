@@ -1,10 +1,23 @@
-"use strict";
-const nodePath = require("path");
-const { listRegistryItems, createRegistryKeys, putRegistryValues } = require("./registry.js");
-const logger = require("./logger.js");
+import * as nodePath from "node:path";
+import {
+    listRegistryItems,
+    createRegistryKeys,
+    putRegistryValues,
+} from "./registry.js";
+import { getDirname } from "./fileUtils.js";
+import logger from "./logger.js";
 
-const playerRunPath = nodePath.join(__dirname, "..", "run-player.bat");
-const studioRunPath = nodePath.join(__dirname, "..", "run-studio.bat");
+const metaUrl = import.meta.url;
+const playerRunPath = nodePath.join(
+    getDirname(metaUrl),
+    "..",
+    "run-player.bat",
+);
+const studioRunPath = nodePath.join(
+    getDirname(metaUrl),
+    "..",
+    "run-studio.bat",
+);
 
 /**
 Registry Data Structure Example
@@ -57,7 +70,10 @@ const getPlayerRegistryData = (binaryPath) => {
     const playerProtocolName = `URL:RobloxPlayerCLIStrap Protocol`;
     return {
         "HKCU\\Software\\Classes\\roblox": {
-            DEFAULT_VALUE_NAME: { value: playerProtocolName, type: "REG_DEFAULT" },
+            DEFAULT_VALUE_NAME: {
+                value: playerProtocolName,
+                type: "REG_DEFAULT",
+            },
             "URL Protocol": { value: "", type: "REG_SZ" },
         },
         "HKCU\\Software\\Classes\\roblox\\DefaultIcon": {
@@ -67,7 +83,9 @@ const getPlayerRegistryData = (binaryPath) => {
             },
         },
         // "HKCU\\Software\\Classes\\roblox\\shell": DEFAULT_VALUE,
-        "HKCU\\Software\\Classes\\roblox\\shell\\Open": { DEFAULT_VALUE_NAME: { value: "Open", type: "REG_DEFAULT" } },
+        "HKCU\\Software\\Classes\\roblox\\shell\\Open": {
+            DEFAULT_VALUE_NAME: { value: "Open", type: "REG_DEFAULT" },
+        },
         "HKCU\\Software\\Classes\\roblox\\shell\\Open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: playerOpenCommandPath,
@@ -75,7 +93,10 @@ const getPlayerRegistryData = (binaryPath) => {
             },
         },
         "HKCU\\Software\\Classes\\roblox-player": {
-            DEFAULT_VALUE_NAME: { value: playerProtocolName, type: "REG_DEFAULT" },
+            DEFAULT_VALUE_NAME: {
+                value: playerProtocolName,
+                type: "REG_DEFAULT",
+            },
             "URL Protocol": { value: "", type: "REG_SZ" },
         },
         "HKCU\\Software\\Classes\\roblox-player\\DefaultIcon": {
@@ -85,7 +106,9 @@ const getPlayerRegistryData = (binaryPath) => {
             },
         },
         // "HKCU\\Software\\Classes\\roblox-player\\shell": DEFAULT_VALUE,
-        "HKCU\\Software\\Classes\\roblox-player\\shell\\Open": { DEFAULT_VALUE_NAME: { value: "Open", type: "REG_DEFAULT" } },
+        "HKCU\\Software\\Classes\\roblox-player\\shell\\Open": {
+            DEFAULT_VALUE_NAME: { value: "Open", type: "REG_DEFAULT" },
+        },
         "HKCU\\Software\\Classes\\roblox-player\\shell\\Open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: playerOpenCommandPath,
@@ -101,7 +124,10 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
     const studioProtocolName = `URL:RobloxStudioCLIStrap Protocol`;
     return {
         "HKCU\\Software\\Classes\\roblox-studio": {
-            DEFAULT_VALUE_NAME: { value: studioProtocolName, type: "REG_DEFAULT" },
+            DEFAULT_VALUE_NAME: {
+                value: studioProtocolName,
+                type: "REG_DEFAULT",
+            },
             "URL Protocol": { value: "", type: "REG_SZ" },
         },
         "HKCU\\Software\\Classes\\roblox-studio\\DefaultIcon": {
@@ -111,7 +137,9 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
             },
         },
         // "HKCU\\Software\\Classes\\roblox-studio\\shell": DEFAULT_VALUE,
-        "HKCU\\Software\\Classes\\roblox-studio\\shell\\open": { DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" } },
+        "HKCU\\Software\\Classes\\roblox-studio\\shell\\open": {
+            DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
+        },
         "HKCU\\Software\\Classes\\roblox-studio\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: studioOpenCommandPath,
@@ -120,7 +148,10 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
             version: { value: selectedVersion, type: "REG_SZ" },
         },
         "HKCU\\Software\\Classes\\roblox-studio-auth": {
-            DEFAULT_VALUE_NAME: { value: studioProtocolName, type: "REG_DEFAULT" },
+            DEFAULT_VALUE_NAME: {
+                value: studioProtocolName,
+                type: "REG_DEFAULT",
+            },
             "URL Protocol": { value: "", type: "REG_SZ" },
         },
         "HKCU\\Software\\Classes\\roblox-studio-auth\\DefaultIcon": {
@@ -148,10 +179,7 @@ const getStudioPlaceRegistryData = (binaryPath) => {
     const placeOpenCommandPath = `"${studioRunPath}" "%1"`;
     return {
         "HKCU\\Software\\Classes\\Roblox.Place": {
-            DEFAULT_VALUE_NAME: {
-                value: "Roblox Place",
-                type: "REG_DEFAULT",
-            },
+            DEFAULT_VALUE_NAME: { value: "Roblox Place", type: "REG_DEFAULT" },
         },
         "HKCU\\Software\\Classes\\Roblox.Place\\DefaultIcon": {
             DEFAULT_VALUE_NAME: {
@@ -161,10 +189,7 @@ const getStudioPlaceRegistryData = (binaryPath) => {
         },
         // "HKCU\\Software\\Classes\\Roblox.Place\\shell": DEFAULT_VALUE,
         "HKCU\\Software\\Classes\\Roblox.Place\\shell\\Open": {
-            DEFAULT_VALUE_NAME: {
-                value: "Open",
-                type: "REG_DEFAULT",
-            },
+            DEFAULT_VALUE_NAME: { value: "Open", type: "REG_DEFAULT" },
         },
         "HKCU\\Software\\Classes\\Roblox.Place\\shell\\Open\\command": {
             DEFAULT_VALUE_NAME: {
@@ -178,35 +203,27 @@ const getStudioPlaceRegistryData = (binaryPath) => {
 const getStudioFileExtensionsRegistryData = () => {
     return {
         "HKCU\\Software\\Classes\\.rbxl": {
-            DEFAULT_VALUE_NAME: {
-                value: "Roblox.Place",
-                type: "REG_DEFAULT",
-            },
+            DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
         },
         // "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place": DEFAULT_VALUE,
         "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place\\ShellNew": {
-            DEFAULT_VALUE_NAME: {
-                value: "Roblox.Place",
-                type: "REG_DEFAULT",
-            },
+            DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
         },
         "HKCU\\Software\\Classes\\.rbxlx": {
-            DEFAULT_VALUE_NAME: {
-                value: "Roblox.Place",
-                type: "REG_DEFAULT",
-            },
+            DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
         },
         // "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place": DEFAULT_VALUE,
         "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place\\ShellNew": {
-            DEFAULT_VALUE_NAME: {
-                value: "Roblox.Place",
-                type: "REG_DEFAULT",
-            },
+            DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
         },
     };
 };
 
-const getRegistryDataKeyPaths = (registryKeys, parentPath = "", result = []) => {
+const getRegistryDataKeyPaths = (
+    registryKeys,
+    parentPath = "",
+    result = [],
+) => {
     for (const keyPath in registryKeys) {
         const keyPathValues = registryKeys[keyPath];
         if (typeof keyPathValues === "object" && !("value" in keyPathValues)) {
@@ -219,14 +236,22 @@ const getRegistryDataKeyPaths = (registryKeys, parentPath = "", result = []) => 
 };
 
 const getItemValueType = (valueName, valueType) => {
-    if (valueName === "" || valueType === "REG_DEFAULT" || (valueName === "" && valueType === "REG_SZ")) {
+    if (
+        valueName === "" ||
+        valueType === "REG_DEFAULT" ||
+        (valueName === "" && valueType === "REG_SZ")
+    ) {
         return "REG_DEFAULT";
     }
     return valueType;
 };
 
 const getPutValueName = (valueName, valueType) => {
-    if (valueName === "" || valueType === "REG_DEFAULT" || (valueName === "" && valueType === "REG_SZ")) {
+    if (
+        valueName === "" ||
+        valueType === "REG_DEFAULT" ||
+        (valueName === "" && valueType === "REG_SZ")
+    ) {
         return "DEFAULT_VALUE_NAME";
     }
     return valueName;
@@ -257,7 +282,10 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
         }
         for (const itemValueName in itemValues) {
             const itemValue = itemValues[itemValueName];
-            const itemValueType = getItemValueType(itemValueName, itemValue.type);
+            const itemValueType = getItemValueType(
+                itemValueName,
+                itemValue.type,
+            );
             const putValueName = getPutValueName(itemValueName, itemValueType);
             const putValue = valuesToPutValues[putValueName];
             if (!putValue) {
@@ -265,7 +293,10 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
             }
             const putValueType = putValue.type;
             const putValueData = putValue.value;
-            if (putValueData !== itemValue.value || putValueType !== itemValueType) {
+            if (
+                putValueData !== itemValue.value ||
+                putValueType !== itemValueType
+            ) {
                 if (!filteredValues[keyPath]) {
                     filteredValues[keyPath] = {};
                 }
@@ -288,10 +319,15 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
     return filteredValues;
 };
 
-const updateRegistryValues = async (valuesToPut, options = { overwrite: true, currentRegistryItems: {} }) => {
+const updateRegistryValues = async (
+    valuesToPut,
+    options = { overwrite: true, currentRegistryItems: {} },
+) => {
     const isOverwrite = options.overwrite;
     if (typeof isOverwrite !== "boolean") {
-        throw new Error("Invalid values provided for property 'overwrite'. Must be a boolean.");
+        throw new Error(
+            "Invalid values provided for property 'overwrite'. Must be a boolean.",
+        );
     }
     if (isOverwrite) {
         logger.info("Force updating registry values...");
@@ -299,13 +335,22 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
         return;
     }
     const currentRegistryItems = options.currentRegistryItems;
-    if (typeof currentRegistryItems !== "object" || currentRegistryItems === null || Array.isArray(currentRegistryItems)) {
-        throw new Error("Invalid values provided for property 'currentRegistryItems'. Must be an object.");
+    if (
+        typeof currentRegistryItems !== "object" ||
+        currentRegistryItems === null ||
+        Array.isArray(currentRegistryItems)
+    ) {
+        throw new Error(
+            "Invalid values provided for property 'currentRegistryItems'. Must be an object.",
+        );
     }
     if (Object.keys(currentRegistryItems).length === 0) {
         return;
     }
-    const filteredValuesToPut = filterRegistryValues(valuesToPut, currentRegistryItems);
+    const filteredValuesToPut = filterRegistryValues(
+        valuesToPut,
+        currentRegistryItems,
+    );
     if (Object.keys(filteredValuesToPut).length === 0) {
         return;
     }
@@ -317,10 +362,13 @@ const setRegistryData = async (valuesToPut) => {
     const keyPaths = getRegistryDataKeyPaths(valuesToPut);
     const registryItems = await listRegistryItems(keyPaths);
     await createRegistryKeys(registryItems);
-    await updateRegistryValues(valuesToPut, { overwrite: false, currentRegistryItems: registryItems });
+    await updateRegistryValues(valuesToPut, {
+        overwrite: false,
+        currentRegistryItems: registryItems,
+    });
 };
 
-module.exports = {
+export {
     getPlayerRegistryData,
     getStudioRegistryData,
     getStudioPlaceRegistryData,

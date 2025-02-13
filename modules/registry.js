@@ -1,6 +1,6 @@
-"use strict";
-const promisifiedRegedit = require("regedit").promisified;
-const logger = require("./logger.js");
+import regedit from "regedit";
+const promisifiedRegedit = regedit.promisified;
+import logger from "./logger.js";
 
 const putRegistryValues = async (valuesToPut) => {
     try {
@@ -8,7 +8,9 @@ const putRegistryValues = async (valuesToPut) => {
         await promisifiedRegedit.putValue(valuesToPut);
         logger.info("Successfully put registry values!");
     } catch (registryErr) {
-        logger.error(`async putRegistryValues(): Error putting registry values:\n${registryErr.message}\n${registryErr.stack}`);
+        logger.error(
+            `async putRegistryValues(): Error putting registry values:\n${registryErr.message}\n${registryErr.stack}`,
+        );
     }
 };
 
@@ -16,14 +18,18 @@ const listRegistryItems = async (keysToList) => {
     try {
         return await promisifiedRegedit.list(keysToList);
     } catch (registryErr) {
-        logger.error(`async listRegistryItems(): Error listing registry keys:\n${registryErr.message}\n${registryErr.stack}`);
+        logger.error(
+            `async listRegistryItems(): Error listing registry keys:\n${registryErr.message}\n${registryErr.stack}`,
+        );
     }
 };
 
 const getRegistryItemKeys = (registryItems, options = { exclude: "none" }) => {
     const exclusion = options.exclude;
     if (!["existing", "missing", "none"].includes(exclusion)) {
-        throw new Error("Invalid values provided for property 'exclude'. Must be 'missing', 'existing' or 'none'");
+        throw new Error(
+            "Invalid values provided for property 'exclude'. Must be 'missing', 'existing' or 'none'",
+        );
     }
     const registryItemKeys = [];
     for (const key in registryItems) {
@@ -39,7 +45,9 @@ const getRegistryItemKeys = (registryItems, options = { exclude: "none" }) => {
 };
 
 const createRegistryKeys = async (registryItems) => {
-    const keysToCreate = getRegistryItemKeys(registryItems, { exclude: "existing" });
+    const keysToCreate = getRegistryItemKeys(registryItems, {
+        exclude: "existing",
+    });
     if (keysToCreate.length === 0) {
         return;
     }
@@ -48,12 +56,16 @@ const createRegistryKeys = async (registryItems) => {
         await promisifiedRegedit.createKey(keysToCreate);
         logger.info("Successfully created registry keys!");
     } catch (registryErr) {
-        logger.error(`async createRegistryKeys(): Error creating registry keys:\n${registryErr.message}\n${registryErr.stack}`);
+        logger.error(
+            `async createRegistryKeys(): Error creating registry keys:\n${registryErr.message}\n${registryErr.stack}`,
+        );
     }
 };
 
 const deleteRegistryKeys = async (registryItems) => {
-    const keysToDelete = getRegistryItemKeys(registryItems, { exclude: "missing" });
+    const keysToDelete = getRegistryItemKeys(registryItems, {
+        exclude: "missing",
+    });
     if (keysToDelete.length === 0) {
         return;
     }
@@ -62,11 +74,13 @@ const deleteRegistryKeys = async (registryItems) => {
         await promisifiedRegedit.deleteKey(keysToDelete);
         logger.info("Successfully deleted registry keys!");
     } catch (registryErr) {
-        logger.error(`async deleteRegistryKeys(): Error deleting registry keys:\n${registryErr.message}\n${registryErr.stack}`);
+        logger.error(
+            `async deleteRegistryKeys(): Error deleting registry keys:\n${registryErr.message}\n${registryErr.stack}`,
+        );
     }
 };
 
-module.exports = {
+export {
     listRegistryItems,
     putRegistryValues,
     createRegistryKeys,

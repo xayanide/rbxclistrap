@@ -1,7 +1,6 @@
-"use strict";
-const nodeFs = require("fs");
-const nodePath = require("path");
-const { colors } = require("./constants.js");
+import * as nodeFs from "node:fs";
+import * as nodePath from "node:path";
+import { colors } from "./constants.js";
 
 const LOG_LEVELS = {
     info: `${colors.GREEN}INFO${colors.RESET}`,
@@ -11,7 +10,7 @@ const LOG_LEVELS = {
 };
 
 const logFileISOTimestamp = new Date().toISOString().split(":").join("-");
-const logsPath = nodePath.join(__dirname, "..", "logs");
+const logsPath = nodePath.join(import.meta.dirname, "..", "logs");
 
 try {
     if (!nodeFs.existsSync(logsPath)) {
@@ -70,4 +69,4 @@ const logger = {
     },
 };
 
-module.exports = logger;
+export default logger;

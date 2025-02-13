@@ -1,6 +1,5 @@
-"use strict";
-const nodePath = require("path");
-const AdmZip = require("adm-zip");
+import * as nodePath from "node:path";
+import AdmZip from "adm-zip";
 
 const extractZip = (filePath, extractTo, mappings) => {
     const fileName = nodePath.basename(filePath);
@@ -23,4 +22,4 @@ const extractZip = (filePath, extractTo, mappings) => {
     });
 };
 
-module.exports = extractZip;
+export default extractZip;

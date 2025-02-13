@@ -1,6 +1,5 @@
-"use strict";
-const nodeFs = require("fs");
-const nodeCrypto = require("crypto");
+import * as nodeFs from "node:fs";
+import * as nodeCrypto from "node:crypto";
 
 const verifyChecksum = (filePath, expectedChecksum) => {
     return new Promise((resolve, reject) => {
@@ -17,4 +16,4 @@ const verifyChecksum = (filePath, expectedChecksum) => {
     });
 };
 
-module.exports = verifyChecksum;
+export default verifyChecksum;

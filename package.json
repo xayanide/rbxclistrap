@@ -1,8 +1,9 @@
 {
   "name": "rbxclistrap",
-  "version": "1.5.0",
+  "version": "2.0.0",
+  "type": "module",
   "engines": {
-    "node": ">=20.18.3"
+    "node": ">=20.11.0"
   },
   "description": "A CLI alternative Roblox Player and Roblox Studio bootstrapper",
   "main": "launchBootstrapper.js",
@@ -11,8 +12,8 @@
     "start:studio": "node launchBootstrapper.js WindowsStudio64",
     "lint": "eslint . --ignore-pattern '**/.config/'",
     "lint:fix": "eslint . --fix --ignore-pattern '**/.config/'",
-    "lint:format": "prettier . --write",
-    "lint:check": "prettier . --check"
+    "format:write": "prettier . --write",
+    "format:check": "prettier . --check"
   },
   "author": "xayanide",
   "license": "GPL-3.0-only",

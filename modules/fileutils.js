@@ -1,6 +1,6 @@
-"use strict";
-const nodeFs = require("fs");
-const nodePath = require("path");
+import * as nodeFs from "node:fs";
+import * as nodePath from "node:path";
+import * as nodeUrl from "node:url";
 
 const deleteFolderRecursive = (folderPath) => {
     if (!nodeFs.existsSync(folderPath)) {
@@ -30,8 +30,9 @@ const loadJson = (filePath, defaultData) => {
     return JSON.parse(nodeFs.readFileSync(filePath));
 };
 
-module.exports = {
-    deleteFolderRecursive,
-    saveJson,
-    loadJson,
+const getDirname = (metaUrl) => {
+    const filename = nodeUrl.fileURLToPath(metaUrl);
+    return nodePath.dirname(filename);
 };
+
+export { deleteFolderRecursive, saveJson, loadJson, getDirname };
