@@ -332,8 +332,7 @@ const launchAutoUpdater = async (binaryType) => {
     }
     console.log(`${colors.MAGENTA}Available versions:`);
     for (let i = 0; i < versions.length; i++) {
-        const version = versions[i];
-        console.log(`${colors.CYAN}${i + 1}. ${version}${colors.RESET}`);
+        console.log(`${colors.CYAN}${i + 1}. ${versions[i]}${colors.RESET}`);
     }
     let selectedVersion = "";
     if (versions.length === 1) {
@@ -342,12 +341,12 @@ const launchAutoUpdater = async (binaryType) => {
     } else {
         const answer = await createPrompt("Select a version (1/2/3...): ");
         const versionIndex = parseInt(answer, 10) - 1;
-        if (!versionIndex || versionIndex < 0 || versionIndex >= versions.length) {
+        if (isNaN(versionIndex) || typeof versionIndex !== "number" || versionIndex < 0 || versionIndex >= versions.length) {
             throw new Error("Invalid version selected.");
         }
         selectedVersion = versions[versionIndex];
     }
-    logger.info(`Current version: ${selectedVersion}`);
+    logger.info(`Selected version: ${selectedVersion}`);
     if (latestVersion === "") {
         logger.info(`Unable to determine the latest version.`);
         return selectedVersion;
