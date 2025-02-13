@@ -17,7 +17,7 @@ export default {
     1080p Screen with VS Code Zoom Level 1: 172
     */
     printWidth: 172,
-    quoteProps: "always",
+    quoteProps: "consistent",
     experimentalTernaries: true,
     arrowParens: "always",
     bracketSpacing: true,
