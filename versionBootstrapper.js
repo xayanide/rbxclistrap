@@ -342,7 +342,7 @@ const launchAutoUpdater = async (binaryType) => {
     } else {
         const answer = await createPrompt("Select a version (1/2/3...): ");
         const versionIndex = parseInt(answer, 10) - 1;
-        if (versionIndex < 0 || versionIndex >= versions.length) {
+        if (!versionIndex || versionIndex < 0 || versionIndex >= versions.length) {
             throw new Error("Invalid version selected.");
         }
         selectedVersion = versions[versionIndex];
