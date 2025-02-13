@@ -16,12 +16,12 @@ export default {
     /** Preferenced settings: */
     /**
     My PrintWidth Preferences:
-    Default: 80
+    Any Screen with VS Code Zoom Level Any: 80
     1080p Screen with VS Code Zoom Level 0: 211
     1080p Screen with VS Code Zoom Level 1: 172
     */
-    tabWidth: 4,
     printWidth: 172,
+    tabWidth: 4,
     quoteProps: "consistent",
     experimentalTernaries: true,
 };
