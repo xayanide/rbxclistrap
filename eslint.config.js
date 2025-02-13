@@ -15,12 +15,12 @@ const stylisticFormattingRules = {
     "@stylistic/multiline-comment-style": ["error", "bare-block"],
 };
 
-const eslintFormattingRules = { "arrow-body-style": ["error", "always"], curly: ["error", "all"], "no-inline-comments": "error" };
+const eslintFormattingRules = { "arrow-body-style": ["error", "always"], "curly": ["error", "all"], "no-inline-comments": "error" };
 
 const eslintCodeQualityRules = {
     "func-style": ["off", "declaration", { overrides: { namedExports: "ignore" } }],
     "no-console": "off",
-    radix: ["error", "always"],
+    "radix": ["error", "always"],
     "no-shadow": ["error", { builtinGlobals: true, hoist: "all", allow: [], ignoreOnInitialization: true }],
     "no-negated-condition": "error",
     "no-unneeded-ternary": ["error", { defaultAssignment: true }],
@@ -29,8 +29,8 @@ const eslintCodeQualityRules = {
     "no-use-before-define": ["error", { functions: false, classes: true, variables: true, allowNamedExports: false }],
     "prefer-const": ["error", { destructuring: "any", ignoreReadBeforeAssign: false }],
     "require-await": "error",
-    strict: ["error", "global"],
-    yoda: "error",
+    "strict": ["error", "global"],
+    "yoda": "error",
 };
 
 /**

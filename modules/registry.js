@@ -8,9 +8,7 @@ const putRegistryValues = async (valuesToPut) => {
         await promisifiedRegedit.putValue(valuesToPut);
         logger.info("Successfully put registry values!");
     } catch (registryErr) {
-        logger.error(
-            `async putRegistryValues(): Error putting registry values:\n${registryErr.message}\n${registryErr.stack}`,
-        );
+        logger.error(`async putRegistryValues(): Error putting registry values:\n${registryErr.message}\n${registryErr.stack}`);
     }
 };
 
@@ -18,18 +16,14 @@ const listRegistryItems = async (keysToList) => {
     try {
         return await promisifiedRegedit.list(keysToList);
     } catch (registryErr) {
-        logger.error(
-            `async listRegistryItems(): Error listing registry keys:\n${registryErr.message}\n${registryErr.stack}`,
-        );
+        logger.error(`async listRegistryItems(): Error listing registry keys:\n${registryErr.message}\n${registryErr.stack}`);
     }
 };
 
 const getRegistryItemKeys = (registryItems, options = { exclude: "none" }) => {
     const exclusion = options.exclude;
     if (!["existing", "missing", "none"].includes(exclusion)) {
-        throw new Error(
-            "Invalid values provided for property 'exclude'. Must be 'missing', 'existing' or 'none'",
-        );
+        throw new Error("Invalid values provided for property 'exclude'. Must be 'missing', 'existing' or 'none'");
     }
     const registryItemKeys = [];
     for (const key in registryItems) {
@@ -56,9 +50,7 @@ const createRegistryKeys = async (registryItems) => {
         await promisifiedRegedit.createKey(keysToCreate);
         logger.info("Successfully created registry keys!");
     } catch (registryErr) {
-        logger.error(
-            `async createRegistryKeys(): Error creating registry keys:\n${registryErr.message}\n${registryErr.stack}`,
-        );
+        logger.error(`async createRegistryKeys(): Error creating registry keys:\n${registryErr.message}\n${registryErr.stack}`);
     }
 };
 
@@ -74,15 +66,8 @@ const deleteRegistryKeys = async (registryItems) => {
         await promisifiedRegedit.deleteKey(keysToDelete);
         logger.info("Successfully deleted registry keys!");
     } catch (registryErr) {
-        logger.error(
-            `async deleteRegistryKeys(): Error deleting registry keys:\n${registryErr.message}\n${registryErr.stack}`,
-        );
+        logger.error(`async deleteRegistryKeys(): Error deleting registry keys:\n${registryErr.message}\n${registryErr.stack}`);
     }
 };
 
-export {
-    listRegistryItems,
-    putRegistryValues,
-    createRegistryKeys,
-    deleteRegistryKeys,
-};
+export { listRegistryItems, putRegistryValues, createRegistryKeys, deleteRegistryKeys };

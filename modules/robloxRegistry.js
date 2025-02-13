@@ -1,23 +1,11 @@
 import * as nodePath from "node:path";
-import {
-    listRegistryItems,
-    createRegistryKeys,
-    putRegistryValues,
-} from "./registry.js";
+import { listRegistryItems, createRegistryKeys, putRegistryValues } from "./registry.js";
 import { getDirname } from "./fileUtils.js";
 import logger from "./logger.js";
 
 const metaUrl = import.meta.url;
-const playerRunPath = nodePath.join(
-    getDirname(metaUrl),
-    "..",
-    "run-player.bat",
-);
-const studioRunPath = nodePath.join(
-    getDirname(metaUrl),
-    "..",
-    "run-studio.bat",
-);
+const playerRunPath = nodePath.join(getDirname(metaUrl), "..", "run-player.bat");
+const studioRunPath = nodePath.join(getDirname(metaUrl), "..", "run-studio.bat");
 
 /**
 Registry Data Structure Example
@@ -70,7 +58,7 @@ const getPlayerRegistryData = (binaryPath) => {
     const playerProtocolName = `URL:RobloxPlayerCLIStrap Protocol`;
     return {
         "HKCU\\Software\\Classes\\roblox": {
-            DEFAULT_VALUE_NAME: {
+            "DEFAULT_VALUE_NAME": {
                 value: playerProtocolName,
                 type: "REG_DEFAULT",
             },
@@ -93,7 +81,7 @@ const getPlayerRegistryData = (binaryPath) => {
             },
         },
         "HKCU\\Software\\Classes\\roblox-player": {
-            DEFAULT_VALUE_NAME: {
+            "DEFAULT_VALUE_NAME": {
                 value: playerProtocolName,
                 type: "REG_DEFAULT",
             },
@@ -124,7 +112,7 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
     const studioProtocolName = `URL:RobloxStudioCLIStrap Protocol`;
     return {
         "HKCU\\Software\\Classes\\roblox-studio": {
-            DEFAULT_VALUE_NAME: {
+            "DEFAULT_VALUE_NAME": {
                 value: studioProtocolName,
                 type: "REG_DEFAULT",
             },
@@ -148,7 +136,7 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
             version: { value: selectedVersion, type: "REG_SZ" },
         },
         "HKCU\\Software\\Classes\\roblox-studio-auth": {
-            DEFAULT_VALUE_NAME: {
+            "DEFAULT_VALUE_NAME": {
                 value: studioProtocolName,
                 type: "REG_DEFAULT",
             },
@@ -219,11 +207,7 @@ const getStudioFileExtensionsRegistryData = () => {
     };
 };
 
-const getRegistryDataKeyPaths = (
-    registryKeys,
-    parentPath = "",
-    result = [],
-) => {
+const getRegistryDataKeyPaths = (registryKeys, parentPath = "", result = []) => {
     for (const keyPath in registryKeys) {
         const keyPathValues = registryKeys[keyPath];
         if (typeof keyPathValues === "object" && !("value" in keyPathValues)) {
@@ -236,22 +220,14 @@ const getRegistryDataKeyPaths = (
 };
 
 const getItemValueType = (valueName, valueType) => {
-    if (
-        valueName === "" ||
-        valueType === "REG_DEFAULT" ||
-        (valueName === "" && valueType === "REG_SZ")
-    ) {
+    if (valueName === "" || valueType === "REG_DEFAULT" || (valueName === "" && valueType === "REG_SZ")) {
         return "REG_DEFAULT";
     }
     return valueType;
 };
 
 const getPutValueName = (valueName, valueType) => {
-    if (
-        valueName === "" ||
-        valueType === "REG_DEFAULT" ||
-        (valueName === "" && valueType === "REG_SZ")
-    ) {
+    if (valueName === "" || valueType === "REG_DEFAULT" || (valueName === "" && valueType === "REG_SZ")) {
         return "DEFAULT_VALUE_NAME";
     }
     return valueName;
@@ -282,10 +258,7 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
         }
         for (const itemValueName in itemValues) {
             const itemValue = itemValues[itemValueName];
-            const itemValueType = getItemValueType(
-                itemValueName,
-                itemValue.type,
-            );
+            const itemValueType = getItemValueType(itemValueName, itemValue.type);
             const putValueName = getPutValueName(itemValueName, itemValueType);
             const putValue = valuesToPutValues[putValueName];
             if (!putValue) {
@@ -293,10 +266,7 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
             }
             const putValueType = putValue.type;
             const putValueData = putValue.value;
-            if (
-                putValueData !== itemValue.value ||
-                putValueType !== itemValueType
-            ) {
+            if (putValueData !== itemValue.value || putValueType !== itemValueType) {
                 if (!filteredValues[keyPath]) {
                     filteredValues[keyPath] = {};
                 }
@@ -319,15 +289,10 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
     return filteredValues;
 };
 
-const updateRegistryValues = async (
-    valuesToPut,
-    options = { overwrite: true, currentRegistryItems: {} },
-) => {
+const updateRegistryValues = async (valuesToPut, options = { overwrite: true, currentRegistryItems: {} }) => {
     const isOverwrite = options.overwrite;
     if (typeof isOverwrite !== "boolean") {
-        throw new Error(
-            "Invalid values provided for property 'overwrite'. Must be a boolean.",
-        );
+        throw new Error("Invalid values provided for property 'overwrite'. Must be a boolean.");
     }
     if (isOverwrite) {
         logger.info("Force updating registry values...");
@@ -335,22 +300,13 @@ const updateRegistryValues = async (
         return;
     }
     const currentRegistryItems = options.currentRegistryItems;
-    if (
-        typeof currentRegistryItems !== "object" ||
-        currentRegistryItems === null ||
-        Array.isArray(currentRegistryItems)
-    ) {
-        throw new Error(
-            "Invalid values provided for property 'currentRegistryItems'. Must be an object.",
-        );
+    if (typeof currentRegistryItems !== "object" || currentRegistryItems === null || Array.isArray(currentRegistryItems)) {
+        throw new Error("Invalid values provided for property 'currentRegistryItems'. Must be an object.");
     }
     if (Object.keys(currentRegistryItems).length === 0) {
         return;
     }
-    const filteredValuesToPut = filterRegistryValues(
-        valuesToPut,
-        currentRegistryItems,
-    );
+    const filteredValuesToPut = filterRegistryValues(valuesToPut, currentRegistryItems);
     if (Object.keys(filteredValuesToPut).length === 0) {
         return;
     }
@@ -368,10 +324,4 @@ const setRegistryData = async (valuesToPut) => {
     });
 };
 
-export {
-    getPlayerRegistryData,
-    getStudioRegistryData,
-    getStudioPlaceRegistryData,
-    getStudioFileExtensionsRegistryData,
-    setRegistryData,
-};
+export { getPlayerRegistryData, getStudioRegistryData, getStudioPlaceRegistryData, getStudioFileExtensionsRegistryData, setRegistryData };

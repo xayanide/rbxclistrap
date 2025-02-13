@@ -31,8 +31,7 @@ const folderMappings = {
         "content-terrain.zip": "PlatformContent/pc/terrain/",
         // Content-Platform
         "content-platform-fonts.zip": "PlatformContent/pc/fonts/",
-        "content-platform-dictionaries.zip":
-            "PlatformContent/pc/shared_compression_dictionaries/",
+        "content-platform-dictionaries.zip": "PlatformContent/pc/shared_compression_dictionaries/",
         // ExtraContent
         "extracontent-luapackages.zip": "ExtraContent/LuaPackages/",
         "extracontent-translations.zip": "ExtraContent/translations/",

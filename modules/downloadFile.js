@@ -10,9 +10,7 @@ const downloadFile = async (url, filePath, progressBar) => {
         });
         const totalLength = parseInt(headers["content-length"], 10);
         // The content length for RobloxPlayerLauncher is sometimes wrong, maybe it's compressed, and the size received is decompressed.
-        logger.info(
-            `Downloading ${filePath} (${totalLength} bytes) from ${url}`,
-        );
+        logger.info(`Downloading ${filePath} (${totalLength} bytes) from ${url}`);
         progressBar.start(totalLength, 0);
         const writeStream = nodeFs.createWriteStream(filePath);
         data.pipe(writeStream);
@@ -25,16 +23,12 @@ const downloadFile = async (url, filePath, progressBar) => {
                 resolve();
             });
             writeStream.on("error", (writeErr) => {
-                logger.error(
-                    `Error writing ${filePath}:\n${writeErr.message}\n${writeErr.stack}`,
-                );
+                logger.error(`Error writing ${filePath}:\n${writeErr.message}\n${writeErr.stack}`);
                 reject(writeErr);
             });
         });
     } catch (downloadErr) {
-        logger.error(
-            `Error downloading ${filePath} from ${url}:\n${downloadErr.message}\n${downloadErr.stack}`,
-        );
+        logger.error(`Error downloading ${filePath} from ${url}:\n${downloadErr.message}\n${downloadErr.stack}`);
         nodeProcess.exit(1);
     }
 };
