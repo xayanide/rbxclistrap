@@ -178,7 +178,8 @@ const showSettingsMenu = async () => {
     console.log(`${colors.MAGENTA}Settings Menu${colors.RESET}`);
     console.log(`${colors.GREEN}1. Toggle delete existing folders (Current: ${runnerConfig.deleteExistingFolders})${colors.RESET}`);
     console.log(`${colors.YELLOW}2. Toggle force update (Current: ${runnerConfig.forceUpdate})${colors.RESET}`);
-    console.log(`${colors.RED}3. Back to main menu${colors.RESET}`);
+    console.log(`${colors.BLUE}3. Toggle always run latest version (Current: ${runnerConfig.alwaysRunLatest})${colors.RESET}`);
+    console.log(`${colors.RED}4. Back to main menu${colors.RESET}`);
     const answer = await createPrompt("Select an option: ");
     switch (answer) {
         case "1":
@@ -196,6 +197,13 @@ const showSettingsMenu = async () => {
             await showSettingsMenu();
             break;
         case "3":
+            runnerConfig.alwaysRunLatest = !runnerConfig.alwaysRunLatest;
+            console.log(`${colors.BLUE}Force update set to: ${runnerConfig.alwaysRunLatest}${colors.RESET}`);
+            saveConfig();
+            await createPrompt("Press Enter to continue...");
+            await showSettingsMenu();
+            break;
+        case "4":
             await showMainMenu(runnerType);
             break;
         default:
@@ -213,7 +221,7 @@ const downloadVersion = async (version) => {
     const dumpDir = nodePath.join(versionsPath, versionFolder);
     if (nodeFs.existsSync(dumpDir) && !runnerConfig.forceUpdate) {
         logger.info(`Version ${version} is already downloaded...`);
-        nodeProcess.exit(0);
+        return;
     }
     if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingFolders) {
         try {
@@ -332,12 +340,17 @@ const launchAutoUpdater = async (binaryType) => {
     }
     console.log(`${colors.MAGENTA}Available versions:`);
     for (let i = 0; i < versions.length; i++) {
-        console.log(`${colors.CYAN}${i + 1}. ${versions[i]}${colors.RESET}`);
+        const version = versions[i];
+        console.log(`${colors.CYAN}${i + 1}. ${versions[i]}${colors.RESET}${version === latestVersion ? " (Latest)" : ""}`);
     }
     let selectedVersion = "";
     if (versions.length === 1) {
         selectedVersion = versions[0];
         logger.info(`Skipping prompt. Only one version found: ${selectedVersion}`);
+    } else if (runnerConfig.alwaysRunLatest) {
+        logger.info(`Skipping prompt. Will always run the latest version: ${latestVersion}`);
+        await downloadVersion(latestVersion);
+        return latestVersion;
     } else {
         const answer = await createPrompt("Select a version (1/2/3...): ");
         const versionIndex = parseInt(answer, 10) - 1;

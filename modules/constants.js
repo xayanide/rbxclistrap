@@ -108,7 +108,7 @@ const WEBVIEW_REGISTRY_KEYPATHS = [
 
 const BINARY_TYPES = { PLAYER: "WindowsPlayer", STUDIO: "WindowsStudio64" };
 
-const DEFAULT_CONFIG = { deleteExistingFolders: false, forceUpdate: false };
+const DEFAULT_CONFIG = { deleteExistingFolders: false, forceUpdate: false, alwaysRunLatest: false };
 
 const DEFAULT_FFLAGS = {
     FFlagAdServiceEnabled: "False",
