@@ -1,6 +1,9 @@
 import * as nodeFs from "node:fs";
 import * as nodePath from "node:path";
 import { colors } from "./constants.js";
+import { getDirname } from "./fileUtils.js";
+
+const metaUrl = import.meta.url;
 
 const LOG_LEVELS = {
     info: `${colors.GREEN}INFO${colors.RESET}`,
@@ -10,7 +13,7 @@ const LOG_LEVELS = {
 };
 
 const logFileISOTimestamp = new Date().toISOString().split(":").join("-");
-const logsPath = nodePath.join(import.meta.dirname, "..", "logs");
+const logsPath = nodePath.join(getDirname(metaUrl), "..", "logs");
 
 try {
     if (!nodeFs.existsSync(logsPath)) {
