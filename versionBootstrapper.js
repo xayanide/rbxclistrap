@@ -18,7 +18,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import * as nodeFs from "node:fs";
 import * as nodePath from "node:path";
 import * as nodeProcess from "node:process";
-import * as nodeReadline from "node:readline";
 import * as nodeChildProcess from "node:child_process";
 import cliProgress from "cli-progress";
 import axios from "axios";
@@ -28,6 +27,7 @@ import verifyChecksum from "./modules/verifyChecksum.js";
 import extractZip from "./modules/extractZip.js";
 import fetchLatestVersion from "./modules/fetchLatestVersion.js";
 import fetchPreviousVersion from "./modules/fetchPreviousVersion.js";
+import { createPrompt } from "./modules/prompt.js";
 import { killProcesses, isProcessesRunning } from "./modules/processes.js";
 import { deleteFolderRecursive, saveJson, loadJson, getDirname } from "./modules/fileUtils.js";
 import { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } from "./modules/robloxUrls.js";
@@ -64,16 +64,6 @@ const loadConfig = () => {
 };
 const loadFflags = () => {
     runnerFflags = loadJson(FFLAGS_FILE_PATH, DEFAULT_FFLAGS);
-};
-
-const createPrompt = (query) => {
-    return new Promise((resolve) => {
-        const readlineInterface = nodeReadline.createInterface({ input: nodeProcess.stdin, output: nodeProcess.stdout });
-        readlineInterface.question(query, (answer) => {
-            readlineInterface.close();
-            resolve(answer);
-        });
-    });
 };
 
 const getExistingVersions = (existingVersionsPath) => {
