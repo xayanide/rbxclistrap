@@ -1,38 +1,30 @@
-import * as nodeProcess from "node:process";
 import * as nodeFs from "node:fs";
 import axios from "axios";
 import logger from "./logger.js";
-import { createPrompt } from "./prompt.js";
 
 const downloadFile = async (url, filePath, progressBar) => {
-    try {
-        const { data, headers } = await axios.get(url, {
-            responseType: "stream",
+    const { data, headers } = await axios.get(url, {
+        responseType: "stream",
+    });
+    const totalLength = parseInt(headers["content-length"], 10);
+    // The content length for RobloxPlayerLauncher is sometimes wrong. Maybe it's compressed, then the size received is decompressed.
+    logger.info(`Downloading ${filePath} (${totalLength} bytes) from ${url}`);
+    progressBar.start(totalLength, 0);
+    const writeStream = nodeFs.createWriteStream(filePath);
+    data.pipe(writeStream);
+    return new Promise((resolve, reject) => {
+        data.on("data", (chunk) => {
+            progressBar.increment(chunk.length);
         });
-        const totalLength = parseInt(headers["content-length"], 10);
-        // The content length for RobloxPlayerLauncher is sometimes wrong. Maybe it's compressed, then the size received is decompressed.
-        logger.info(`Downloading ${filePath} (${totalLength} bytes) from ${url}`);
-        progressBar.start(totalLength, 0);
-        const writeStream = nodeFs.createWriteStream(filePath);
-        data.pipe(writeStream);
-        return new Promise((resolve, reject) => {
-            data.on("data", (chunk) => {
-                progressBar.increment(chunk.length);
-            });
-            data.on("end", () => {
-                progressBar.stop();
-                resolve();
-            });
-            writeStream.on("error", (writeErr) => {
-                logger.error(`Error writing ${filePath}:\n${writeErr.message}\n${writeErr.stack}`);
-                reject(writeErr);
-            });
+        data.on("end", () => {
+            progressBar.stop();
+            resolve();
         });
-    } catch (downloadErr) {
-        logger.error(`Error downloading ${filePath} from ${url}:\n${downloadErr.message}\n${downloadErr.stack}`);
-        await createPrompt("Something went wrong! Press any key to exit.");
-        nodeProcess.exit(1);
-    }
+        writeStream.on("error", (writeErr) => {
+            logger.error(`Error writing ${filePath}:\n${writeErr.message}\n${writeErr.stack}`);
+            reject(writeErr);
+        });
+    });
 };
 
 export default downloadFile;

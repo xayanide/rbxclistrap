@@ -6,10 +6,10 @@ import { BINARY_TYPES } from "./constants.js";
 const HISTORY_BINARY_TYPES = { PLAYER: "WindowsPlayer", STUDIO: "Studio64" };
 
 const fetchPreviousVersion = async (runnerType) => {
+    if (runnerType !== BINARY_TYPES.PLAYER || runnerType !== BINARY_TYPES.STUDIO) {
+        throw new Error("Invalid runner type. Must be WindowsPlayer or WindowsStudio64");
+    }
     try {
-        if (runnerType !== BINARY_TYPES.PLAYER || runnerType !== BINARY_TYPES.STUDIO) {
-            throw new Error("Invalid runner type. Must be WindowsPlayer or WindowsStudio64");
-        }
         const binaryType = runnerType === BINARY_TYPES.PLAYER ? HISTORY_BINARY_TYPES.PLAYER : HISTORY_BINARY_TYPES.STUDIO;
         const cdnBaseUrl = await getRobloxCDNBaseUrl();
         const url = `${cdnBaseUrl}/DeployHistory.txt`;
