@@ -245,14 +245,14 @@ const getRegistryDataKeyPaths = (registryKeys, parentPath = "", result = []) => 
     return result;
 };
 
-const getItemValueType = (valueName, valueType) => {
+const resolveExistingValueType = (valueName, valueType) => {
     if (valueName === "" || valueType === "REG_DEFAULT" || (valueName === "" && valueType === "REG_SZ")) {
         return "REG_DEFAULT";
     }
     return valueType;
 };
 
-const getPutValueName = (valueName, valueType) => {
+const resolvePutValueName = (valueName, valueType) => {
     if (valueName === "" || valueType === "REG_DEFAULT" || (valueName === "" && valueType === "REG_SZ")) {
         return "DEFAULT_VALUE_NAME";
     }
@@ -284,8 +284,10 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
         }
         for (const itemValueName in itemValues) {
             const itemValue = itemValues[itemValueName];
-            const itemValueType = getItemValueType(itemValueName, itemValue.type);
-            const putValueName = getPutValueName(itemValueName, itemValueType);
+            // Resolved itemValueType: REG_DEFAULT or its original type.
+            const itemValueType = resolveExistingValueType(itemValueName, itemValue.type);
+            // Resolved putValueName: DEFAULT_VALUE_NAME or its original name.
+            const putValueName = resolvePutValueName(itemValueName, itemValueType);
             const putValue = valuesToPutValues[putValueName];
             if (!putValue) {
                 continue;
@@ -299,6 +301,7 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
                 /**
                 Setting empty strings as value names are not allowed.
                 Change the type to REG_DEFAULT and set any placeholder name as the value name instead.
+                In this case, I set the their placeholder names as DEFAULT_VALUE_NAME.
                 */
                 filteredValues[keyPath][putValueName] = {
                     value: putValueData,
