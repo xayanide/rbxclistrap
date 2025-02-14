@@ -1,8 +1,8 @@
+Windows Registry Editor Version 5.00
 ;Note: These do not delete all registry entries related to Roblox. Only known necessary entries that typically
 ;should be deleted when a user uninstalls Roblox. Local user data related to Roblox will not be affected.
 ;Be sure to backup your registry if you're unsure. They can still be restored by simply installing and running Roblox.
 ;-xayanide
-Windows Registry Editor Version 5.00
 
 ;Delete values:
 ;Roblox Corporation
