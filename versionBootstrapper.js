@@ -328,7 +328,7 @@ const launchAutoUpdater = async (binaryType) => {
         await attemptKillProcesses(runnerProcesses);
     }
     logger.info(`Checking for ${runnerType} updates...`);
-    logger.info("Fetching the latest version of from channel: Live");
+    logger.info("Fetching the latest version from channel: Live");
     const latestVersion = await fetchLatestVersion(runnerType);
     logger.info(`Successfully fetched the latest version!`);
     const versionsPath = nodePath.join(getDirname(metaUrl), isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
