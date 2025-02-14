@@ -43,7 +43,7 @@ const installEdgeWebView = async (installPath) => {
         });
         logger.info("Successfully installed Microsoft Edge WebView2 Runtime!");
     } catch (webViewErr) {
-        logger.error(`async installEdgeWebView(): \n${webViewErr.message}\n${webViewErr.stack}`);
+        logger.error(`async installEdgeWebView():\n${webViewErr.message}\n${webViewErr.stack}`);
     }
 };
 
