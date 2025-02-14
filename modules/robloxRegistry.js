@@ -246,14 +246,16 @@ const getRegistryDataKeyPaths = (registryKeys, parentPath = "", result = []) => 
 };
 
 const resolveExistingValueType = (valueName, valueType) => {
-    if (valueName === "" || valueType === "REG_DEFAULT") {
+    const isDefaultValue = valueName === "" || valueType === "REG_DEFAULT";
+    if (isDefaultValue) {
         return "REG_DEFAULT";
     }
     return valueType;
 };
 
 const resolvePutValueName = (valueName, valueType) => {
-    if (valueName === "" || valueType === "REG_DEFAULT") {
+    const isDefaultValue = valueName === "" || valueType === "REG_DEFAULT";
+    if (isDefaultValue) {
         return "DEFAULT_VALUE_NAME";
     }
     return valueName;
