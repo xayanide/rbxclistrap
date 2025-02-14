@@ -276,7 +276,7 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
     for (const keyPath in currentRegistryItems) {
         const item = currentRegistryItems[keyPath];
         const itemValues = item.values;
-        if (!item.exists === 0) {
+        if (!item.exists) {
             continue;
         }
         const valuesToPutValues = valuesToPut[keyPath];
