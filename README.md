@@ -8,6 +8,7 @@ A CLI tool for managing Roblox WindowsPlayer and WindowsStudio64 versions, allow
 
 Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This will also install npm (Node Package Manager), which is required to install the dependencies for rbxclistrap.
 
+- Microsoft Windows 10 (or higher)
 - Node.js v20 (or higher)
 
 ### Installation
