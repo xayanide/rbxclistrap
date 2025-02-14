@@ -1,5 +1,6 @@
 import * as nodeProcess from "node:process";
 import { listRegistryItems, deleteRegistryKeys } from "./modules/registry.js";
+import { createPrompt } from "./modules/prompt.js";
 
 /**
 Placeholder:
@@ -20,5 +21,6 @@ try {
     nodeProcess.exit(0);
 } catch (error) {
     console.log(`Error while unregistering player:\n${error.message}\n${error.stack}`);
+    await createPrompt("Something went wrong! Press any key to exit.");
     nodeProcess.exit(1);
 }

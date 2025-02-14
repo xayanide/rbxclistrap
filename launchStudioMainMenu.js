@@ -1,6 +1,7 @@
 import * as nodeProcess from "node:process";
-import { loadConfig, loadFflags, showMainMenu } from "./versionBootstrapper.js";
 import logger from "./modules/logger.js";
+import { loadConfig, loadFflags, showMainMenu } from "./versionBootstrapper.js";
+import { createPrompt } from "./modules/prompt.js";
 
 try {
     loadConfig();
@@ -11,5 +12,6 @@ try {
     await showMainMenu(binaryType);
 } catch (error) {
     logger.error(`launchStudioMainMenu():\n${error.message}\n${error.stack}`);
+    await createPrompt("Something went wrong! Press any key to exit.");
     nodeProcess.exit(1);
 }

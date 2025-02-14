@@ -2,6 +2,7 @@ import * as nodeProcess from "node:process";
 import * as nodeFs from "node:fs";
 import axios from "axios";
 import logger from "./logger.js";
+import { createPrompt } from "./prompt.js";
 
 const downloadFile = async (url, filePath, progressBar) => {
     try {
@@ -29,6 +30,7 @@ const downloadFile = async (url, filePath, progressBar) => {
         });
     } catch (downloadErr) {
         logger.error(`Error downloading ${filePath} from ${url}:\n${downloadErr.message}\n${downloadErr.stack}`);
+        await createPrompt("Something went wrong! Press any key to exit.");
         nodeProcess.exit(1);
     }
 };

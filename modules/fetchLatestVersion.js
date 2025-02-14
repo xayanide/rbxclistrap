@@ -2,6 +2,7 @@ import * as nodeProcess from "node:process";
 import axios from "axios";
 import logger from "./logger.js";
 import { getRobloxClientSettingsBaseUrl } from "./robloxUrls.js";
+import { createPrompt } from "./prompt.js";
 
 const fetchLatestVersion = async (runnerType) => {
     try {
@@ -14,6 +15,7 @@ const fetchLatestVersion = async (runnerType) => {
         return axiosResponseData.clientVersionUpload;
     } catch (fetchErr) {
         logger.error(`async fetchLatestVersion():\n${fetchErr.message}\n${fetchErr.stack}`);
+        await createPrompt("Something went wrong! Press any key to exit.");
         nodeProcess.exit(1);
     }
 };

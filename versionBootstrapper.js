@@ -220,6 +220,7 @@ const downloadVersion = async (version) => {
             logger.info(`Successfully deleted existing folder: ${dumpDir}`);
         } catch (downloadErr) {
             logger.error(`async downloadVersion():\n${downloadErr.message}\n${downloadErr.stack}`);
+            await createPrompt("Something went wrong! Press any key to exit.");
             nodeProcess.exit(1);
         }
     }
@@ -304,6 +305,7 @@ const downloadFromChannel = async (channel) => {
         await downloadVersion(version);
     } catch (downloadErr) {
         logger.error(`async downloadFromChannel(): Failed to fetch version from channel ${channel}:\n${downloadErr.message}\n${downloadErr.stack}`);
+        await createPrompt("Something went wrong! Press any key to exit.");
         nodeProcess.exit(1);
     }
 };

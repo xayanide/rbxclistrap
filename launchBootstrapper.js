@@ -1,7 +1,8 @@
 import * as nodeProcess from "node:process";
+import logger from "./modules/logger.js";
 import { loadConfig, loadFflags, launchAutoUpdater, launchRoblox } from "./versionBootstrapper.js";
 import { BINARY_TYPES } from "./modules/constants.js";
-import logger from "./modules/logger.js";
+import { createPrompt } from "./modules/prompt.js";
 
 console.log(`rbxclistrap  Copyright (C) 2025  xayanide
 This program comes with ABSOLUTELY NO WARRANTY.
@@ -29,5 +30,6 @@ try {
     nodeProcess.exit(0);
 } catch (bootstrapperErr) {
     logger.error(`async launchBootstrapper():\n${bootstrapperErr.message}\n${bootstrapperErr.stack}`);
+    await createPrompt("Something went wrong! Press any key to exit.");
     nodeProcess.exit(1);
 }
