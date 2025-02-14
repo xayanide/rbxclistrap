@@ -1,3 +1,3 @@
 cd /d "%~dp0"
-node unregisterStudioProtocols.js
+node unregisterStudio.js
 pause
