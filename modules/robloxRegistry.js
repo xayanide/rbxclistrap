@@ -326,7 +326,7 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
         return;
     }
     const currentRegistryItems = options.currentRegistryItems;
-    if (typeof currentRegistryItems !== "object" || currentRegistryItems === null || Array.isArray(currentRegistryItems)) {
+    if (typeof currentRegistryItems !== "object" || currentRegistryItems === undefined || currentRegistryItems === null || Array.isArray(currentRegistryItems)) {
         throw new Error("Invalid values provided for property 'currentRegistryItems'. Must be an object.");
     }
     if (Object.keys(currentRegistryItems).length === 0) {
