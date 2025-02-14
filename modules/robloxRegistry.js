@@ -203,8 +203,7 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
                 type: "REG_DEFAULT",
             },
         },
-        /* Placeholder: 
-        "HKCU\\Software\\Classes\\roblox-studio\\shell": DEFAULT_VALUE, */
+        /* Placeholder: "HKCU\\Software\\Classes\\roblox-studio\\shell": DEFAULT_VALUE, */
         "HKCU\\Software\\Classes\\roblox-studio\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: studioOpenCommandPath,
@@ -226,8 +225,7 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
                 type: "REG_DEFAULT",
             },
         },
-        /* Placeholder:
-        "HKCU\\Software\\Classes\\roblox-studio-auth\\shell": DEFAULT_VALUE, */
+        /* Placeholder: "HKCU\\Software\\Classes\\roblox-studio-auth\\shell": DEFAULT_VALUE, */
         "HKCU\\Software\\Classes\\roblox-studio-auth\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: studioOpenCommandPath,
