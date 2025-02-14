@@ -90,6 +90,13 @@ const getPlayerRegistryData = (binaryPath, selectedVersion) => {
                 type: "REG_SZ",
             },
         },
+        /** Placeholder: "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer": DEFAULT VALUE, */
+        /** Placeholder:
+        "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer\\Channel": {
+             DEFAULT_VALUE_NAME: UNSET_VALUE, 
+            "www.roblox.com": { value: "zliveforbeta", type: "REG_SZ" },
+        },
+        */
         "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player": {
             DEFAULT_VALUE_NAME: {
                 value: playerRunPath,
@@ -164,13 +171,13 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
     return {
         /** ROBLOX Corporation */
         /** Placeholder: "HKCU\\Software\\ROBLOX Corporation": DEFAULT_VALUE, */
+        /** Placeholder:
         "HKCU\\Software\\ROBLOX Corporation\\Environments": {
-            /** Placeholder: DEFAULT_VALUE_NAME: UNSET_VALUE, */
-            "roblox-studio": {
-                value: "roblox-studio",
-                type: "REG_SZ",
-            },
+             DEFAULT_VALUE_NAME: UNSET_VALUE,
         },
+        */
+        /** Placeholder: "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio": DEFAULT VALUE, */
+        /** Placeholder: "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio\\Channel": DEFAULT VALUE, */
         "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio": {
             DEFAULT_VALUE_NAME: {
                 value: studioRunPath,
@@ -285,13 +292,13 @@ const getStudioFileExtensionsRegistryData = () => {
     };
 };
 
-const getRegistryDataKeyPaths = (registryKeys, parentPath = "", result = []) => {
-    for (const keyPath in registryKeys) {
-        const keyPathValues = registryKeys[keyPath];
-        if (typeof keyPathValues === "object" && !("value" in keyPathValues)) {
+const getRegistryDataKeyPaths = (registryData, parentPath = "", result = []) => {
+    for (const keyPath in registryData) {
+        const values = registryData[keyPath];
+        if (typeof values === "object" && !("value" in values)) {
             const fullPath = parentPath ? `${parentPath}\\${keyPath}` : keyPath;
             result.push(fullPath);
-            getRegistryDataKeyPaths(keyPathValues, fullPath, result);
+            getRegistryDataKeyPaths(values, fullPath, result);
         }
     }
     return result;
@@ -332,6 +339,9 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
             continue;
         }
         const valuesToPutValues = valuesToPut[keyPath];
+        if (!valuesToPutValues) {
+            continue;
+        }
         if (Object.keys(itemValues).length === 0) {
             filteredValues[keyPath] = valuesToPutValues;
             continue;
@@ -397,14 +407,14 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
     await putRegistryValues(filteredValuesToPut);
 };
 
-const setRegistryData = async (valuesToPut) => {
-    const keyPaths = getRegistryDataKeyPaths(valuesToPut);
-    const registryItems = await listRegistryItems(keyPaths);
-    await createRegistryKeys(registryItems);
+const setRegistryData = async (valuesToPut, keyPaths) => {
+    const currentRegistryItems = await listRegistryItems(keyPaths);
+    await createRegistryKeys(currentRegistryItems);
+    const afterCreateRegistryItems = await listRegistryItems(keyPaths);
     await updateRegistryValues(valuesToPut, {
         overwrite: false,
-        currentRegistryItems: await listRegistryItems(keyPaths),
+        currentRegistryItems: afterCreateRegistryItems,
     });
 };
 
-export { getPlayerRegistryData, getStudioRegistryData, getStudioPlaceRegistryData, getStudioFileExtensionsRegistryData, setRegistryData };
+export { getRegistryDataKeyPaths, getPlayerRegistryData, getStudioRegistryData, getStudioPlaceRegistryData, getStudioFileExtensionsRegistryData, setRegistryData };
