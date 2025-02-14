@@ -38,7 +38,7 @@ const findOptimalUrl = async (baseUrls, endpoint, expectedData = null) => {
         logger.info(`Using ${result} as the optimal URL`);
         return result;
     }
-    throw exceptions.length > 0 ? exceptions[0] : new Error("All test connection attempts failed.");
+    throw exceptions.length > 0 ? exceptions[0] : new Error("All test connection attempts failed. Check your internet connection?");
 };
 
 async function findFastestUrl(baseUrls, endpoint, expectedData = null) {
@@ -75,7 +75,7 @@ async function findFastestUrl(baseUrls, endpoint, expectedData = null) {
         }
     }
     if (!fastestUrl) {
-        throw new Error("None of the base URLs have responded!");
+        throw new Error("None of the base URLs have responded! Check your internet connection?");
     }
     logger.info(`Using ${fastestUrl} as the fastest URL`);
     return fastestUrl;
