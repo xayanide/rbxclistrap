@@ -83,13 +83,7 @@ const getPlayerRegistryData = (binaryPath, selectedVersion) => {
     return {
         /** ROBLOX Corporation */
         /** Placeholder: "HKCU\\Software\\ROBLOX Corporation": DEFAULT_VALUE, */
-        "HKCU\\Software\\ROBLOX Corporation\\Environments": {
-            /** Placeholder: DEFAULT_VALUE_NAME: UNSET_VALUE, */
-            "roblox-player": {
-                value: "roblox-player",
-                type: "REG_SZ",
-            },
-        },
+        /** Placeholder: "HKCU\\Software\\ROBLOX Corporation\\Environments": DEFAULT_VALUE, */
         /** Placeholder: "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer": DEFAULT VALUE, */
         /** Placeholder:
         "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer\\Channel": {
@@ -171,11 +165,7 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
     return {
         /** ROBLOX Corporation */
         /** Placeholder: "HKCU\\Software\\ROBLOX Corporation": DEFAULT_VALUE, */
-        /** Placeholder:
-        "HKCU\\Software\\ROBLOX Corporation\\Environments": {
-             DEFAULT_VALUE_NAME: UNSET_VALUE,
-        },
-        */
+        /** Placeholder: "HKCU\\Software\\ROBLOX Corporation\\Environments": DEFAULT_VALUE, */
         /** Placeholder: "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio": DEFAULT VALUE, */
         /** Placeholder: "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio\\Channel": DEFAULT VALUE, */
         "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio": {
