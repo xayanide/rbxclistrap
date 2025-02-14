@@ -23,7 +23,7 @@ When setting a value's name to blank "", its value type should explicitly be set
 
 In this registryData1, all values retain data and all of their value names are actually blank "" (even if they have names)
 as long as its value type is REG_DEFAULT
-There must ONLY be ONE VALUE with a type REG_DEFAULT per key.
+There must ONLY be ONE VALUE with a type REG_DEFAULT per key. This object is only for demonstration.
 
 const registryData1 = {
     "KEY\\PATH\\1": {
