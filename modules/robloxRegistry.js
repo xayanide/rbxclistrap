@@ -403,7 +403,7 @@ const setRegistryData = async (valuesToPut) => {
     await createRegistryKeys(registryItems);
     await updateRegistryValues(valuesToPut, {
         overwrite: false,
-        currentRegistryItems: registryItems,
+        currentRegistryItems: await listRegistryItems(keyPaths),
     });
 };
 
