@@ -20,7 +20,7 @@ const listRegistryItems = async (keysToList) => {
     }
 };
 
-const getRegistryItemKeys = (registryItems, options = { exclude: "none" }) => {
+const filterRegistryItems = (registryItems, options = { exclude: "none" }) => {
     const exclusion = options.exclude;
     if (!["existing", "missing", "none"].includes(exclusion)) {
         throw new Error("Invalid values provided for property 'exclude'. Must be 'missing', 'existing' or 'none'");
@@ -40,7 +40,7 @@ const getRegistryItemKeys = (registryItems, options = { exclude: "none" }) => {
 
 const createRegistryKeys = async (registryItems) => {
     // Creates only non-existent keys and excludes existing keys
-    const keysToCreate = getRegistryItemKeys(registryItems, {
+    const keysToCreate = filterRegistryItems(registryItems, {
         exclude: "existing",
     });
     if (keysToCreate.length === 0) {
@@ -57,7 +57,7 @@ const createRegistryKeys = async (registryItems) => {
 
 const deleteRegistryKeys = async (registryItems) => {
     // Deletes only existing keys and excludes non-existent keys
-    const keysToDelete = getRegistryItemKeys(registryItems, {
+    const keysToDelete = filterRegistryItems(registryItems, {
         exclude: "missing",
     });
     if (keysToDelete.length === 0) {
