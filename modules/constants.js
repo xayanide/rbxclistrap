@@ -142,19 +142,90 @@ const EXCLUDED_DEFAULT_FFLAGS = {
     DFIntVoiceChatRollOffMaxDistance: "1000",
 };
 
-/** Values and Keys to delete when unregistering Roblox Player */
-const PLAYER_REGISTRY_VALUE_PATHS = ["HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player"];
-const PLAYER_REGISTRY_KEY_PATHS = [
+/** Keys to create when registering Roblox Player */
+const REGISTER_PLAYER_KEY_PATHS = [
+    "HKCU\\Software\\ROBLOX Corporation",
+    "HKCU\\Software\\ROBLOX Corporation\\Environments",
+    /** External:
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer",
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer\\Channel",
+    */
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player",
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player\\Capabilities",
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player\\Capabilities\\UrlAssociations",
+    "HKCU\\Software\\Classes\\roblox",
+    "HKCU\\Software\\Classes\\roblox\\DefaultIcon",
+    "HKCU\\Software\\Classes\\roblox\\shell",
+    "HKCU\\Software\\Classes\\roblox\\shell\\open",
+    "HKCU\\Software\\Classes\\roblox\\shell\\open\\command",
+    "HKCU\\Software\\Classes\\roblox-player",
+    "HKCU\\Software\\Classes\\roblox-player\\DefaultIcon",
+    "HKCU\\Software\\Classes\\roblox-player\\shell",
+    "HKCU\\Software\\Classes\\roblox-player\\shell\\open",
+    "HKCU\\Software\\Classes\\roblox-player\\shell\\open\\command",
+];
+
+/** Keys to create when registering Roblox Studio */
+const REGISTER_STUDIO_KEY_PATHS = [
+    "HKCU\\Software\\ROBLOX Corporation",
+    "HKCU\\Software\\ROBLOX Corporation\\Environments",
+    /** External:
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio",
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio\\Channel",
+    */
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio",
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio\\Capabilities",
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio\\Capabilities\\UrlAssociations",
+    "HKCU\\Software\\Classes\\roblox-studio",
+    "HKCU\\Software\\Classes\\roblox-studio\\DefaultIcon",
+    "HKCU\\Software\\Classes\\roblox-studio\\shell",
+    "HKCU\\Software\\Classes\\roblox-studio\\shell\\open",
+    "HKCU\\Software\\Classes\\roblox-studio\\shell\\open\\command",
+    "HKCU\\Software\\Classes\\roblox-studio-auth",
+    "HKCU\\Software\\Classes\\roblox-studio-auth\\DefaultIcon",
+    "HKCU\\Software\\Classes\\roblox-studio-auth\\shell",
+    "HKCU\\Software\\Classes\\roblox-studio-auth\\shell\\open",
+    "HKCU\\Software\\Classes\\roblox-studio-auth\\shell\\open\\command",
+];
+
+/** Keys to create when registering Roblox Studio Place */
+const REGISTER_STUDIO_PLACE_KEY_PATHS = [
+    "HKCU\\Software\\Classes\\Roblox.Place",
+    "HKCU\\Software\\Classes\\Roblox.Place\\DefaultIcon",
+    "HKCU\\Software\\Classes\\Roblox.Place\\shell",
+    "HKCU\\Software\\Classes\\Roblox.Place\\shell\\Open",
+    "HKCU\\Software\\Classes\\Roblox.Place\\shell\\Open\\command",
+];
+
+/** Keys to create when registering Roblox Studio File Extensions */
+const REGISTER_STUDIO_FILE_EXTENSIONS_KEY_PATHS = [
+    "HKCU\\Software\\Classes\\.rbxl",
+    "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place",
+    "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place\\ShellNew",
+    "HKCU\\Software\\Classes\\.rbxlx",
+    "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place",
+    "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place\\ShellNew",
+];
+
+/** Values to delete when unregistering Roblox Player */
+const UNREGISTER_PLAYER_VALUE_PATHS = ["HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player"];
+
+/** Keys to delete when unregistering Roblox Player */
+const UNREGISTER_PLAYER_KEY_PATHS = [
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player",
+    // External:
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer",
     "HKCU\\Software\\Classes\\roblox",
     "HKCU\\Software\\Classes\\roblox-player",
 ];
 
-/** Values and Keys to delete when unregistering Roblox Studio */
-const STUDIO_REGISTRY_VALUE_PATHS = ["HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio"];
-const STUDIO_REGISTRY_KEY_PATHS = [
+/** Values to delete when unregistering Roblox Studio */
+const UNREGISTER_STUDIO_VALUE_PATHS = ["HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio"];
+
+/** Keys to delete when unregistering Roblox Player */
+const UNREGISTER_STUDIO_KEY_PATHS = [
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio",
+    // External:
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio",
     "HKCU\\Software\\Classes\\roblox-studio",
     "HKCU\\Software\\Classes\\roblox-studio-auth",
@@ -164,10 +235,14 @@ const STUDIO_REGISTRY_KEY_PATHS = [
 ];
 
 export {
-    PLAYER_REGISTRY_VALUE_PATHS,
-    PLAYER_REGISTRY_KEY_PATHS,
-    STUDIO_REGISTRY_VALUE_PATHS,
-    STUDIO_REGISTRY_KEY_PATHS,
+    REGISTER_PLAYER_KEY_PATHS,
+    REGISTER_STUDIO_KEY_PATHS,
+    REGISTER_STUDIO_PLACE_KEY_PATHS,
+    REGISTER_STUDIO_FILE_EXTENSIONS_KEY_PATHS,
+    UNREGISTER_PLAYER_VALUE_PATHS,
+    UNREGISTER_PLAYER_KEY_PATHS,
+    UNREGISTER_STUDIO_VALUE_PATHS,
+    UNREGISTER_STUDIO_KEY_PATHS,
     colors,
     DEPLOYMENT_DEFAULT_CHANNEL,
     folderMappings,

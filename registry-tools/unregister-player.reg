@@ -12,6 +12,7 @@ Windows Registry Editor Version 5.00
 ;Delete keys:
 ;Roblox Corporation
 [-HKEY_CURRENT_USER\SOFTWARE\ROBLOX Corporation\Environments\roblox-player]
+;External
 [-HKEY_CURRENT_USER\SOFTWARE\ROBLOX Corporation\Environments\RobloxPlayer]
 ;Roblox Player
 [-HKEY_CURRENT_USER\SOFTWARE\Classes\roblox]

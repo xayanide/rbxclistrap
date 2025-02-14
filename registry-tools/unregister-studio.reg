@@ -12,6 +12,7 @@ Windows Registry Editor Version 5.00
 ;Delete keys:
 ;Roblox Corporation
 [-HKEY_CURRENT_USER\SOFTWARE\ROBLOX Corporation\Environments\roblox-studio]
+;External
 [-HKEY_CURRENT_USER\SOFTWARE\ROBLOX Corporation\Environments\RobloxStudio]
 ;Roblox Studio
 [-HKEY_CURRENT_USER\SOFTWARE\Classes\roblox-studio]

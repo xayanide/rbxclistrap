@@ -39,7 +39,20 @@ import {
     getStudioFileExtensionsRegistryData,
     setRegistryData,
 } from "./modules/robloxRegistry.js";
-import { folderMappings, AppSettings, colors, PLAYER_PROCESSES, STUDIO_PROCESSES, BINARY_TYPES, DEFAULT_CONFIG, DEFAULT_FFLAGS } from "./modules/constants.js";
+import {
+    folderMappings,
+    AppSettings,
+    colors,
+    PLAYER_PROCESSES,
+    STUDIO_PROCESSES,
+    BINARY_TYPES,
+    DEFAULT_CONFIG,
+    DEFAULT_FFLAGS,
+    REGISTER_PLAYER_KEY_PATHS,
+    REGISTER_STUDIO_KEY_PATHS,
+    REGISTER_STUDIO_PLACE_KEY_PATHS,
+    REGISTER_STUDIO_FILE_EXTENSIONS_KEY_PATHS,
+} from "./modules/constants.js";
 
 const metaUrl = import.meta.url;
 const CONFIG_FILE_PATH = nodePath.join(getDirname(metaUrl), "./config.json");
@@ -92,26 +105,22 @@ const attemptKillProcesses = async (processes) => {
 };
 
 const applyFflags = (clientSettingsPath) => {
-    try {
-        const clientSettingsFolderPath = nodePath.join(clientSettingsPath, "ClientSettings");
-        if (!nodeFs.existsSync(clientSettingsFolderPath)) {
-            nodeFs.mkdirSync(clientSettingsFolderPath, { recursive: true });
-        }
-        logger.info(`Applying fflags.json...`);
-        const clientAppSettingsJsonPath = nodePath.join(clientSettingsFolderPath, "ClientAppSettings.json");
-        let existingSettings = "";
-        if (nodeFs.existsSync(clientAppSettingsJsonPath)) {
-            existingSettings = nodeFs.readFileSync(clientAppSettingsJsonPath, "utf8").trim();
-        }
-        const jsonFflags = JSON.stringify(runnerFflags, null, 2);
-        if (existingSettings === jsonFflags) {
-            logger.info(`FFlags already applied. No changes made.`);
-        } else {
-            nodeFs.writeFileSync(clientAppSettingsJsonPath, jsonFflags);
-            logger.info(`Successfully applied fflags.json to ${clientAppSettingsJsonPath}`);
-        }
-    } catch (fflagsErr) {
-        logger.error(`Error while verifying/applying fflags.json:\n${fflagsErr.message}\n${fflagsErr.stack}`);
+    const clientSettingsFolderPath = nodePath.join(clientSettingsPath, "ClientSettings");
+    if (!nodeFs.existsSync(clientSettingsFolderPath)) {
+        nodeFs.mkdirSync(clientSettingsFolderPath, { recursive: true });
+    }
+    logger.info(`Applying fflags.json...`);
+    const clientAppSettingsJsonPath = nodePath.join(clientSettingsFolderPath, "ClientAppSettings.json");
+    let existingSettings = "";
+    if (nodeFs.existsSync(clientAppSettingsJsonPath)) {
+        existingSettings = nodeFs.readFileSync(clientAppSettingsJsonPath, "utf8").trim();
+    }
+    const jsonFflags = JSON.stringify(runnerFflags, null, 2);
+    if (existingSettings === jsonFflags) {
+        logger.info(`FFlags already applied. No changes made.`);
+    } else {
+        nodeFs.writeFileSync(clientAppSettingsJsonPath, jsonFflags);
+        logger.info(`Successfully applied fflags.json to ${clientAppSettingsJsonPath}`);
     }
 };
 
@@ -214,15 +223,9 @@ const downloadVersion = async (version) => {
         return;
     }
     if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingFolders) {
-        try {
-            logger.info(`Deleting existing folder: ${dumpDir}`);
-            deleteFolderRecursive(dumpDir);
-            logger.info(`Successfully deleted existing folder: ${dumpDir}`);
-        } catch (downloadErr) {
-            logger.error(`async downloadVersion():\n${downloadErr.message}\n${downloadErr.stack}`);
-            await createPrompt("Something went wrong! Press any key to exit.");
-            nodeProcess.exit(1);
-        }
+        logger.info(`Deleting existing folder: ${dumpDir}`);
+        deleteFolderRecursive(dumpDir);
+        logger.info(`Successfully deleted existing folder: ${dumpDir}`);
     }
     nodeFs.mkdirSync(dumpDir, { recursive: true });
     const cdnBaseUrl = await getRobloxCDNBaseUrl();
@@ -295,19 +298,13 @@ const downloadCustomVersion = async (version) => {
 const downloadFromChannel = async (channel) => {
     const clientSettingsBaseUrl = await getRobloxClientSettingsBaseUrl(runnerType);
     const versionUrl = `${clientSettingsBaseUrl}/v2/client-version/${runnerType}/channel/${channel}`;
-    try {
-        logger.info(`Fetching the latest version of channel: ${channel}`);
-        const axiosResponse = await axios.get(versionUrl);
-        logger.info(`Successfully fetched the latest version of channel: ${channel}`);
-        const axiosResponseData = axiosResponse.data;
-        const version = axiosResponseData.clientVersionUpload;
-        logger.info(`Version from channel ${channel}: ${version}`);
-        await downloadVersion(version);
-    } catch (downloadErr) {
-        logger.error(`async downloadFromChannel(): Failed to fetch version from channel ${channel}:\n${downloadErr.message}\n${downloadErr.stack}`);
-        await createPrompt("Something went wrong! Press any key to exit.");
-        nodeProcess.exit(1);
-    }
+    logger.info(`Fetching the latest version from channel: ${channel}`);
+    const axiosResponse = await axios.get(versionUrl);
+    logger.info(`Successfully fetched the latest version from channel: ${channel}`);
+    const axiosResponseData = axiosResponse.data;
+    const version = axiosResponseData.clientVersionUpload;
+    logger.info(`Version from channel ${channel}: ${version}`);
+    await downloadVersion(version);
 };
 
 const launchAutoUpdater = async (binaryType) => {
@@ -377,11 +374,11 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
     }
     await installEdgeWebView(selectedVersionPath);
     if (isPlayerRunnerType(runnerType)) {
-        await setRegistryData(getPlayerRegistryData(binaryPath, selectedVersion));
+        await setRegistryData(getPlayerRegistryData(binaryPath, selectedVersion), REGISTER_PLAYER_KEY_PATHS);
     } else if (isStudioRunnerType(runnerType)) {
-        await setRegistryData(getStudioRegistryData(binaryPath, selectedVersion));
-        await setRegistryData(getStudioPlaceRegistryData(binaryPath));
-        await setRegistryData(getStudioFileExtensionsRegistryData());
+        await setRegistryData(getStudioRegistryData(binaryPath, selectedVersion), REGISTER_STUDIO_KEY_PATHS);
+        await setRegistryData(getStudioPlaceRegistryData(binaryPath), REGISTER_STUDIO_PLACE_KEY_PATHS);
+        await setRegistryData(getStudioFileExtensionsRegistryData(), REGISTER_STUDIO_FILE_EXTENSIONS_KEY_PATHS);
     }
     applyFflags(selectedVersionPath);
     let launchArgs = "";
