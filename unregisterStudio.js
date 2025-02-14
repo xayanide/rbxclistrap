@@ -2,6 +2,8 @@ import * as nodeProcess from "node:process";
 import { listRegistryItems, deleteRegistryKeys } from "./modules/registry.js";
 import { createPrompt } from "./modules/prompt.js";
 
+// Issue: Error: access is denied
+
 /**
 Placeholder:
 HKCU\\Software\\ROBLOX Corporation\\Environments
