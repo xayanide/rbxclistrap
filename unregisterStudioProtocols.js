@@ -2,6 +2,7 @@ import * as nodeProcess from "node:process";
 import { listRegistryItems, deleteRegistryKeys } from "./modules/registry.js";
 
 const STUDIO_ROOT_REGISTRY_KEYS = [
+    "HKCU\\SOFTWARE\\ROBLOX Corporation\\Environments\\roblox-studio,",
     "HKCU\\Software\\Classes\\roblox-studio",
     "HKCU\\Software\\Classes\\roblox-studio-auth",
     "HKCU\\Software\\Classes\\Roblox.Place",

@@ -55,7 +55,7 @@ const DEFAULT_VALUE = {
 const getPlayerRegistryData = (binaryPath) => {
     const playerDefaultIconPath = binaryPath;
     const playerOpenCommandPath = `"${playerRunPath}" "%1"`;
-    const playerProtocolName = `URL:RobloxPlayerCLIStrap Protocol`;
+    const playerProtocolName = "URL:RobloxPlayerCLIStrap Protocol";
     return {
         "HKCU\\Software\\Classes\\roblox": {
             "DEFAULT_VALUE_NAME": {
@@ -109,8 +109,29 @@ const getPlayerRegistryData = (binaryPath) => {
 const getStudioRegistryData = (binaryPath, selectedVersion) => {
     const studioDefaultIconPath = binaryPath;
     const studioOpenCommandPath = `"${studioRunPath}" %1`;
-    const studioProtocolName = `URL:RobloxStudioCLIStrap Protocol`;
+    const studioProtocolName = "URL:RobloxStudioCLIStrap Protocol";
     return {
+        /** ROBLOX Corporation */
+        // "HKCU\\Software\\Roblox Corporation": DEFAULT_VALUE,
+        "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio": {
+            DEFAULT_VALUE_NAME: {
+                value: studioRunPath,
+                type: "REG_DEFAULT",
+            },
+            baseHost: { value: "www.roblox.com", type: "REG_SZ" },
+            version: { value: selectedVersion, type: "REG_SZ" },
+            clientExe: { value: binaryPath, type: "REG_SZ" },
+        },
+        "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio\\Capabilities": {
+            ApplicationDescription: { value: "Roblox Studio", type: "REG_SZ" },
+            ApplicationIcon: { value: binaryPath, type: "REG_EXPAND_SZ" },
+            ApplicationName: { value: "Roblox Studio", type: "REG_SZ" },
+        },
+        "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio\\Capabilities\\UrlAssociations": {
+            "roblox-studio": { value: "roblox-studio", type: "REG_SZ" },
+            "roblox-studio-auth": { value: "roblox-studio-auth", type: "REG_SZ" },
+        },
+        /** roblox-studio */
         "HKCU\\Software\\Classes\\roblox-studio": {
             "DEFAULT_VALUE_NAME": {
                 value: studioProtocolName,
@@ -124,10 +145,12 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
                 type: "REG_DEFAULT",
             },
         },
-        // "HKCU\\Software\\Classes\\roblox-studio\\shell": DEFAULT_VALUE,
-        "HKCU\\Software\\Classes\\roblox-studio\\shell\\open": {
-            DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
-        },
+        /*
+        "HKCU\\Software\\Classes\\roblox-studio\\shell": DEFAULT_VALUE,
+           "HKCU\\Software\\Classes\\roblox-studio\\shell\\open": {
+               DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
+           },
+        */
         "HKCU\\Software\\Classes\\roblox-studio\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: studioOpenCommandPath,
@@ -135,6 +158,7 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
             },
             version: { value: selectedVersion, type: "REG_SZ" },
         },
+        /** roblox-studio-auth */
         "HKCU\\Software\\Classes\\roblox-studio-auth": {
             "DEFAULT_VALUE_NAME": {
                 value: studioProtocolName,
@@ -148,10 +172,12 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
                 type: "REG_DEFAULT",
             },
         },
-        // "HKCU\\Software\\Classes\\roblox-studio-auth\\shell": DEFAULT_VALUE,
+        /*
+        "HKCU\\Software\\Classes\\roblox-studio-auth\\shell": DEFAULT_VALUE,
         "HKCU\\Software\\Classes\\roblox-studio-auth\\shell\\open": {
-            DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
-        },
+               DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
+           },
+        */
         "HKCU\\Software\\Classes\\roblox-studio-auth\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: studioOpenCommandPath,
