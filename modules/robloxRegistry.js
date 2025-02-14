@@ -71,7 +71,7 @@ const DEFAULT_VALUE = {
 
 /**
 The placeholders will remain placeholders until there is a better solution due to issues setting default values with empty value names with regedit module.
-When those specific keys and values are changed (in the placeholders) manually or changed from an external source,
+Currently, when those specific keys and values are changed (in the placeholders) manually or changed from an external source,
 they will not be caught during checks and will not be updated to the values they're supposed to be set below.
 */
 
