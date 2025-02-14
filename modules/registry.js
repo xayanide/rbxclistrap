@@ -39,6 +39,7 @@ const getRegistryItemKeys = (registryItems, options = { exclude: "none" }) => {
 };
 
 const createRegistryKeys = async (registryItems) => {
+    // Creates only non-existent keys and excludes existing keys
     const keysToCreate = getRegistryItemKeys(registryItems, {
         exclude: "existing",
     });
@@ -55,6 +56,7 @@ const createRegistryKeys = async (registryItems) => {
 };
 
 const deleteRegistryKeys = async (registryItems) => {
+    // Deletes only existing keys and excludes non-existent keys
     const keysToDelete = getRegistryItemKeys(registryItems, {
         exclude: "missing",
     });
