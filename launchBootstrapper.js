@@ -30,6 +30,6 @@ try {
     nodeProcess.exit(0);
 } catch (bootstrapperErr) {
     logger.error(`async launchBootstrapper():\n${bootstrapperErr.message}\n${bootstrapperErr.stack}`);
-    await createPrompt("Something went wrong! Press any key to exit.");
+    await createPrompt("Something went wrong! Press and enter any key to exit.");
     nodeProcess.exit(1);
 }

@@ -12,6 +12,6 @@ try {
     await showMainMenu(binaryType);
 } catch (error) {
     logger.error(`launchPlayerMainMenu():\n${error.message}\n${error.stack}`);
-    await createPrompt("Something went wrong! Press any key to exit.");
+    await createPrompt("Something went wrong! Press and enter any key to exit.");
     nodeProcess.exit(1);
 }
