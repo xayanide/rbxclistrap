@@ -16,33 +16,50 @@ Each folder can hold multiple named values. Every named value has two properties
 - valueData (value)
 - valueType (type)
 
-When setting a value's name to blank '', its value type should explicitly be set as REG_DEFAULT.
-
 Setting a value's type to REG_DEFAULT makes its name insignificant and
-becomes equivalent to a value with a blank name '' (Named as '(Default)' in the Registy.).
+becomes equivalent to a value with a blank name "" (Named as '(Default)' in the Registy.).
 
-const registryKeys = {
+When setting a value's name to blank "", its value type should explicitly be set as REG_DEFAULT.
+
+In this registryData1, all values retain data and all of their value names are actually blank "" (even if they have names)
+as long as its value type is REG_DEFAULT
+There must ONLY be ONE VALUE with a type REG_DEFAULT per key.
+
+const registryData1 = {
     "KEY\\PATH\\1": {
-        valueName1: {
+        "": {
             valueData: "Data1",
+            valueType: "REG_DEFAULT",
+        },
+        valueName2: {
+            valueData: "Data2",
             valueType: "REG_DEFAULT",
         },
         "": {
             valueData: "",
             valueType: "REG_DEFAULT",
         },
-    },
-    "KEY\\PATH\\2": {
-        valueName1: {
-            valueData: "Data1",
-            valueType: "REG_DEFAULT",
-        },
-        "": {
+        valueName4NoData: {
             valueData: "",
             valueType: "REG_DEFAULT",
         },
     },
 };
+
+In registryData2, all values retain data and have actual value names as long as their value name is not empty
+and their type is not REG_DEFAULT.
+const registryData2 = {
+    "KEY\\PATH\\2": {
+        valueName1: {
+            valueData: "Data1",
+            valueType: "REG_SZ",
+        },
+        valueName2NoData: {
+            valueData: "",
+            valueType: "REG_SZ",
+        },
+    },
+}
 */
 
 /* Placeholder:
