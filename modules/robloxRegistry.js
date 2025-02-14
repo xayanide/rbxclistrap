@@ -124,12 +124,7 @@ const getPlayerRegistryData = (binaryPath, selectedVersion) => {
                 type: "REG_DEFAULT",
             },
         },
-        /** Placeholder:
-        "HKCU\\Software\\Classes\\roblox\\shell": DEFAULT_VALUE,
-        "HKCU\\Software\\Classes\\roblox\\shell\\open": {
-            DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
-        },
-        */
+        /** Placeholder: "HKCU\\Software\\Classes\\roblox\\shell": DEFAULT_VALUE, */
         "HKCU\\Software\\Classes\\roblox\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: playerOpenCommandPath,
@@ -150,12 +145,7 @@ const getPlayerRegistryData = (binaryPath, selectedVersion) => {
                 type: "REG_DEFAULT",
             },
         },
-        /** Placeholder:
-        "HKCU\\Software\\Classes\\roblox-player\\shell": DEFAULT_VALUE,
-        "HKCU\\Software\\Classes\\roblox-player\\shell\\open": {
-            DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
-        },
-        */
+        /** Placeholder: "HKCU\\Software\\Classes\\roblox-player\\shell": DEFAULT_VALUE, */
         "HKCU\\Software\\Classes\\roblox-player\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: playerOpenCommandPath,
@@ -213,12 +203,8 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
                 type: "REG_DEFAULT",
             },
         },
-        /* Placeholder:
-        "HKCU\\Software\\Classes\\roblox-studio\\shell": DEFAULT_VALUE,
-        "HKCU\\Software\\Classes\\roblox-studio\\shell\\open": {
-            DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
-        },
-        */
+        /* Placeholder: 
+        "HKCU\\Software\\Classes\\roblox-studio\\shell": DEFAULT_VALUE, */
         "HKCU\\Software\\Classes\\roblox-studio\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: studioOpenCommandPath,
@@ -241,11 +227,7 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
             },
         },
         /* Placeholder:
-        "HKCU\\Software\\Classes\\roblox-studio-auth\\shell": DEFAULT_VALUE,
-        "HKCU\\Software\\Classes\\roblox-studio-auth\\shell\\open": {
-            DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
-        },
-        */
+        "HKCU\\Software\\Classes\\roblox-studio-auth\\shell": DEFAULT_VALUE, */
         "HKCU\\Software\\Classes\\roblox-studio-auth\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: studioOpenCommandPath,
