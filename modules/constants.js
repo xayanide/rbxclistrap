@@ -142,7 +142,32 @@ const EXCLUDED_DEFAULT_FFLAGS = {
     DFIntVoiceChatRollOffMaxDistance: "1000",
 };
 
+/** Values and Keys to delete when unregistering Roblox Player */
+const PLAYER_REGISTRY_VALUE_PATHS = ["HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player"];
+const PLAYER_REGISTRY_KEY_PATHS = [
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player",
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer",
+    "HKCU\\Software\\Classes\\roblox",
+    "HKCU\\Software\\Classes\\roblox-player",
+];
+
+/** Values and Keys to delete when unregistering Roblox Studio */
+const STUDIO_REGISTRY_VALUE_PATHS = ["HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio"];
+const STUDIO_REGISTRY_KEY_PATHS = [
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio",
+    "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio",
+    "HKCU\\Software\\Classes\\roblox-studio",
+    "HKCU\\Software\\Classes\\roblox-studio-auth",
+    "HKCU\\Software\\Classes\\Roblox.Place",
+    "HKCU\\Software\\Classes\\.rbxl",
+    "HKCU\\Software\\Classes\\.rbxlx",
+];
+
 export {
+    PLAYER_REGISTRY_VALUE_PATHS,
+    PLAYER_REGISTRY_KEY_PATHS,
+    STUDIO_REGISTRY_VALUE_PATHS,
+    STUDIO_REGISTRY_KEY_PATHS,
     colors,
     DEPLOYMENT_DEFAULT_CHANNEL,
     folderMappings,
