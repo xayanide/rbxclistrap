@@ -1,0 +1,23 @@
+;Note: These do not delete all registry entries related to Roblox. Only known necessary entries that typically
+;should be deleted when a user uninstalls Roblox. Local user data related to Roblox will not be affected.
+;Be sure to backup your registry if you're unsure. They can still be restored by simply installing and running Roblox.
+;-xayanide
+Windows Registry Editor Version 5.00
+
+;Delete values:
+;Roblox Corporation
+[HKEY_CURRENT_USER\SOFTWARE\ROBLOX Corporation\Environments]
+"roblox-studio"=-
+
+;Delete keys:
+;Roblox Corporation
+[-HKEY_CURRENT_USER\SOFTWARE\ROBLOX Corporation\Environments\roblox-studio]
+[-HKEY_CURRENT_USER\SOFTWARE\ROBLOX Corporation\Environments\RobloxStudio]
+;Roblox Studio
+[-HKEY_CURRENT_USER\SOFTWARE\Classes\roblox-studio]
+[-HKEY_CURRENT_USER\SOFTWARE\Classes\roblox-studio-auth]
+;Roblox Studio Place
+[-HKEY_CURRENT_USER\SOFTWARE\Classes\Roblox.Place]
+;Roblox Studio File Extensions
+[-HKEY_CURRENT_USER\SOFTWARE\Classes\.rbxl]
+[-HKEY_CURRENT_USER\SOFTWARE\Classes\.rbxlx]

@@ -45,18 +45,49 @@ const registryKeys = {
 };
 */
 
-/*
+/* Placeholder:
 const UNSET_VALUE = { value: "DEFAULT_VALUE_DATA", type: "REG_DEFAULT" };
 const DEFAULT_VALUE = {
     DEFAULT_VALUE_NAME: UNSET_VALUE,
 };
 */
 
-const getPlayerRegistryData = (binaryPath) => {
+const getPlayerRegistryData = (binaryPath, selectedVersion) => {
     const playerDefaultIconPath = binaryPath;
     const playerOpenCommandPath = `"${playerRunPath}" "%1"`;
     const playerProtocolName = "URL:RobloxPlayerCLIStrap Protocol";
+    const playerApplicationIconPath = `"${binaryPath},0"`;
     return {
+        /** ROBLOX Corporation */
+        /** Placeholder: "HKCU\\Software\\ROBLOX Corporation": DEFAULT_VALUE, */
+        "HKCU\\Software\\ROBLOX Corporation\\Environments": {
+            /** Placeholder: DEFAULT_VALUE_NAME: UNSET_VALUE, */
+            "roblox-player": {
+                value: "roblox-player",
+                type: "REG_SZ",
+            },
+        },
+        "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player": {
+            DEFAULT_VALUE_NAME: {
+                value: playerRunPath,
+                type: "REG_DEFAULT",
+            },
+            baseHost: { value: "www.roblox.com", type: "REG_SZ" },
+            version: { value: selectedVersion, type: "REG_SZ" },
+            clientExe: { value: binaryPath, type: "REG_SZ" },
+        },
+        "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player\\Capabilities": {
+            /** Placeholder: DEFAULT_VALUE_NAME: UNSET_VALUE, */
+            ApplicationDescription: { value: "Roblox", type: "REG_SZ" },
+            ApplicationIcon: { value: playerApplicationIconPath, type: "REG_EXPAND_SZ" },
+            ApplicationName: { value: "Roblox Player", type: "REG_SZ" },
+        },
+        "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player\\Capabilities\\UrlAssociations": {
+            /** Placeholder: DEFAULT_VALUE_NAME: UNSET_VALUE, */
+            "roblox-player": { value: "roblox-player", type: "REG_SZ" },
+            "roblox": { value: "roblox", type: "REG_SZ" },
+        },
+        /** roblox */
         "HKCU\\Software\\Classes\\roblox": {
             "DEFAULT_VALUE_NAME": {
                 value: playerProtocolName,
@@ -70,16 +101,19 @@ const getPlayerRegistryData = (binaryPath) => {
                 type: "REG_DEFAULT",
             },
         },
-        // "HKCU\\Software\\Classes\\roblox\\shell": DEFAULT_VALUE,
-        "HKCU\\Software\\Classes\\roblox\\shell\\Open": {
-            DEFAULT_VALUE_NAME: { value: "Open", type: "REG_DEFAULT" },
+        /** Placeholder:
+        "HKCU\\Software\\Classes\\roblox\\shell": DEFAULT_VALUE,
+        "HKCU\\Software\\Classes\\roblox\\shell\\open": {
+            DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
         },
-        "HKCU\\Software\\Classes\\roblox\\shell\\Open\\command": {
+        */
+        "HKCU\\Software\\Classes\\roblox\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: playerOpenCommandPath,
                 type: "REG_DEFAULT",
             },
         },
+        /** roblox-player */
         "HKCU\\Software\\Classes\\roblox-player": {
             "DEFAULT_VALUE_NAME": {
                 value: playerProtocolName,
@@ -93,11 +127,13 @@ const getPlayerRegistryData = (binaryPath) => {
                 type: "REG_DEFAULT",
             },
         },
-        // "HKCU\\Software\\Classes\\roblox-player\\shell": DEFAULT_VALUE,
-        "HKCU\\Software\\Classes\\roblox-player\\shell\\Open": {
-            DEFAULT_VALUE_NAME: { value: "Open", type: "REG_DEFAULT" },
+        /** Placeholder:
+        "HKCU\\Software\\Classes\\roblox-player\\shell": DEFAULT_VALUE,
+        "HKCU\\Software\\Classes\\roblox-player\\shell\\open": {
+            DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
         },
-        "HKCU\\Software\\Classes\\roblox-player\\shell\\Open\\command": {
+        */
+        "HKCU\\Software\\Classes\\roblox-player\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
                 value: playerOpenCommandPath,
                 type: "REG_DEFAULT",
@@ -112,7 +148,14 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
     const studioProtocolName = "URL:RobloxStudioCLIStrap Protocol";
     return {
         /** ROBLOX Corporation */
-        // "HKCU\\Software\\Roblox Corporation": DEFAULT_VALUE,
+        /** Placeholder: "HKCU\\Software\\ROBLOX Corporation": DEFAULT_VALUE, */
+        "HKCU\\Software\\ROBLOX Corporation\\Environments": {
+            /** Placeholder: DEFAULT_VALUE_NAME: UNSET_VALUE, */
+            "roblox-studio": {
+                value: "roblox-studio",
+                type: "REG_SZ",
+            },
+        },
         "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio": {
             DEFAULT_VALUE_NAME: {
                 value: studioRunPath,
@@ -123,11 +166,13 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
             clientExe: { value: binaryPath, type: "REG_SZ" },
         },
         "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio\\Capabilities": {
+            /** Placeholder: DEFAULT_VALUE_NAME: UNSET_VALUE, */
             ApplicationDescription: { value: "Roblox Studio", type: "REG_SZ" },
             ApplicationIcon: { value: binaryPath, type: "REG_EXPAND_SZ" },
             ApplicationName: { value: "Roblox Studio", type: "REG_SZ" },
         },
         "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio\\Capabilities\\UrlAssociations": {
+            /** Placeholder: DEFAULT_VALUE_NAME: UNSET_VALUE, */
             "roblox-studio": { value: "roblox-studio", type: "REG_SZ" },
             "roblox-studio-auth": { value: "roblox-studio-auth", type: "REG_SZ" },
         },
@@ -145,11 +190,11 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
                 type: "REG_DEFAULT",
             },
         },
-        /*
+        /* Placeholder:
         "HKCU\\Software\\Classes\\roblox-studio\\shell": DEFAULT_VALUE,
-           "HKCU\\Software\\Classes\\roblox-studio\\shell\\open": {
-               DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
-           },
+        "HKCU\\Software\\Classes\\roblox-studio\\shell\\open": {
+            DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
+        },
         */
         "HKCU\\Software\\Classes\\roblox-studio\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
@@ -172,11 +217,11 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
                 type: "REG_DEFAULT",
             },
         },
-        /*
+        /* Placeholder:
         "HKCU\\Software\\Classes\\roblox-studio-auth\\shell": DEFAULT_VALUE,
         "HKCU\\Software\\Classes\\roblox-studio-auth\\shell\\open": {
-               DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
-           },
+            DEFAULT_VALUE_NAME: { value: "open", type: "REG_DEFAULT" },
+        },
         */
         "HKCU\\Software\\Classes\\roblox-studio-auth\\shell\\open\\command": {
             DEFAULT_VALUE_NAME: {
@@ -201,7 +246,7 @@ const getStudioPlaceRegistryData = (binaryPath) => {
                 type: "REG_DEFAULT",
             },
         },
-        // "HKCU\\Software\\Classes\\Roblox.Place\\shell": DEFAULT_VALUE,
+        /** Placeholder: "HKCU\\Software\\Classes\\Roblox.Place\\shell": DEFAULT_VALUE, */
         "HKCU\\Software\\Classes\\Roblox.Place\\shell\\Open": {
             DEFAULT_VALUE_NAME: { value: "Open", type: "REG_DEFAULT" },
         },
@@ -219,14 +264,14 @@ const getStudioFileExtensionsRegistryData = () => {
         "HKCU\\Software\\Classes\\.rbxl": {
             DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
         },
-        // "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place": DEFAULT_VALUE,
+        /** Placeholder: "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place": DEFAULT_VALUE, */
         "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place\\ShellNew": {
             DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
         },
         "HKCU\\Software\\Classes\\.rbxlx": {
             DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
         },
-        // "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place": DEFAULT_VALUE,
+        /** Placeholder: "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place": DEFAULT_VALUE, */
         "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place\\ShellNew": {
             DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
         },
