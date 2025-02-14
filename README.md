@@ -73,6 +73,13 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
 
 ## FAQ
 
+### Roblox Studio is stuck at the intro screen "Loading Studio..."
+
+1. Move rbxclistrap to a location where it isn't near the User's Documents folder or system permission restrictive locations in general. Moving it to the Desktop always works, so you get the idea. This is most likely because of system permissions issues. So to avoid those, we prevent it from running on those types of locations.
+
+> [!NOTE]
+> Moving rbxiclistrap location also moves the `StudioVersions` downloaded. Actually, only the binaries are the ones that needed to be moved to fix this.
+
 #### How can I uninstall anything associated with rbxclistrap?
 
 Doing these will ensure complete removal of any set registry entries associated with rbxclistrap from the system.
