@@ -1,24 +1,13 @@
 import * as nodeProcess from "node:process";
-import { listRegistryItems, deleteRegistryKeys } from "./modules/registry.js";
+import { listRegistryItems, deleteRegistryKeys, deleteRegistryValues } from "./modules/registry.js";
 import { createPrompt } from "./modules/prompt.js";
+import { PLAYER_REGISTRY_VALUE_PATHS, PLAYER_REGISTRY_KEY_PATHS } from "./modules/constants.js";
 
-// Issue: Error: access is denied
-
-/**
-Placeholder:
-HKCU\\Software\\ROBLOX Corporation\\Environments
-Delete value "roblox-player"
-*/
-
-const PLAYER_ROOT_REGISTRY_KEYS = [
-    "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player",
-    "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer",
-    "HKCU\\Software\\Classes\\roblox",
-    "HKCU\\Software\\Classes\\roblox-player",
-];
+// Currently broken. Issue: Error: access is denied. Open .reg files from root/registry-tools instead.
 
 try {
-    const registryKeys = await listRegistryItems(PLAYER_ROOT_REGISTRY_KEYS);
+    await deleteRegistryValues(PLAYER_REGISTRY_VALUE_PATHS);
+    const registryKeys = await listRegistryItems(PLAYER_REGISTRY_KEY_PATHS);
     await deleteRegistryKeys(registryKeys);
     nodeProcess.exit(0);
 } catch (error) {

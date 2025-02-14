@@ -12,6 +12,16 @@ const putRegistryValues = async (valuesToPut) => {
     }
 };
 
+const deleteRegistryValues = async (valuesToDelete) => {
+    try {
+        logger.info("Deleting registry values...");
+        await promisifiedRegedit.deleteValue(valuesToDelete);
+        logger.info("Successfully deleted registry values!");
+    } catch (registryErr) {
+        logger.error(`async deleteRegistryValues(): Error deleting registry values:\n${registryErr.message}\n${registryErr.stack}`);
+    }
+};
+
 const listRegistryItems = async (keysToList) => {
     try {
         return await promisifiedRegedit.list(keysToList);
@@ -72,4 +82,4 @@ const deleteRegistryKeys = async (registryItems) => {
     }
 };
 
-export { listRegistryItems, putRegistryValues, createRegistryKeys, deleteRegistryKeys };
+export { listRegistryItems, putRegistryValues, createRegistryKeys, deleteRegistryKeys, deleteRegistryValues };
