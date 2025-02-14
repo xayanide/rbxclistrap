@@ -37,7 +37,6 @@ const deleteOldLogs = (path) => {
             continue;
         }
         nodeFs.unlinkSync(filePath);
-        console.log(`Deleted old log file: ${logFile}`);
     }
 };
 
