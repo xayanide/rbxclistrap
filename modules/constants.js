@@ -77,14 +77,9 @@ const AppSettings = `<?xml version="1.0" encoding="UTF-8"?>
 </Settings>
 `;
 
-const VERSION_STUDIO_HASH = "version-012732894899482c";
-
-const ROBLOX_CLIENTSETTINGS_URLS = [
-    { baseUrl: "https://clientsettingscdn.roblox.com", priority: 0 },
-    { baseUrl: "https://clientsettings.roblox.com", priority: 2 },
-];
-
-const ROBLOX_CDN_URLS = [
+const DEPLOYMENT_DEFAULT_CHANNEL = "production";
+const DEPLOYMENT_VERSION_STUDIO_HASH = "version-012732894899482c";
+const DEPLOYMENT_ROBLOX_CDN_URLS = [
     { baseUrl: "https://setup.rbxcdn.com", priority: 0 },
     { baseUrl: "https://setup-aws.rbxcdn.com", priority: 2 },
     { baseUrl: "https://setup-ak.rbxcdn.com", priority: 2 },
@@ -94,6 +89,11 @@ const ROBLOX_CDN_URLS = [
     { url: "http://setup.roblox.com", priority: 2 },
     */
     { baseUrl: "https://s3.amazonaws.com/setup.roblox.com", priority: 4 },
+];
+
+const ROBLOX_CLIENTSETTINGS_URLS = [
+    { baseUrl: "https://clientsettingscdn.roblox.com", priority: 0 },
+    { baseUrl: "https://clientsettings.roblox.com", priority: 2 },
 ];
 
 // Excluded: "RobloxCrashHandler.exe", "RobloxPlayerLauncher.exe", "RobloxPlayerInstaller.exe"
@@ -144,10 +144,11 @@ const EXCLUDED_DEFAULT_FFLAGS = {
 
 export {
     colors,
+    DEPLOYMENT_DEFAULT_CHANNEL,
     folderMappings,
     AppSettings,
-    VERSION_STUDIO_HASH,
-    ROBLOX_CDN_URLS,
+    DEPLOYMENT_VERSION_STUDIO_HASH,
+    DEPLOYMENT_ROBLOX_CDN_URLS,
     ROBLOX_CLIENTSETTINGS_URLS,
     PLAYER_PROCESSES,
     STUDIO_PROCESSES,
