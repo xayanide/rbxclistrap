@@ -385,7 +385,7 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
     }
     await installEdgeWebView(selectedVersionPath);
     if (isPlayerRunnerType(runnerType)) {
-        await setRegistryData(getPlayerRegistryData(binaryPath));
+        await setRegistryData(getPlayerRegistryData(binaryPath, selectedVersion));
     } else if (isStudioRunnerType(runnerType)) {
         await setRegistryData(getStudioRegistryData(binaryPath, selectedVersion));
         await setRegistryData(getStudioPlaceRegistryData(binaryPath));
