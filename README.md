@@ -78,8 +78,8 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
 Doing these will ensure complete removal of any set registry entries associated with rbxclistrap from the system.
 
 1. Navigate to the directory where `rbxclistrap` is installed, then open the `registry-tools` directory. Run the following files in any order:
-   - `unregister-player-protocols.reg`
-   - `unregister-studio-protocols.reg`
+   - `unregister-player.reg`
+   - `unregister-studio.reg`
 
 2. Delete the `rbxclistrap` directory to complete the uninstallation. This should also delete all associated `PlayerVersions` and `StudioVersions` stored within the directory.
 
