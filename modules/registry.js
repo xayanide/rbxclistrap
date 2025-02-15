@@ -1,6 +1,7 @@
 import regedit from "regedit";
 const promisifiedRegedit = regedit.promisified;
 import logger from "./logger.js";
+import { isEmptyObject } from "./helpers.js";
 
 const putRegistryValues = async (valuesToPut) => {
     logger.info("Putting registry values...");
@@ -124,7 +125,7 @@ const findChangedRegistryValues = (valuesToPut, currentRegistryItems) => {
         if (!currentKey.exists) {
             continue;
         }
-        if (Object.keys(currentValues).length === 0) {
+        if (isEmptyObject(currentValues)) {
             filteredValues[putKeyPath] = putKeyValues;
             continue;
         }
@@ -172,11 +173,11 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
     if (typeof currentRegistryItems !== "object" || currentRegistryItems === undefined || currentRegistryItems === null || Array.isArray(currentRegistryItems)) {
         throw new Error("Invalid values provided for property 'currentRegistryItems'. Must be an object.");
     }
-    if (Object.keys(currentRegistryItems).length === 0) {
+    if (isEmptyObject(currentRegistryItems)) {
         return;
     }
     const filteredValuesToPut = findChangedRegistryValues(valuesToPut, currentRegistryItems);
-    if (Object.keys(filteredValuesToPut).length === 0) {
+    if (isEmptyObject(filteredValuesToPut)) {
         return;
     }
     logger.info("Updating registry values...");
