@@ -37,9 +37,35 @@ const installEdgeWebView = async (installPath) => {
     logger.info("Installing Microsoft Edge WebView2 Runtime...");
     const spawnArgs = ["/silent", "/install"];
     logger.info(`Launching with command: ${webviewSetupFilePath} ${spawnArgs.join(" ")}`);
-    const childProcess = nodeChildProcess.spawn(webviewSetupFilePath, spawnArgs, { shell: true, detached: true, stdio: "ignore" });
-    childProcess.unref();
-    logger.info("Successfully launched Microsoft Edge WebView2 silent installer!");
+    try {
+        await new Promise((resolve, reject) => {
+            const childProcess = nodeChildProcess.spawn(webviewSetupFilePath, spawnArgs, {
+                shell: true,
+                /** Show installation logs in console so we know what is happening */
+                stdio: "inherit",
+            });
+            childProcess.on("exit", (code) => {
+                if (code === 0) {
+                    logger.info("Microsoft Edge WebView2 Runtime installed successfully.");
+                    resolve();
+                } else {
+                    logger.error(`Microsoft Edge WebView2 Runtime installation failed with code: ${code}`);
+                    reject(new Error(`Installation failed with code: ${code}`));
+                }
+            });
+            childProcess.on("error", (err) => {
+                logger.error("Failed to start installer process:", err);
+                reject(err);
+            });
+        });
+        /** Make sure that WebView2 is installed after the process exits */
+        const isInstalled = await checkEdgeWebView();
+        if (!isInstalled) {
+            logger.error("Microsoft Edge WebView2 Runtime installation did not complete successfully.");
+        }
+    } catch (error) {
+        logger.error("Error during Microsoft Edge WebView2 installation:", error);
+    }
 };
 
 export { checkEdgeWebView, installEdgeWebView };
