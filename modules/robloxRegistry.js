@@ -353,24 +353,26 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
             const putValueData = putValue.value;
             const putValueType = putValue.type;
             const currentValue = currentValues[resolvePutValueName(putValueName, putValueType)];
-            if (!currentValue || putValueData !== currentValue.value || resolvePutValueType(putValueName, putValueType) !== currentValue.type) {
-                if (!filteredValues[putKeyPath]) {
-                    filteredValues[putKeyPath] = {};
-                }
-                /**
-                Setting empty strings as value names are not allowed.
-                Change the type to REG_DEFAULT and set any placeholder name as the value name instead.
-                In this case, I set the their placeholder names as DEFAULT_VALUE_NAME.
-                */
-                filteredValues[putKeyPath][putValueName] = {
-                    value: putValueData,
-                    /**
-                    When setting a value name as an empty string, its type should be REG_DEFAULT.
-                    After that, any value names you attempt to set will automatically be an empty string.
-                    */
-                    type: putValueType,
-                };
+            /** No need to have this value set. Skip if the value is unchanged. */
+            if (currentValue && putValueData === currentValue.value && resolvePutValueType(putValueName, putValueType) === currentValue.type) {
+                continue;
             }
+            if (!filteredValues[putKeyPath]) {
+                filteredValues[putKeyPath] = {};
+            }
+            /**
+            Setting empty strings as value names are not allowed.
+            Change the type to REG_DEFAULT and set any placeholder name as the value name instead.
+            In this case, I set the their placeholder names as DEFAULT_VALUE_NAME.
+            */
+            filteredValues[putKeyPath][putValueName] = {
+                value: putValueData,
+                /**
+                When setting a value name as an empty string, its type should be REG_DEFAULT.
+                After that, any value names you attempt to set will automatically be an empty string.
+                */
+                type: putValueType,
+            };
         }
     }
     logger.info(`${JSON.stringify(filteredValues, null, 2)}`);
