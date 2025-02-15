@@ -1,0 +1,31 @@
+name: VersionReleaser
+on:
+  push:
+    branches: [main, dev]
+
+jobs:
+  release-version:
+    name: Bump or release version if needed
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.SRGH_TOKEN }}
+      - name: Setup Node.js v20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install dependencies
+        run: npm install
+      - name: Bump or release version if needed
+        uses: cycjimmy/semantic-release-action@v4
+        with:
+          branches: |
+            [
+              'main',
+              { name: 'dev', prerelease: true }
+            ]
+        env:
+          GITHUB_TOKEN: ${{ secrets.SRGH_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
