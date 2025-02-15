@@ -18,6 +18,9 @@ const isWebViewInstalled = async () => {
 };
 
 const installEdgeWebView = async (installPath) => {
+    if (!installPath) {
+        return;
+    }
     const webViewSetupPath = nodePath.join(installPath, "WebView2RuntimeInstaller");
     if (!nodeFs.existsSync(webViewSetupPath)) {
         logger.warn(`WebView2RuntimeInstaller folder not found in ${installPath}`);
