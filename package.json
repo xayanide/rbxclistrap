@@ -10,6 +10,8 @@
   "scripts": {
     "start:player": "node launchBootstrapper.js WindowsPlayer",
     "start:studio": "node launchBootstrapper.js WindowsStudio64",
+    "cli:player": "node launchCLI.js WindowsPlayer",
+    "cli:studio": "node launchCLI.js WindowsStudio64",
     "lint": "eslint . --ignore-pattern '**/.config/'",
     "lint:fix": "eslint . --fix --ignore-pattern '**/.config/'",
     "format:write": "prettier . --write",
