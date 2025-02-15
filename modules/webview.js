@@ -58,8 +58,8 @@ const installEdgeWebView = async (installPath) => {
             });
         });
         /** Make sure that WebView2 is installed after the process exits */
-        const isInstalled = await isWebViewInstalled();
-        if (!isInstalled) {
+        const isNowInstalled = await isWebViewInstalled();
+        if (!isNowInstalled) {
             logger.error("Microsoft Edge WebView2 Runtime installation did not complete successfully.");
         }
     } catch (error) {
