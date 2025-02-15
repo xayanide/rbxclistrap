@@ -13,9 +13,9 @@ name: CodeQLScanner
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main", "dev"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["dev"]
   schedule:
     - cron: '18 12 * * 6'
 
