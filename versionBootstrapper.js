@@ -384,7 +384,7 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
     const args = launchArgs.trim().split(" ");
     const spawnArgs = args.length > 0 && args[0] !== "" ? args : [];
     logger.info(`Launching with command: ${binaryPath} ${spawnArgs.join(" ")}`);
-    const childProcess = nodeChildProcess.spawn(binaryPath, spawnArgs, { shell: true, detached: true, stdio: "ignore" });
+    const childProcess = nodeChildProcess.spawn(binaryPath, spawnArgs, { detached: true, stdio: "ignore" });
     childProcess.unref();
     logger.info(`Successfully launched ${binaryName}!`);
 };

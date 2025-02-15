@@ -39,7 +39,6 @@ const installEdgeWebView = async (installPath) => {
     try {
         await new Promise((resolve, reject) => {
             const childProcess = nodeChildProcess.spawn(webviewSetupFilePath, spawnArgs, {
-                shell: true,
                 /** Show installation logs in console so we know what is happening */
                 stdio: "inherit",
             });
