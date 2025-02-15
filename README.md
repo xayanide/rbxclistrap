@@ -34,18 +34,22 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
       ```bash
       npm run start:player
       ```
+    - Start application by running in terminal (WindowsPlayer by Default):
+      ```bash
+      node launchBootstrapper.js
+      ```
     - Start application by running in terminal:
       ```bash
       node launchBootstrapper.js WindowsPlayer
       ```
-    - Start application by running in terminal (WindowsPlayer by default):
+    - Start application by running in terminal:
       ```bash
-      node launchPlayerMainMenu.js
+      npm run cli:player
       ```
       Type 5 and press enter key.
     - Start application by running in terminal:
       ```bash
-      node launchPlayerMainMenu.js WindowsPlayer
+      node launchCLI.js WindowsPlayer
       ```
       Type 5 and press enter key.
 
@@ -64,7 +68,12 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
       ```
     - Start application by running in terminal:
       ```bash
-      node launchStudioMainMenu.js WindowsStudio64
+      npm run cli:studio
+      ```
+      Type 5 and press enter key.
+    - Start application by running in terminal:
+      ```bash
+      node launchCLI.js WindowsStudio64
       ```
       Type 5 and press enter key.
 
