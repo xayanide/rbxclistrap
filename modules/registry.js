@@ -37,27 +37,13 @@ const filterRegistryItems = (registryItems, options = { exclude: "none" }) => {
     });
 };
 
-const createRegistryKeys = async (registryItems) => {
-    // Creates only non-existent keys and excludes existing keys
-    const keysToCreate = filterRegistryItems(registryItems, {
-        exclude: "existing",
-    });
-    if (keysToCreate.length === 0) {
-        return;
-    }
+const createRegistryKeys = async (keysToCreate) => {
     logger.info("Creating registry keys...");
     await promisifiedRegedit.createKey(keysToCreate);
     logger.info("Successfully created registry keys!");
 };
 
-const deleteRegistryKeys = async (registryItems) => {
-    // Deletes only existing keys and excludes non-existent keys
-    const keysToDelete = filterRegistryItems(registryItems, {
-        exclude: "missing",
-    });
-    if (keysToDelete.length === 0) {
-        return;
-    }
+const deleteRegistryKeys = async (keysToDelete) => {
     logger.info("Deleting registry keys...");
     await promisifiedRegedit.deleteKey(keysToDelete);
     logger.info("Successfully deleted registry keys!");
@@ -185,8 +171,13 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
 };
 
 const setRegistryData = async (valuesToPut, keyPaths) => {
-    const currentRegistryItems = await listRegistryItems(keyPaths);
-    await createRegistryKeys(currentRegistryItems);
+    const registryItems = await listRegistryItems(keyPaths);
+    const missingKeyPaths = filterRegistryItems(registryItems, {
+        exclude: "existing",
+    });
+    if (missingKeyPaths.length > 0) {
+        await createRegistryKeys(missingKeyPaths);
+    }
     const afterCreateRegistryItems = await listRegistryItems(keyPaths);
     await updateRegistryValues(valuesToPut, {
         overwrite: false,
@@ -194,4 +185,13 @@ const setRegistryData = async (valuesToPut, keyPaths) => {
     });
 };
 
-export { listRegistryItems, putRegistryValues, createRegistryKeys, deleteRegistryKeys, deleteRegistryValues, getRegistryDataKeyPaths, setRegistryData };
+export {
+    listRegistryItems,
+    putRegistryValues,
+    createRegistryKeys,
+    deleteRegistryKeys,
+    deleteRegistryValues,
+    filterRegistryItems,
+    getRegistryDataKeyPaths,
+    setRegistryData,
+};
