@@ -54,7 +54,7 @@ const installEdgeWebView = async (installPath) => {
                 }
             });
             childProcess.on("error", (err) => {
-                logger.error("Failed to start installer process:", err);
+                logger.error(`Failed to start installer process:\n${err}`);
                 reject(err);
             });
         });
@@ -64,7 +64,7 @@ const installEdgeWebView = async (installPath) => {
             logger.error("Microsoft Edge WebView2 Runtime installation did not complete successfully.");
         }
     } catch (error) {
-        logger.error("Error during Microsoft Edge WebView2 installation:", error);
+        logger.error(`Error during Microsoft Edge WebView2 installation:\n${error.message}\n${error.stack}`);
     }
 };
 
