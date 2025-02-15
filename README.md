@@ -82,7 +82,7 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
 
 ## FAQ
 
-### Roblox Studio is stuck at the intro screen "Loading Studio..."
+#### Roblox Studio is stuck at the intro screen "Loading Studio..."
 
 - Try running `rbxclistrap` with elevated "Administrator" permissions and run Studio from there.
 
