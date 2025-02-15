@@ -35,12 +35,11 @@ const installEdgeWebView = async (installPath) => {
         return;
     }
     logger.info("Installing Microsoft Edge WebView2 Runtime...");
-    nodeChildProcess.execSync(`${webviewSetupFilePath} /silent /install`, (error) => {
-        if (error) {
-            logger.error(`Error installing Microsoft Edge WebView2 Runtime:\n${error}`);
-        }
-    });
-    logger.info("Successfully installed Microsoft Edge WebView2 Runtime!");
+    const spawnArgs = ["/silent", "/install"];
+    logger.info(`Launching with command: ${webviewSetupFilePath} ${spawnArgs.join(" ")}`);
+    const childProcess = nodeChildProcess.spawn(webviewSetupFilePath, spawnArgs, { shell: true, detached: true, stdio: "ignore" });
+    childProcess.unref();
+    logger.info("Successfully launched Microsoft Edge WebView2 silent installer!");
 };
 
 export { checkEdgeWebView, installEdgeWebView };
