@@ -314,6 +314,14 @@ const resolvePutValueType = (valueName, valueType) => {
 };
 
 /**
+Compares valuesToPut against the current state of the registry's keys and values
+to determine which values need updating.
+
+If a key in valuesToPut:
+    - Doesn't exist in currentRegistryItems, it's added to filteredValues.
+    - Exists but has a different value or type, it's also added.
+    - Exists and is the same, it's ignored.
+
 Bug fixes
 I was unable to set empty strings as value names.
 If a valueName is set to "", it should have a REG_DEFAULT as the type.
@@ -362,10 +370,10 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
                     */
                     type: putValueType,
                 };
-                continue;
             }
         }
     }
+    logger.info(`${JSON.stringify(filteredValues, null, 2)}`);
     return filteredValues;
 };
 
