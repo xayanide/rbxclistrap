@@ -2,12 +2,12 @@ import * as nodeFs from "node:fs";
 import * as nodePath from "node:path";
 import * as nodeChildProcess from "node:child_process";
 import logger from "./logger.js";
-import { listRegistryItems } from "./registry.js";
+import { promisified as promisifiedRegedit } from "regedit";
 import { WEBVIEW_REGISTRY_KEYPATHS } from "./constants.js";
 
 const checkEdgeWebView = async () => {
     logger.info("Checking for Microsoft Edge WebView2 Runtime...");
-    const webViewRegistryKeys = await listRegistryItems(WEBVIEW_REGISTRY_KEYPATHS);
+    const webViewRegistryKeys = await promisifiedRegedit.list(WEBVIEW_REGISTRY_KEYPATHS);
     for (const key in webViewRegistryKeys) {
         if (webViewRegistryKeys[key].exists === false) {
             continue;
