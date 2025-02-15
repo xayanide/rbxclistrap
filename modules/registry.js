@@ -1,23 +1,6 @@
-import regedit from "regedit";
-const promisifiedRegedit = regedit.promisified;
+import { promisified as promisifiedRegedit } from "regedit";
 import logger from "./logger.js";
 import { isEmptyObject } from "./helpers.js";
-
-const putRegistryValues = async (valuesToPut) => {
-    logger.info("Putting registry values...");
-    await promisifiedRegedit.putValue(valuesToPut);
-    logger.info("Successfully put registry values!");
-};
-
-const deleteRegistryValues = async (valuesToDelete) => {
-    logger.info("Deleting registry values...");
-    await promisifiedRegedit.deleteValue(valuesToDelete);
-    logger.info("Successfully deleted registry values!");
-};
-
-const listRegistryItems = async (keysToList) => {
-    return await promisifiedRegedit.list(keysToList);
-};
 
 const getRegistryKeyPaths = (registryItems, options = { exclude: "none" }) => {
     const exclusion = options.exclude;
@@ -35,18 +18,6 @@ const getRegistryKeyPaths = (registryItems, options = { exclude: "none" }) => {
     return keyPaths.filter((keyPath) => {
         return registryItems[keyPath].exists !== shouldExcludeExisting;
     });
-};
-
-const createRegistryKeys = async (keysToCreate) => {
-    logger.info("Creating registry keys...");
-    await promisifiedRegedit.createKey(keysToCreate);
-    logger.info("Successfully created registry keys!");
-};
-
-const deleteRegistryKeys = async (keysToDelete) => {
-    logger.info("Deleting registry keys...");
-    await promisifiedRegedit.deleteKey(keysToDelete);
-    logger.info("Successfully deleted registry keys!");
 };
 
 const getRegistryDataKeyPaths = (registryData, parentPath = "", result = []) => {
@@ -152,7 +123,8 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
     }
     if (isOverwrite) {
         logger.info("Force updating registry values...");
-        await putRegistryValues(valuesToPut);
+        await promisifiedRegedit.putValue(valuesToPut);
+        logger.info("Successfully put registry values!");
         return;
     }
     const currentRegistryItems = options.currentRegistryItems;
@@ -167,31 +139,25 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
         return;
     }
     logger.info("Updating registry values...");
-    await putRegistryValues(filteredValuesToPut);
+    await promisifiedRegedit.putValue(valuesToPut);
+    logger.info("Successfully put registry values!");
 };
 
 const setRegistryData = async (valuesToPut, keyPaths) => {
-    const registryItems = await listRegistryItems(keyPaths);
+    const registryItems = await promisifiedRegedit.list(keyPaths);
     const missingKeyPaths = getRegistryKeyPaths(registryItems, {
         exclude: "existing",
     });
     if (missingKeyPaths.length > 0) {
-        await createRegistryKeys(missingKeyPaths);
+        logger.info("Creating missing registry keys...");
+        await promisifiedRegedit.createKey(missingKeyPaths);
+        logger.info("Successfully created registry keys!");
     }
-    const afterCreateRegistryItems = await listRegistryItems(keyPaths);
+    const afterCreateRegistryItems = await promisifiedRegedit.list(keyPaths);
     await updateRegistryValues(valuesToPut, {
         overwrite: false,
         currentRegistryItems: afterCreateRegistryItems,
     });
 };
 
-export {
-    listRegistryItems,
-    putRegistryValues,
-    createRegistryKeys,
-    deleteRegistryKeys,
-    deleteRegistryValues,
-    getRegistryKeyPaths,
-    getRegistryDataKeyPaths,
-    setRegistryData,
-};
+export { getRegistryKeyPaths, getRegistryDataKeyPaths, setRegistryData };
