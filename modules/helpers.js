@@ -7,7 +7,7 @@ function isEmptyObject(object) {
     return true;
 }
 
-function isValueEmptyObject(value) {
+function isPureEmptyObject(value) {
     if (value == null || typeof value !== "object") {
         return false;
     }
@@ -18,4 +18,4 @@ function isValueEmptyObject(value) {
     return isEmptyObject(value);
 }
 
-export { isEmptyObject, isValueEmptyObject };
+export { isEmptyObject, isPureEmptyObject };
