@@ -32,8 +32,8 @@ const getRegistryKeyPaths = (registryItems, options = { exclude: "none" }) => {
         return keyPaths;
     }
     const shouldExcludeExisting = exclusion === "existing";
-    return keyPaths.filter((key) => {
-        return registryItems[key].exists !== shouldExcludeExisting;
+    return keyPaths.filter((keyPath) => {
+        return registryItems[keyPath].exists !== shouldExcludeExisting;
     });
 };
 
