@@ -5,7 +5,7 @@ import logger from "./logger.js";
 import { promisified as promisifiedRegedit } from "regedit";
 import { WEBVIEW_REGISTRY_KEYPATHS } from "./constants.js";
 
-const checkEdgeWebView = async () => {
+const isWebViewInstalled = async () => {
     logger.info("Checking for Microsoft Edge WebView2 Runtime...");
     const webViewRegistryKeys = await promisifiedRegedit.list(WEBVIEW_REGISTRY_KEYPATHS);
     for (const key in webViewRegistryKeys) {
@@ -30,8 +30,8 @@ const installEdgeWebView = async (installPath) => {
         logger.warn(`MicrosoftEdgeWebview2Setup.exe not found in ${webViewSetupPath}`);
         return;
     }
-    const isWebViewExists = await checkEdgeWebView();
-    if (isWebViewExists) {
+    const isInstalled = await isWebViewInstalled();
+    if (isInstalled) {
         return;
     }
     logger.info("Installing Microsoft Edge WebView2 Runtime...");
