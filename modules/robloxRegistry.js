@@ -375,7 +375,6 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
             };
         }
     }
-    logger.info(`${JSON.stringify(filteredValues, null, 2)}`);
     return filteredValues;
 };
 
