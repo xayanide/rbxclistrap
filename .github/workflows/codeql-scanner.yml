@@ -21,7 +21,7 @@ on:
 
 jobs:
   perform-scan:
-    name: Perform CodeQL (${{ matrix.language }}) scan
+    name: Perform CodeQL ${{ matrix.language }} scan
     # Runner size impacts CodeQL analysis time. To learn more, please see:
     #   - https://gh.io/recommended-hardware-resources-for-running-codeql
     #   - https://gh.io/supported-runners-and-hardware-resources
@@ -94,7 +94,7 @@ jobs:
     - name: Auto build CodeQL
       uses: github/codeql-action/autobuild@v3
 
-    - name: Perform CodeQL (${{ matrix.language }}) scan
+    - name: Perform CodeQL ${{ matrix.language }} scan
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"
