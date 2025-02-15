@@ -1,5 +1,5 @@
 import * as nodeProcess from "node:process";
-import { listRegistryItems, deleteRegistryKeys, deleteRegistryValues, filterRegistryItems } from "./modules/registry.js";
+import { listRegistryItems, deleteRegistryKeys, deleteRegistryValues, getRegistryKeyPaths } from "./modules/registry.js";
 import { createPrompt } from "./modules/prompt.js";
 import { UNREGISTER_PLAYER_VALUE_PATHS, UNREGISTER_PLAYER_KEY_PATHS } from "./modules/constants.js";
 
@@ -13,7 +13,7 @@ try {
 
 try {
     const registryItems = await listRegistryItems(UNREGISTER_PLAYER_KEY_PATHS);
-    const existingKeyPaths = filterRegistryItems(registryItems, {
+    const existingKeyPaths = getRegistryKeyPaths(registryItems, {
         exclude: "missing",
     });
     if (existingKeyPaths.length > 0) {

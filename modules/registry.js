@@ -19,21 +19,21 @@ const listRegistryItems = async (keysToList) => {
     return await promisifiedRegedit.list(keysToList);
 };
 
-const filterRegistryItems = (registryItems, options = { exclude: "none" }) => {
+const getRegistryKeyPaths = (registryItems, options = { exclude: "none" }) => {
     const exclusion = options.exclude;
     if (!["existing", "missing", "none"].includes(exclusion)) {
         throw new Error("Invalid values provided for property 'exclude'. Must be 'missing', 'existing' or 'none'");
     }
-    const registryItemKeys = [];
-    for (const key in registryItems) {
-        registryItemKeys.push(key);
+    const keyPaths = [];
+    for (const keyPath in registryItems) {
+        keyPaths.push(keyPath);
     }
     if (exclusion === "none") {
-        return registryItemKeys;
+        return keyPaths;
     }
-    const isExistsExcluded = exclusion === "existing";
-    return registryItemKeys.filter((key) => {
-        return registryItems[key].exists !== isExistsExcluded;
+    const shouldExcludeExisting = exclusion === "existing";
+    return keyPaths.filter((key) => {
+        return registryItems[key].exists !== shouldExcludeExisting;
     });
 };
 
@@ -172,7 +172,7 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
 
 const setRegistryData = async (valuesToPut, keyPaths) => {
     const registryItems = await listRegistryItems(keyPaths);
-    const missingKeyPaths = filterRegistryItems(registryItems, {
+    const missingKeyPaths = getRegistryKeyPaths(registryItems, {
         exclude: "existing",
     });
     if (missingKeyPaths.length > 0) {
@@ -191,7 +191,7 @@ export {
     createRegistryKeys,
     deleteRegistryKeys,
     deleteRegistryValues,
-    filterRegistryItems,
+    getRegistryKeyPaths,
     getRegistryDataKeyPaths,
     setRegistryData,
 };
