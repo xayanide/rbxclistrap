@@ -12,10 +12,8 @@ const isWebViewInstalled = async () => {
         if (webViewRegistryKeys[key].exists === false) {
             continue;
         }
-        logger.info("Microsoft Edge WebView2 Runtime is already installed.");
         return true;
     }
-    logger.info("Microsoft Edge WebView2 Runtime is not installed.");
     return false;
 };
 
@@ -32,6 +30,7 @@ const installEdgeWebView = async (installPath) => {
     }
     const isInstalled = await isWebViewInstalled();
     if (isInstalled) {
+        logger.info("Microsoft Edge WebView2 Runtime is already installed.");
         return;
     }
     logger.info("Installing Microsoft Edge WebView2 Runtime...");
