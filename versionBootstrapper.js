@@ -32,7 +32,8 @@ import { killProcesses, isProcessesRunning } from "./modules/processes.js";
 import { deleteFolderRecursive, saveJson, loadJson, getDirname } from "./modules/fileUtils.js";
 import { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } from "./modules/robloxUrls.js";
 import { installEdgeWebView } from "./modules/webview.js";
-import { getPlayerRegistryData, getStudioRegistryData, getStudioPlaceRegistryData, getStudioFileExtensionsRegistryData, setRegistryData } from "./modules/registry.js";
+import { getPlayerRegistryData, getStudioRegistryData, getStudioPlaceRegistryData, getStudioFileExtensionsRegistryData } from "./modules/robloxRegistry.js";
+import { setRegistryData } from "./modules/registry.js";
 import {
     folderMappings,
     AppSettings,
