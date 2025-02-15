@@ -1,4 +1,4 @@
-name: BranchUpdater
+name: BranchSyncer
 on:
   workflow_run:
     workflows: [VersionReleaser]
@@ -9,8 +9,8 @@ permissions:
   contents: write
 
 jobs:
-  update-branch:
-    name: Merge changes from main into dev branch
+  sync-branch:
+    name: Sync branch 'dev' with 'main'
     runs-on: ubuntu-latest
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
     steps:
@@ -19,7 +19,7 @@ jobs:
         with:
           fetch-depth: 0
           token: ${{ secrets.SRGH_TOKEN }}
-      - name: Merge changes from main into dev branch
+      - name: Sync branch 'dev' with 'main'
         run: |
           git checkout main
           git fetch origin

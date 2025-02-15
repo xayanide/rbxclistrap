@@ -16,7 +16,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-      - name: Install dependencies
+      - name: Install NPM packages
         run: npm install
       - name: Bump and release if needed
         uses: cycjimmy/semantic-release-action@v4
