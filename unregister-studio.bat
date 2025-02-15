@@ -1,3 +1,2 @@
 cd /d "%~dp0"
-node unregisterStudio.js
-
+node unregisterRoblox.js studio

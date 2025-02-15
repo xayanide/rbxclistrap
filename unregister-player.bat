@@ -1,3 +1,2 @@
 cd /d "%~dp0"
-node unregisterPlayer.js
-
+node unregisterRoblox.js player
