@@ -1,0 +1,29 @@
+name: BranchUpdater
+on:
+  workflow_run:
+    workflows: [VersionReleaser]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: write
+
+jobs:
+  update-branch:
+    name: Merge changes from main into dev branch
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.SRGH_TOKEN }}
+      - name: Merge changes from main into dev branch
+        run: |
+          git checkout main
+          git fetch origin
+          git checkout dev
+          git pull
+          git merge origin/main
+          git push origin dev

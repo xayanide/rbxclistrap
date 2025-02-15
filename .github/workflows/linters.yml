@@ -1,0 +1,40 @@
+name: Linters
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+    branches: [dev]
+
+jobs:
+  lint-commit-message:
+    permissions: write-all
+    name: Lint commit message
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Lint commit message
+        uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: './commitlint.config.mjs'
+  lint-code:
+    name: Lint code
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Setup Node.js v${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        run: npm install
+      - name: Lint code
+        uses: reviewdog/action-eslint@v1
+        with:
+          reporter: github-check
