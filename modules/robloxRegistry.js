@@ -294,20 +294,23 @@ const getRegistryDataKeyPaths = (registryData, parentPath = "", result = []) => 
     return result;
 };
 
-const resolveExistingValueType = (valueName, valueType) => {
-    const isDefaultValue = valueName === "" || valueType === "REG_DEFAULT";
-    if (isDefaultValue) {
-        return "REG_DEFAULT";
-    }
-    return valueType;
-};
-
+/** Before using PutValueNames for comparison against the registry, we get their actual equivalent in the registry by resolving them. */
 const resolvePutValueName = (valueName, valueType) => {
-    const isDefaultValue = valueName === "" || valueType === "REG_DEFAULT";
+    const isDefaultValue = valueName === "DEFAULT_VALUE_NAME" || valueType === "REG_DEFAULT";
     if (isDefaultValue) {
-        return "DEFAULT_VALUE_NAME";
+        return "";
     }
     return valueName;
+};
+
+/** Before using PutValueTypes for comparison against the registry, we get their actual equivalent in the registry by resolving them. */
+const resolvePutValueType = (valueName, valueType) => {
+    const isDefaultValue = valueName === "DEFAULT_VALUE_NAME" || valueType === "REG_DEFAULT";
+    if (isDefaultValue) {
+        // REG_DEFAULT values are REG_SZ
+        return "REG_SZ";
+    }
+    return valueType;
 };
 
 /**
@@ -322,42 +325,36 @@ https://github.com/kessler/node-regedit/blob/master/README.md#note-about-setting
 */
 const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
     const filteredValues = {};
-    for (const keyPath in currentRegistryItems) {
-        const item = currentRegistryItems[keyPath];
-        const itemValues = item.values;
-        if (!item.exists) {
+    for (const putKeyPath in valuesToPut) {
+        const putKeyValues = valuesToPut[putKeyPath];
+        if (!putKeyValues) {
+            logger.warn("valuesToPut object has no values to set");
             continue;
         }
-        const valuesToPutValues = valuesToPut[keyPath];
-        if (!valuesToPutValues) {
+        const currentKey = currentRegistryItems[putKeyPath];
+        const currentValues = currentKey.values;
+        if (!currentKey.exists) {
             continue;
         }
-        if (Object.keys(itemValues).length === 0) {
-            filteredValues[keyPath] = valuesToPutValues;
+        if (Object.keys(currentValues).length === 0) {
+            filteredValues[putKeyPath] = putKeyValues;
             continue;
         }
-        for (const itemValueName in itemValues) {
-            const itemValue = itemValues[itemValueName];
-            // Resolved itemValueType: REG_DEFAULT or its original type.
-            const itemValueType = resolveExistingValueType(itemValueName, itemValue.type);
-            // Resolved putValueName: DEFAULT_VALUE_NAME or its original name.
-            const putValueName = resolvePutValueName(itemValueName, itemValueType);
-            const putValue = valuesToPutValues[putValueName];
-            if (!putValue) {
-                continue;
-            }
-            const putValueType = putValue.type;
+        for (const putValueName in putKeyValues) {
+            const putValue = putKeyValues[putValueName];
             const putValueData = putValue.value;
-            if (putValueData !== itemValue.value || putValueType !== itemValueType) {
-                if (!filteredValues[keyPath]) {
-                    filteredValues[keyPath] = {};
+            const putValueType = putValue.type;
+            const currentValue = currentValues[resolvePutValueName(putValueName, putValueType)];
+            if (!currentValue || putValueData !== currentValue.value || resolvePutValueType(putValueName, putValueType) !== currentValue.type) {
+                if (!filteredValues[putKeyPath]) {
+                    filteredValues[putKeyPath] = {};
                 }
                 /**
                 Setting empty strings as value names are not allowed.
                 Change the type to REG_DEFAULT and set any placeholder name as the value name instead.
                 In this case, I set the their placeholder names as DEFAULT_VALUE_NAME.
                 */
-                filteredValues[keyPath][putValueName] = {
+                filteredValues[putKeyPath][putValueName] = {
                     value: putValueData,
                     /**
                     When setting a value name as an empty string, its type should be REG_DEFAULT.
