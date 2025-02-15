@@ -331,7 +331,7 @@ https://github.com/kessler/node-regedit/issues/124
 Error: expected to have groups of 4 arguments for each valueData that is written to the registry
 https://github.com/kessler/node-regedit/blob/master/README.md#note-about-setting-default-values
 */
-const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
+const findChangedRegistryValues = (valuesToPut, currentRegistryItems) => {
     const filteredValues = {};
     for (const putKeyPath in valuesToPut) {
         const putKeyValues = valuesToPut[putKeyPath];
@@ -375,6 +375,7 @@ const filterRegistryValues = (valuesToPut, currentRegistryItems) => {
             };
         }
     }
+    logger.info(`${JSON.stringify(filteredValues, null, 2)}`);
     return filteredValues;
 };
 
@@ -395,7 +396,7 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
     if (Object.keys(currentRegistryItems).length === 0) {
         return;
     }
-    const filteredValuesToPut = filterRegistryValues(valuesToPut, currentRegistryItems);
+    const filteredValuesToPut = findChangedRegistryValues(valuesToPut, currentRegistryItems);
     if (Object.keys(filteredValuesToPut).length === 0) {
         return;
     }
