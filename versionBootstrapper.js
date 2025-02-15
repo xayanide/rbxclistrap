@@ -48,6 +48,7 @@ import {
     REGISTER_STUDIO_PLACE_KEY_PATHS,
     REGISTER_STUDIO_FILE_EXTENSIONS_KEY_PATHS,
 } from "./modules/constants.js";
+import { getPackageData, logPackageVersion } from "./modules/packageData.js";
 
 const metaUrl = import.meta.url;
 const CONFIG_FILE_PATH = nodePath.join(getDirname(metaUrl), "./config.json");
@@ -395,6 +396,7 @@ async function showMainMenu(launchType) {
         throw new Error(`Unknown binary type: ${runnerType}. Must be WindowsPlayer or Studio64.`);
     }
     console.clear();
+    logPackageVersion(getPackageData(), logger);
     // No ascii art lol
     const asciiArt = `rbxclistrap  Copyright (C) 2025  xayanide
 This program comes with ABSOLUTELY NO WARRANTY; for details type '8'.

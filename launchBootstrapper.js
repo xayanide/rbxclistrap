@@ -3,6 +3,7 @@ import logger from "./modules/logger.js";
 import { loadConfig, loadFflags, launchAutoUpdater, launchRoblox } from "./versionBootstrapper.js";
 import { BINARY_TYPES } from "./modules/constants.js";
 import { createPrompt } from "./modules/prompt.js";
+import { getPackageData, logPackageVersion } from "./modules/packageData.js";
 
 console.log(`rbxclistrap  Copyright (C) 2025  xayanide
 This program comes with ABSOLUTELY NO WARRANTY.
@@ -20,6 +21,8 @@ try {
         throw new Error(`Unknown binary type: ${binaryType}. Must be WindowsPlayer or Studio64.`);
     }
     logger.binaryType = binaryType;
+    const packageData = getPackageData();
+    logPackageVersion(packageData, logger);
     logger.info(`${binaryType} bootstrapper starting...`);
     const selectedVersion = await launchAutoUpdater(binaryType);
     const filteredArgv = argv.filter((arg) => {
