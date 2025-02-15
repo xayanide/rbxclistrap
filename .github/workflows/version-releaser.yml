@@ -5,7 +5,7 @@ on:
 
 jobs:
   release-version:
-    name: Bump or release version if needed
+    name: Bump and release if needed
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -18,7 +18,7 @@ jobs:
           node-version: 20
       - name: Install dependencies
         run: npm install
-      - name: Bump or release version if needed
+      - name: Bump and release if needed
         uses: cycjimmy/semantic-release-action@v4
         with:
           branches: |
