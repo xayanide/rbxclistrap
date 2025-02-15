@@ -2,7 +2,8 @@
 node_modules
 
 # Roblox versions
-version-*
+PlayerVersions/*
+StudioVersions/*
 
 # Configs
 /config.json
