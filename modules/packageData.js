@@ -19,6 +19,7 @@ function logPackageVersion(packageData, logger = console) {
         return;
     }
     const logMessage = `Package Version: v${packageVersion}`;
+    const cautionMessage = `${logMessage}\nWARNING: You are using a pre-release version. This version may contain incomplete features, bugs, or other issues.`;
     if (!packageVersion.includes("dev")) {
         if (typeof logger.info !== "function") {
             console.log(logMessage);
@@ -28,10 +29,10 @@ function logPackageVersion(packageData, logger = console) {
         return;
     }
     if (typeof logger.warn !== "function") {
-        console.warn(logMessage);
+        console.warn(cautionMessage);
         return;
     }
-    logger.warn(logMessage);
+    logger.warn(cautionMessage);
 }
 
 export { getPackageData, logPackageVersion };
