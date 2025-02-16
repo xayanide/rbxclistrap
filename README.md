@@ -3,7 +3,7 @@
 A CLI tool for managing Roblox WindowsPlayer and WindowsStudio64 versions, allowing you to download the latest, previous, or custom version hash of Roblox. This tool also includes the ability to launch Roblox through deeplinks, with or without custom arguments and apply fast flags.
 
 ### Differences from upstream (`rbxcli`) and `rbxclistrap`
-- Deeplinks Support, allows you to run Roblox Player and Roblox Studio from Roblox's website through URIs (which involves Windows' Registry)
+- Deeplinks support. Allows you to run Roblox Player and Roblox Studio from Roblox's website through URIs (which involves Windows' Registry)
 - Automatic installation of MS Edge Webview2 when it's not yet installed (which also involves Windows' Registry)
 
 That's all I can think of the high-level differences between the two.
