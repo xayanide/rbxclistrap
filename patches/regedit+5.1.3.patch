@@ -1,5 +1,5 @@
 diff --git a/node_modules/regedit/index.js b/node_modules/regedit/index.js
-index 5ce41a5..5f7aafc 100644
+index 5ce41a5..30eea85 100644
 --- a/node_modules/regedit/index.js
 +++ b/node_modules/regedit/index.js
 @@ -1,5 +1,4 @@
@@ -8,7 +8,7 @@ index 5ce41a5..5f7aafc 100644
  const childProcess = require('child_process')
  const path = require('path')
  const debug = require('debug')('regedit')
-@@ -151,13 +150,13 @@ function renderValueByType(value, type) {
+@@ -151,17 +150,23 @@ function renderValueByType(value, type) {
  			return value
  
  		case 'REG_BINARY':
@@ -24,7 +24,17 @@ index 5ce41a5..5f7aafc 100644
  				throw new Error('invalid value type ' + typeof(value) + ' for registry type REG_BINARY, please use an array of strings')
  			}
  			return value.join(',')
-@@ -192,7 +191,7 @@ function toCommandArgs(cmd, arch, keys) {
+ 
++		case 'REG_DEFAULT':
++				if (value === '') {
++					return '\0'
++				}
++				return value
++
+ 		case 'REG_SZ':
+ 			if (value === '') {
+ 				return '\0'
+@@ -192,7 +197,7 @@ function toCommandArgs(cmd, arch, keys) {
  	let result = baseCommand(cmd, arch)
  	if (typeof keys === 'string') {
  		result.push(keys)
