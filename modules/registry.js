@@ -151,7 +151,6 @@ const checkUnsetValuePaths = async (unsetValuePaths) => {
     } catch (error) {
         logger.error(`async checkUnsetValuePaths(): Error checking unset value paths:\n${error.message}\n${error.stack}`);
     }
-    process.exit(1);
 };
 
 const updateRegistryValues = async (valuesToPut, options = { overwrite: true, currentRegistryItems: {} }) => {
