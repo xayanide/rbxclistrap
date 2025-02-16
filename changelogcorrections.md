@@ -36,4 +36,5 @@ unless I mess it up again, lol.
 
 ## February 15, 2025 UTC+8
 After commit https://github.com/xayanide/rbxclistrap/commit/213d1f5576ce445f15d6ca4b1bde2a7026e0e0b1
-It'll now strictl adhere to follow semantic-release
+
+rbxclistrap will now strictly adhere to semantic-release guidelines.
