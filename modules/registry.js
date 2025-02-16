@@ -139,7 +139,6 @@ const checkUnsetValuePaths = async (unsetValuePaths) => {
             return path.replace(`\\${NULL_CHAR}`, "");
         });
         const registryItems = await promisifiedRegedit.list(sanitizedPaths);
-        console.log(JSON.stringify(registryItems, null, 2));
         /** Find paths that have a default value set */
         const defaultValuePaths = getValuePathsWithEmptyValueNames(registryItems);
         if (defaultValuePaths.length > 0) {
