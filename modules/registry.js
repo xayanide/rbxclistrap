@@ -1,6 +1,7 @@
 import { promisified as promisifiedRegedit } from "regedit";
 import logger from "./logger.js";
 import { isEmptyObject } from "./helpers.js";
+import { NULL_CHAR } from "./robloxRegistry.js";
 
 const getRegistryKeyPaths = (registryItems, options = { exclude: "none" }) => {
     const exclusion = options.exclude;
@@ -116,6 +117,43 @@ const findChangedRegistryValues = (valuesToPut, currentRegistryItems) => {
     return filteredValues;
 };
 
+const getValuePathsWithEmptyValueNames = (registryItems) => {
+    const valuePaths = [];
+    for (const keyPath in registryItems) {
+        const keyValues = registryItems[keyPath];
+        if (keyValues.values && Object.prototype.hasOwnProperty.call(keyValues.values, "")) {
+            /** Re-append the NULL_CHAR to this path. Marking this path for deletion. */
+            valuePaths.push(`${keyPath}\\${NULL_CHAR}`);
+        }
+    }
+    return valuePaths;
+};
+
+const checkUnsetValuePaths = async (unsetValuePaths) => {
+    try {
+        /**
+        Sanitize first, remove the NULL_CHAR from the end of each path to list them as keys,
+        because the unsanitized value paths are used only for when we are deleting values
+        */
+        const sanitizedPaths = unsetValuePaths.map((path) => {
+            return path.replace(`\\${NULL_CHAR}`, "");
+        });
+        const registryItems = await promisifiedRegedit.list(sanitizedPaths);
+        console.log(JSON.stringify(registryItems, null, 2));
+        /** Find paths that have a default value set */
+        const defaultValuePaths = getValuePathsWithEmptyValueNames(registryItems);
+        if (defaultValuePaths.length > 0) {
+            logger.warn(`Found paths that have default values when they should be unset!:\n${JSON.stringify(defaultValuePaths, null, 2)}`);
+            logger.info("Deleting values...");
+            await promisifiedRegedit.deleteValue(defaultValuePaths);
+            logger.info("Successfully deleted values!");
+        }
+    } catch (error) {
+        logger.error(`async checkUnsetValuePaths(): Error checking unset value paths:\n${error.message}\n${error.stack}`);
+    }
+    process.exit(1);
+};
+
 const updateRegistryValues = async (valuesToPut, options = { overwrite: true, currentRegistryItems: {} }) => {
     const isOverwrite = options.overwrite;
     if (typeof isOverwrite !== "boolean") {
@@ -160,4 +198,4 @@ const setRegistryData = async (valuesToPut, keyPaths) => {
     });
 };
 
-export { getRegistryKeyPaths, getRegistryDataKeyPaths, setRegistryData };
+export { getRegistryKeyPaths, getRegistryDataKeyPaths, setRegistryData, checkUnsetValuePaths };

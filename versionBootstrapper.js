@@ -32,8 +32,18 @@ import { killProcesses, isProcessesRunning } from "./modules/processes.js";
 import { deleteFolderRecursive, saveJson, loadJson, getDirname } from "./modules/fileUtils.js";
 import { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } from "./modules/robloxUrls.js";
 import { installEdgeWebView } from "./modules/webview.js";
-import { getPlayerRegistryData, getStudioRegistryData, getStudioPlaceRegistryData, getStudioFileExtensionsRegistryData } from "./modules/robloxRegistry.js";
-import { setRegistryData } from "./modules/registry.js";
+import {
+    getPlayerRegistryData,
+    getStudioRegistryData,
+    getStudioPlaceRegistryData,
+    getStudioFileExtensionsRegistryData,
+    PLAYER_UNSET_VALUE_PATHS,
+    STUDIO_UNSET_VALUE_PATHS,
+    STUDIO_PLACE_UNSET_VALUE_PATHS,
+    STUDIO_FILE_EXTENSIONS_UNSET_VALUE_PATHS,
+    CORPORATION_UNSET_VALUE_PATHS,
+} from "./modules/robloxRegistry.js";
+import { checkUnsetValuePaths, setRegistryData } from "./modules/registry.js";
 import {
     folderMappings,
     AppSettings,
@@ -368,10 +378,16 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
     await installEdgeWebView(selectedVersionPath);
     if (isPlayerRunnerType(runnerType)) {
         await setRegistryData(getPlayerRegistryData(binaryPath, selectedVersion), REGISTER_PLAYER_KEY_PATHS);
+        await checkUnsetValuePaths(CORPORATION_UNSET_VALUE_PATHS);
+        await checkUnsetValuePaths(PLAYER_UNSET_VALUE_PATHS);
     } else {
         await setRegistryData(getStudioRegistryData(binaryPath, selectedVersion), REGISTER_STUDIO_KEY_PATHS);
+        await checkUnsetValuePaths(CORPORATION_UNSET_VALUE_PATHS);
+        await checkUnsetValuePaths(STUDIO_UNSET_VALUE_PATHS);
         await setRegistryData(getStudioPlaceRegistryData(binaryPath), REGISTER_STUDIO_PLACE_KEY_PATHS);
+        await checkUnsetValuePaths(STUDIO_PLACE_UNSET_VALUE_PATHS);
         await setRegistryData(getStudioFileExtensionsRegistryData(), REGISTER_STUDIO_FILE_EXTENSIONS_KEY_PATHS);
+        await checkUnsetValuePaths(STUDIO_FILE_EXTENSIONS_UNSET_VALUE_PATHS);
     }
     applyFflags(selectedVersionPath);
     let launchArgs = "";
