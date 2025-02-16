@@ -4,6 +4,9 @@ const Configuration = {
      * Referenced packages must be installed
      */
     extends: ["@commitlint/config-conventional"],
+    rules: {
+        'footer-max-line-length': [0, "always", 100],
+    },
     /*
      * Array of functions that return true if commitlint should ignore the given message.
      * Given array is merged with predefined functions, which consist of matchers like:
