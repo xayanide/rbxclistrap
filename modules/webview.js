@@ -17,13 +17,13 @@ const isWebViewInstalled = async () => {
     return false;
 };
 
-const installEdgeWebView = async (installPath) => {
-    if (!installPath) {
+const installEdgeWebView = async (installerPath) => {
+    if (!installerPath) {
         return;
     }
-    const webViewSetupPath = nodePath.join(installPath, "WebView2RuntimeInstaller");
+    const webViewSetupPath = nodePath.join(installerPath, "WebView2RuntimeInstaller");
     if (!nodeFs.existsSync(webViewSetupPath)) {
-        logger.warn(`WebView2RuntimeInstaller folder not found in ${installPath}`);
+        logger.warn(`WebView2RuntimeInstaller folder not found in ${installerPath}`);
         return;
     }
     const webviewSetupFilePath = nodePath.join(webViewSetupPath, "MicrosoftEdgeWebview2Setup.exe");
