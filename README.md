@@ -172,11 +172,11 @@ Yes, after downloading a Roblox version, select the "6. Launch Roblox with args"
 > Disclaimer: This project is an independent tool and is not affiliated with, endorsed by, or associated with Roblox and Roblox Corporation.
 
 ## The project's core tech stack
-- [JavaScript](https://en.wikipedia.org/wiki/JavaScript)
-- [Node.js](https://github.com/nodejs/node)
+- [JavaScript](https://en.wikipedia.org/wiki/JavaScript) - Programming language
+- [Node.js](https://github.com/nodejs/node) - JavaScript runtime
 
 ## The project incorporates the following tools
-- [ESLint](https://github.com/eslint/eslint) for code linting
-- [Prettier](https://github.com/prettier/prettier) for code formatting
-- [Commitlint](https://github.com/conventional-changelog/commitlint) for enforcing commit message conventions
-- [Semantic-Release](https://github.com/semantic-release/semantic-release) for automated versioning and releases
+- [ESLint](https://github.com/eslint/eslint) - Code linting
+- [Prettier](https://github.com/prettier/prettier) - Code formatting
+- [Commitlint](https://github.com/conventional-changelog/commitlint) - Enforcing commit message conventions
+- [Semantic-Release](https://github.com/semantic-release/semantic-release) - Automated versioning and releases
