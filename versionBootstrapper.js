@@ -378,16 +378,22 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
     await installEdgeWebView(selectedVersionPath);
     if (isPlayerRunnerType(runnerType)) {
         await setRegistryData(getPlayerRegistryData(binaryPath, selectedVersion), REGISTER_PLAYER_KEY_PATHS);
-        await checkUnsetValuePaths(CORPORATION_UNSET_VALUE_PATHS);
-        await checkUnsetValuePaths(PLAYER_UNSET_VALUE_PATHS);
+        await checkUnsetValuePaths([...CORPORATION_UNSET_VALUE_PATHS, ...PLAYER_UNSET_VALUE_PATHS]);
     } else {
-        await setRegistryData(getStudioRegistryData(binaryPath, selectedVersion), REGISTER_STUDIO_KEY_PATHS);
-        await checkUnsetValuePaths(CORPORATION_UNSET_VALUE_PATHS);
-        await checkUnsetValuePaths(STUDIO_UNSET_VALUE_PATHS);
-        await setRegistryData(getStudioPlaceRegistryData(binaryPath), REGISTER_STUDIO_PLACE_KEY_PATHS);
-        await checkUnsetValuePaths(STUDIO_PLACE_UNSET_VALUE_PATHS);
-        await setRegistryData(getStudioFileExtensionsRegistryData(), REGISTER_STUDIO_FILE_EXTENSIONS_KEY_PATHS);
-        await checkUnsetValuePaths(STUDIO_FILE_EXTENSIONS_UNSET_VALUE_PATHS);
+        await setRegistryData(
+            {
+                ...getStudioRegistryData(binaryPath, selectedVersion),
+                ...getStudioPlaceRegistryData(binaryPath),
+                ...getStudioFileExtensionsRegistryData(),
+            },
+            [...REGISTER_STUDIO_KEY_PATHS, ...REGISTER_STUDIO_PLACE_KEY_PATHS, ...REGISTER_STUDIO_FILE_EXTENSIONS_KEY_PATHS],
+        );
+        await checkUnsetValuePaths([
+            ...CORPORATION_UNSET_VALUE_PATHS,
+            ...STUDIO_UNSET_VALUE_PATHS,
+            ...STUDIO_PLACE_UNSET_VALUE_PATHS,
+            ...STUDIO_FILE_EXTENSIONS_UNSET_VALUE_PATHS,
+        ]);
     }
     applyFflags(selectedVersionPath);
     let launchArgs = "";
