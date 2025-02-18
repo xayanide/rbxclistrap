@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [20, 22]
+        node-version: [20, 22, "lts/*"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -32,8 +32,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Install dependencies
-        run: npm install
+      - name: Clean install NPM dependencies
+        run: npm ci
       - name: Lint code
         uses: reviewdog/action-eslint@v1
         with:
