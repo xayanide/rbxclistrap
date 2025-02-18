@@ -74,16 +74,19 @@ const findChangedRegistryValues = (valuesToPut, currentRegistryItems) => {
     const filteredValues = {};
     for (const putKeyPath in valuesToPut) {
         const putKeyValues = valuesToPut[putKeyPath];
+        logger.debug(`Checking for changed values: ${putKeyPath}`);
         if (!putKeyValues) {
-            logger.warn("valuesToPut object has no values to set");
+            logger.debug("valuesToPut object is undefined. There are no values to set");
             continue;
         }
         const currentKey = currentRegistryItems[putKeyPath];
         const currentValues = currentKey.values;
         if (!currentKey.exists) {
+            logger.debug("currentKey doesn't exist");
             continue;
         }
         if (isEmptyObject(currentValues)) {
+            logger.debug("currentKey's values object is empty");
             filteredValues[putKeyPath] = putKeyValues;
             continue;
         }
@@ -91,11 +94,18 @@ const findChangedRegistryValues = (valuesToPut, currentRegistryItems) => {
             const putValue = putKeyValues[putValueName];
             const putValueData = putValue.value;
             const putValueType = putValue.type;
-            const currentValue = currentValues[resolvePutValueName(putValueName, putValueType)];
+            const resolvedPutValueName = resolvePutValueName(putValueName, putValueType);
+            logger.debug(`ValueName: ${resolvedPutValueName === "" ? "(Default)" : resolvedPutValueName}`);
+            const resolvedPutValueType = resolvePutValueType(putValueName, putValueType);
+            const putValueDataLower = putValueData.toLowerCase();
+            const currentValue = currentValues[resolvedPutValueName];
+            const currentValueDataLower = currentValue.value.toLowerCase();
             /** No need to have this value set. Skip if the value is unchanged. */
-            if (currentValue && putValueData === currentValue.value && resolvePutValueType(putValueName, putValueType) === currentValue.type) {
+            if (currentValue && putValueDataLower === currentValueDataLower && resolvedPutValueType === currentValue.type) {
+                logger.debug("No value changes needed");
                 continue;
             }
+            logger.debug(`Value has changed:\n${putValueDataLower} !== ${currentValueDataLower} || ${resolvedPutValueType} !== ${currentValue.type}\n`);
             if (!filteredValues[putKeyPath]) {
                 filteredValues[putKeyPath] = {};
             }
@@ -186,6 +196,7 @@ const setRegistryData = async (valuesToPut, keyPaths) => {
     });
     if (missingKeyPaths.length > 0) {
         logger.info("Creating missing registry keys...");
+        logger.debug(`\n${JSON.stringify(missingKeyPaths, null, 2)}`);
         await promisifiedRegedit.createKey(missingKeyPaths);
         logger.info("Successfully created registry keys!");
     }
