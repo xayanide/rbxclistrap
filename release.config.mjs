@@ -3,7 +3,10 @@
  */
 export default {
     tagFormat: "${version}",
-    branches: ["main", "dev"],
+    branches: [
+        { name: "main", prerelease: false },
+        { name: "dev", prerelease: true }
+    ],
     plugins: [
         ["@semantic-release/commit-analyzer"],
         ["@semantic-release/release-notes-generator"],
