@@ -23,6 +23,8 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
 1. **Download the source code. Extract the archive if necessary.**
 2. **Navigate to the directory of the source code**
 3. **Install dependencies**
+   > `npm ci` - This command performs a clean installation of all dependencies as specified in the package-lock.json file, makes sure the packages installed are the same and consistent across environments.
+   > `npm i` - This command installs the dependencies listed in the `package.json` file and may update the `package-lock.json` file accordingly.
    > Choose among the methods to install dependencies:
    - (Recommended) Open a terminal in the downloaded source code directory and run:
      ```bash
