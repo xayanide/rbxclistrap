@@ -184,7 +184,7 @@ const getPlayerRegistryData = (binaryPath, selectedVersion) => {
 
 const getStudioRegistryData = (binaryPath, selectedVersion) => {
     const studioDefaultIconPath = binaryPath;
-    const studioOpenCommandPath = `"${studioRunPath}" %1`;
+    const studioOpenCommandPath = `"${studioRunPath}" "%1"`;
     const studioProtocolName = "URL:RobloxStudioCLIStrap Protocol";
     return {
         /** ROBLOX Corporation */
