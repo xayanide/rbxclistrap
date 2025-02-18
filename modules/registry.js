@@ -100,12 +100,13 @@ const findChangedRegistryValues = (valuesToPut, currentRegistryItems) => {
             const putValueDataLower = putValueData.toLowerCase();
             const currentValue = currentValues[resolvedPutValueName];
             const currentValueDataLower = currentValue.value.toLowerCase();
+            const currentValueType = currentValue.type;
             /** No need to have this value set. Skip if the value is unchanged. */
-            if (currentValue && putValueDataLower === currentValueDataLower && resolvedPutValueType === currentValue.type) {
+            if (currentValue && putValueDataLower === currentValueDataLower && resolvedPutValueType === currentValueType) {
                 logger.debug("Value is unchanged");
                 continue;
             }
-            logger.debug(`Value has changed:\n${putValueDataLower} !== ${currentValueDataLower} || ${resolvedPutValueType} !== ${currentValue.type}\n`);
+            logger.debug(`Value has changed:\n${putValueDataLower} !== ${currentValueDataLower} || ${resolvedPutValueType} !== ${currentValueType}\n`);
             if (!filteredValues[putKeyPath]) {
                 filteredValues[putKeyPath] = {};
             }
