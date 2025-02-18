@@ -76,17 +76,17 @@ const findChangedRegistryValues = (valuesToPut, currentRegistryItems) => {
         const putKeyValues = valuesToPut[putKeyPath];
         logger.debug(`Checking for changed values: ${putKeyPath}`);
         if (!putKeyValues) {
-            logger.debug("valuesToPut object is undefined. There are no values to set. Skipping...");
+            logger.warn("valuesToPut object is undefined. There are no values to set. Skipping...");
             continue;
         }
         const currentKey = currentRegistryItems[putKeyPath];
         const currentValues = currentKey.values;
         if (!currentKey.exists) {
-            logger.debug("currentKey doesn't exist. Skipping...");
+            logger.warn("currentKey doesn't exist. Skipping...");
             continue;
         }
         if (isEmptyObject(currentValues)) {
-            logger.debug("currentKey's values object is empty. Adding all values...");
+            logger.warn("currentKey's values object is empty. Adding all values...");
             filteredValues[putKeyPath] = putKeyValues;
             continue;
         }
@@ -95,7 +95,6 @@ const findChangedRegistryValues = (valuesToPut, currentRegistryItems) => {
             const putValueData = putValue.value;
             const putValueType = putValue.type;
             const resolvedPutValueName = resolvePutValueName(putValueName, putValueType);
-            logger.debug(`ValueName: ${resolvedPutValueName === "" ? "(Default)" : resolvedPutValueName}`);
             const resolvedPutValueType = resolvePutValueType(putValueName, putValueType);
             const putValueDataLower = putValueData.toLowerCase();
             const currentValue = currentValues[resolvedPutValueName];
@@ -103,10 +102,10 @@ const findChangedRegistryValues = (valuesToPut, currentRegistryItems) => {
             const currentValueType = currentValue.type;
             /** No need to have this value set. Skip if the value is unchanged. */
             if (currentValue && putValueDataLower === currentValueDataLower && resolvedPutValueType === currentValueType) {
-                logger.debug("Value is unchanged. Skipping...");
                 continue;
             }
-            logger.debug(`Value has changed:\n${putValueDataLower} !== ${currentValueDataLower} || ${resolvedPutValueType} !== ${currentValueType}\n`);
+            logger.warn(`ValueName: ${resolvedPutValueName === "" ? "(Default)" : resolvedPutValueName}`);
+            logger.warn(`Value has changed:\n${putValueDataLower} !== ${currentValueDataLower} || ${resolvedPutValueType} !== ${currentValueType}\n`);
             if (!filteredValues[putKeyPath]) {
                 filteredValues[putKeyPath] = {};
             }
