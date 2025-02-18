@@ -12,12 +12,6 @@ jobs:
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.SRGH_TOKEN }}
-      - name: Setup Node.js v20
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - name: Install NPM packages
-        run: npm install
       - name: Bump and release if needed
         uses: cycjimmy/semantic-release-action@v4
         with:
