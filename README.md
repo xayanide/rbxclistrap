@@ -171,6 +171,10 @@ Yes, after downloading a Roblox version, select the "6. Launch Roblox with args"
 > [!IMPORTANT]
 > Disclaimer: This project is an independent tool and is not affiliated with, endorsed by, or associated with Roblox and Roblox Corporation.
 
+## The project's core tech stack
+- [JavaScript](https://en.wikipedia.org/wiki/JavaScript)
+- [Node.js](https://github.com/nodejs/node)
+
 ## The project incorporates the following tools
 - [ESLint](https://github.com/eslint/eslint) for code linting
 - [Prettier](https://github.com/prettier/prettier) for code formatting
