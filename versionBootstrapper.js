@@ -61,8 +61,6 @@ import {
 import { getPackageData, logPackageVersion } from "./modules/packageData.js";
 
 const metaUrl = import.meta.url;
-const CONFIG_FILE_PATH = nodePath.join(getDirname(metaUrl), "./config.json");
-const FFLAGS_FILE_PATH = nodePath.join(getDirname(metaUrl), "./fflags.json");
 
 let runnerConfig = { ...DEFAULT_CONFIG };
 let runnerFflags = { ...DEFAULT_FFLAGS };
@@ -72,13 +70,26 @@ const isPlayerRunnerType = (type) => {
     return type === BINARY_TYPES.PLAYER;
 };
 
-const saveConfig = () => {
+const resolveBinaryType = (type) => {
+    if (type === "WindowsPlayer") {
+        return "player";
+    } else if (type === "WindowsStudio64") {
+        return "studio";
+    } else {
+        return null;
+    }
+};
+
+const saveConfig = (type) => {
+    const CONFIG_FILE_PATH = nodePath.join(getDirname(metaUrl), `./${resolveBinaryType(type)}-config.json`);
     return saveJson(CONFIG_FILE_PATH, runnerConfig);
 };
-const loadConfig = () => {
+const loadConfig = (type) => {
+    const CONFIG_FILE_PATH = nodePath.join(getDirname(metaUrl), `./${resolveBinaryType(type)}-config.json`);
     runnerConfig = loadJson(CONFIG_FILE_PATH, DEFAULT_CONFIG);
 };
-const loadFflags = () => {
+const loadFflags = (type) => {
+    const FFLAGS_FILE_PATH = nodePath.join(getDirname(metaUrl), `./${resolveBinaryType(type)}-fflags.json`);
     runnerFflags = loadJson(FFLAGS_FILE_PATH, DEFAULT_FFLAGS);
 };
 
@@ -187,21 +198,21 @@ const showSettingsMenu = async () => {
         case "1":
             runnerConfig.deleteExistingFolders = !runnerConfig.deleteExistingFolders;
             console.log(`${colors.BLUE}Delete existing folders set to: ${runnerConfig.deleteExistingFolders}${colors.RESET}`);
-            saveConfig();
+            saveConfig(runnerType);
             await createPrompt("Press Enter to continue...");
             await showSettingsMenu();
             break;
         case "2":
             runnerConfig.forceUpdate = !runnerConfig.forceUpdate;
             console.log(`${colors.BLUE}Force update set to: ${runnerConfig.forceUpdate}${colors.RESET}`);
-            saveConfig();
+            saveConfig(runnerType);
             await createPrompt("Press Enter to continue...");
             await showSettingsMenu();
             break;
         case "3":
             runnerConfig.alwaysRunLatest = !runnerConfig.alwaysRunLatest;
             console.log(`${colors.BLUE}Force update set to: ${runnerConfig.alwaysRunLatest}${colors.RESET}`);
-            saveConfig();
+            saveConfig(runnerType);
             await createPrompt("Press Enter to continue...");
             await showSettingsMenu();
             break;

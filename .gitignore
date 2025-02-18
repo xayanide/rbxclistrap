@@ -133,9 +133,11 @@ dist
 PlayerVersions/*
 StudioVersions/*
 
-# Configs
-/config.json
-/fflags.json
+# Bootstrapper Configs
+/player-config.json
+/studio-config.json
+/player-fflags.json
+/studio-fflags.json
 
 # Tests
 test

@@ -11,12 +11,12 @@ This is free software, and you are welcome to redistribute it
 under certain conditions.`);
 
 try {
-    loadConfig();
-    loadFflags();
     const argv = nodeProcess.argv;
     const binaryType = argv.find((arg) => {
         return Object.values(BINARY_TYPES).includes(arg);
     });
+    loadConfig(binaryType);
+    loadFflags(binaryType);
     if (!binaryType) {
         throw new Error(`Unknown binary type: ${binaryType}. Must be WindowsPlayer or Studio64.`);
     }
