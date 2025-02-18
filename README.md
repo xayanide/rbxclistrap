@@ -23,7 +23,22 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
 1. **Download the source code. Extract the archive if necessary.**
 2. **Navigate to the directory of the source code**
 3. **Install dependencies**
+   > Choose among the methods to install dependencies:
+   - (Recommended) Open a terminal in the downloaded source code directory and run:
+     ```bash
+     npm ci
+     ```
+   - (Recommended) Open a terminal in the downloaded source code directory and run:
+   - Alias is `npm ci`
+     ```bash
+     npm clean-install
+     ```
    - Open a terminal in the downloaded source code directory and run:
+     ```bash
+     npm i
+     ```
+   - Open a terminal in the downloaded source code directory and run:
+   - Alias is `npm i`
      ```bash
      npm install
      ```
