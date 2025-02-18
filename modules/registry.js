@@ -76,17 +76,17 @@ const findChangedRegistryValues = (valuesToPut, currentRegistryItems) => {
         const putKeyValues = valuesToPut[putKeyPath];
         logger.debug(`Checking for changed values: ${putKeyPath}`);
         if (!putKeyValues) {
-            logger.debug("valuesToPut object is undefined. There are no values to set");
+            logger.debug("valuesToPut object is undefined. There are no values to set. Skipping...");
             continue;
         }
         const currentKey = currentRegistryItems[putKeyPath];
         const currentValues = currentKey.values;
         if (!currentKey.exists) {
-            logger.debug("currentKey doesn't exist");
+            logger.debug("currentKey doesn't exist. Skipping...");
             continue;
         }
         if (isEmptyObject(currentValues)) {
-            logger.debug("currentKey's values object is empty");
+            logger.debug("currentKey's values object is empty. Adding all values...");
             filteredValues[putKeyPath] = putKeyValues;
             continue;
         }
