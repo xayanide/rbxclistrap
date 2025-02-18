@@ -47,9 +47,14 @@ const installEdgeWebView = async (installerPath) => {
             });
             childProcess.on("exit", (code) => {
                 if (code === 0) {
-                    logger.info("Microsoft Edge WebView2 Runtime installed successfully.");
                     resolve();
                 } else {
+                    const WINGET_ERROR_CODE_ALREADY_INSTALLED = 2147747880;
+                    if (code === WINGET_ERROR_CODE_ALREADY_INSTALLED) {
+                        logger.error(`Microsoft Edge WebView2 Runtime installation failed because it was already installed.`);
+                        resolve();
+                        return;
+                    }
                     logger.error(`Microsoft Edge WebView2 Runtime installation failed with code: ${code}`);
                     reject(new Error(`Installation failed with code: ${code}`));
                 }
@@ -63,7 +68,9 @@ const installEdgeWebView = async (installerPath) => {
         const isNowInstalled = await isWebViewInstalled();
         if (!isNowInstalled) {
             logger.error("Microsoft Edge WebView2 Runtime installation did not complete successfully.");
+            return;
         }
+        logger.info("Microsoft Edge WebView2 Runtime was installed successfully.");
     } catch (error) {
         logger.error(`Error during Microsoft Edge WebView2 installation:\n${error.message}\n${error.stack}`);
     }
