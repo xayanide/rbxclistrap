@@ -123,7 +123,7 @@ const applyFflags = (clientSettingsPath) => {
     if (!nodeFs.existsSync(clientSettingsFolderPath)) {
         nodeFs.mkdirSync(clientSettingsFolderPath, { recursive: true });
     }
-    logger.info(`Applying fflags.json...`);
+    logger.info(`Applying fast flags...`);
     const clientAppSettingsJsonPath = nodePath.join(clientSettingsFolderPath, "ClientAppSettings.json");
     let existingSettings = "";
     if (nodeFs.existsSync(clientAppSettingsJsonPath)) {
@@ -131,10 +131,10 @@ const applyFflags = (clientSettingsPath) => {
     }
     const jsonFflags = JSON.stringify(runnerFflags, null, 2);
     if (existingSettings === jsonFflags) {
-        logger.info(`FFlags already applied. No changes made.`);
+        logger.info(`Fast flags already applied. No changes made.`);
     } else {
         nodeFs.writeFileSync(clientAppSettingsJsonPath, jsonFflags);
-        logger.info(`Successfully applied fflags.json to ${clientAppSettingsJsonPath}`);
+        logger.info(`Successfully applied fast flags to ${clientAppSettingsJsonPath}`);
     }
 };
 
