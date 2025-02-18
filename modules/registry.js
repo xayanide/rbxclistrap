@@ -140,25 +140,21 @@ const getValuePathsWithEmptyValueNames = (registryItems) => {
 };
 
 const checkUnsetValuePaths = async (unsetValuePaths) => {
-    try {
-        /**
+    /**
         Sanitize first, remove the NULL_CHAR from the end of each path to list them as keys,
         because the unsanitized value paths are used only for when we are deleting values
         */
-        const sanitizedPaths = unsetValuePaths.map((path) => {
-            return path.replace(`\\${NULL_CHAR}`, "");
-        });
-        const registryItems = await promisifiedRegedit.list(sanitizedPaths);
-        /** Find paths that have a default value set */
-        const defaultValuePaths = getValuePathsWithEmptyValueNames(registryItems);
-        if (defaultValuePaths.length > 0) {
-            logger.warn(`Found paths that have default values when they should be unset!:\n${JSON.stringify(defaultValuePaths, null, 2)}`);
-            logger.info("Deleting values...");
-            await promisifiedRegedit.deleteValue(defaultValuePaths);
-            logger.info("Successfully deleted values!");
-        }
-    } catch (error) {
-        logger.error(`async checkUnsetValuePaths(): Error checking unset value paths:\n${error.message}\n${error.stack}`);
+    const sanitizedPaths = unsetValuePaths.map((path) => {
+        return path.replace(`\\${NULL_CHAR}`, "");
+    });
+    const registryItems = await promisifiedRegedit.list(sanitizedPaths);
+    /** Find paths that have a default value set */
+    const defaultValuePaths = getValuePathsWithEmptyValueNames(registryItems);
+    if (defaultValuePaths.length > 0) {
+        logger.warn(`Found paths that have default values when they should be unset!:\n${JSON.stringify(defaultValuePaths, null, 2)}`);
+        logger.info("Deleting values...");
+        await promisifiedRegedit.deleteValue(defaultValuePaths);
+        logger.info("Successfully deleted values!");
     }
 };
 
