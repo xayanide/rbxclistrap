@@ -141,9 +141,9 @@ const getValuePathsWithEmptyValueNames = (registryItems) => {
 
 const checkUnsetValuePaths = async (unsetValuePaths) => {
     /**
-        Sanitize first, remove the NULL_CHAR from the end of each path to list them as keys,
-        because the unsanitized value paths are used only for when we are deleting values
-        */
+    Sanitize first, remove the NULL_CHAR from the end of each path to list them as keys,
+    because the unsanitized value paths are used only for when we are deleting values
+    */
     const sanitizedPaths = unsetValuePaths.map((path) => {
         return path.replace(`\\${NULL_CHAR}`, "");
     });
