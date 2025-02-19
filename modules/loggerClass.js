@@ -136,7 +136,7 @@ class InternalLogger {
         if (!this.fileDescriptor) {
             return;
         }
-        // https://github.com/haadcode/logplease/pull/21
+        /** Implements https://github.com/haadcode/logplease/pull/21 */
         if (!isNodejs && !isElectronRenderer) {
             return;
         }
