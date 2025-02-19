@@ -1,6 +1,6 @@
 import * as nodeProcess from "node:process";
 import logger from "./modules/logger.js";
-import { loadConfig, loadFastFlags, showMainMenu } from "./bootstrapper.js";
+import { loadConfig, loadFastFlags, showMainMenu } from "./modules/bootstrapper.js";
 import { createPrompt } from "./modules/prompt.js";
 import { BINARY_TYPES } from "./modules/constants.js";
 
