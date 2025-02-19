@@ -1,9 +1,9 @@
 import * as nodePath from "node:path";
 import { getDirname } from "./fileUtils.js";
 
-const metaUrl = import.meta.url;
-const playerRunPath = nodePath.join(getDirname(metaUrl), "..", "run-player.bat");
-const studioRunPath = nodePath.join(getDirname(metaUrl), "..", "run-studio.bat");
+const dirName = getDirname(import.meta.url);
+const playerRunPath = nodePath.join(dirName, "..", "run-player.bat");
+const studioRunPath = nodePath.join(dirName, "..", "run-studio.bat");
 
 /**
 Registry Data Structure Example
