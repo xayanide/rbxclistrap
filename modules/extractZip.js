@@ -1,7 +1,7 @@
 import * as nodePath from "node:path";
 import AdmZip from "adm-zip";
 
-const extractZip = (filePath, extractToPath, folderMappings) => {
+const extractZip = (filePath, extractPath, folderMappings) => {
     const fileName = nodePath.basename(filePath);
     let type = "_common";
     if (folderMappings._playerOnly[fileName]) {
@@ -10,12 +10,12 @@ const extractZip = (filePath, extractToPath, folderMappings) => {
         type = "_studioOnly";
     }
     const mappedPath = folderMappings[type][fileName] || "";
-    const extractPath = nodePath.join(extractToPath, mappedPath);
+    const targetPath = nodePath.join(extractPath, mappedPath);
     return new Promise((resolve, reject) => {
         try {
             const admZip = new AdmZip(filePath);
-            admZip.extractAllTo(extractPath, true);
-            resolve(extractPath);
+            admZip.extractAllTo(targetPath, true);
+            resolve(targetPath);
         } catch (extractErr) {
             reject(extractErr);
         }
