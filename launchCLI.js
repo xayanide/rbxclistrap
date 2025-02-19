@@ -18,7 +18,6 @@ if (!binaryType || (binaryType !== BINARY_TYPES.PLAYER && binaryType !== BINARY_
 try {
     loadConfig(binaryType);
     loadFflags(binaryType);
-    logger.binaryType = binaryType;
     logger.info(`${binaryType} menu starting...`);
     await showMainMenu(binaryType);
 } catch (error) {

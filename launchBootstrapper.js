@@ -20,7 +20,6 @@ try {
     if (!binaryType) {
         throw new Error(`Unknown binary type: ${binaryType}. Must be WindowsPlayer or Studio64.`);
     }
-    logger.binaryType = binaryType;
     const packageData = getPackageData();
     logPackageVersion(packageData, logger);
     logger.info(`${binaryType} bootstrapper starting...`);
