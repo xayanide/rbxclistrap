@@ -60,7 +60,7 @@ import {
 } from "./modules/constants.js";
 import { getPackageData, logPackageVersion } from "./modules/packageData.js";
 
-const metaUrl = import.meta.url;
+const dirName = getDirname(import.meta.url);
 
 let runnerConfig = { ...DEFAULT_CONFIG };
 let runnerFastFlags = { ...DEFAULT_FAST_FLAGS };
@@ -83,15 +83,15 @@ const resolveBinaryType = (type) => {
 };
 
 const saveConfig = (type) => {
-    const CONFIG_FILE_PATH = nodePath.join(getDirname(metaUrl), `./${resolveBinaryType(type)}-config.json`);
+    const CONFIG_FILE_PATH = nodePath.join(dirName, `./${resolveBinaryType(type)}-config.json`);
     return saveJson(CONFIG_FILE_PATH, runnerConfig);
 };
 const loadConfig = (type) => {
-    const CONFIG_FILE_PATH = nodePath.join(getDirname(metaUrl), `./${resolveBinaryType(type)}-config.json`);
+    const CONFIG_FILE_PATH = nodePath.join(dirName, `./${resolveBinaryType(type)}-config.json`);
     runnerConfig = loadJson(CONFIG_FILE_PATH, DEFAULT_CONFIG);
 };
 const loadFastFlags = (type) => {
-    const FAST_FLAGS_FILE_PATH = nodePath.join(getDirname(metaUrl), `./${resolveBinaryType(type)}-fflags.json`);
+    const FAST_FLAGS_FILE_PATH = nodePath.join(dirName, `./${resolveBinaryType(type)}-fflags.json`);
     runnerFastFlags = loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS);
 };
 
@@ -230,7 +230,7 @@ const downloadVersion = async (version) => {
     const runnerProcesses = isPlayerRunnerType(runnerType) ? PLAYER_PROCESSES : STUDIO_PROCESSES;
     await attemptKillProcesses(runnerProcesses);
     const versionFolder = version.startsWith("version-") ? version : `version-${version}`;
-    const versionsPath = nodePath.join(getDirname(metaUrl), isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
+    const versionsPath = nodePath.join(dirName, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
     const dumpDir = nodePath.join(versionsPath, versionFolder);
     if (nodeFs.existsSync(dumpDir) && !runnerConfig.forceUpdate) {
         logger.info(`${version} is already downloaded!`);
@@ -339,7 +339,7 @@ const launchAutoUpdater = async (binaryType) => {
     }
     const latestVersion = await fetchLatestVersion(runnerType, clientSettingsBaseUrl);
     logger.info(`Successfully fetched latest version!`);
-    const versionsPath = nodePath.join(getDirname(metaUrl), isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
+    const versionsPath = nodePath.join(dirName, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
     const versions = getExistingVersions(versionsPath);
     if (versions.length === 0) {
         logger.warn(`No installed version found!`);
@@ -383,7 +383,7 @@ const launchAutoUpdater = async (binaryType) => {
 };
 
 const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
-    const versionsPath = nodePath.join(getDirname(metaUrl), isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
+    const versionsPath = nodePath.join(dirName, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
     const selectedVersionPath = nodePath.join(versionsPath, selectedVersion);
     const binaryName = isPlayerRunnerType(runnerType) ? "RobloxPlayerBeta.exe" : "RobloxStudioBeta.exe";
     const binaryPath = nodePath.join(selectedVersionPath, binaryName);
