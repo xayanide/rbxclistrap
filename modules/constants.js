@@ -1,4 +1,4 @@
-const colors = {
+const CLI_COLORS = {
     RESET: "\x1b[0m",
     RED: "\x1b[31m",
     GREEN: "\x1b[32m",
@@ -8,7 +8,7 @@ const colors = {
     CYAN: "\x1b[36m",
 };
 
-const folderMappings = {
+const FOLDER_MAPPINGS = {
     // Blobs which both RobloxPlayer and RobloxStudio have.
     _common: {
         // Root
@@ -70,7 +70,7 @@ const folderMappings = {
     },
 };
 
-const AppSettings = `<?xml version="1.0" encoding="UTF-8"?>
+const APP_SETTINGS = `<?xml version="1.0" encoding="UTF-8"?>
 <Settings>
     <ContentFolder>content</ContentFolder>
     <BaseUrl>http://www.roblox.com</BaseUrl>
@@ -243,10 +243,10 @@ export {
     UNREGISTER_PLAYER_KEY_PATHS,
     UNREGISTER_STUDIO_VALUE_PATHS,
     UNREGISTER_STUDIO_KEY_PATHS,
-    colors,
+    CLI_COLORS,
     DEPLOYMENT_DEFAULT_CHANNEL,
-    folderMappings,
-    AppSettings,
+    FOLDER_MAPPINGS,
+    APP_SETTINGS,
     DEPLOYMENT_VERSION_STUDIO_HASH,
     DEPLOYMENT_ROBLOX_CDN_BASE_URLS,
     ROBLOX_CLIENTSETTINGS_BASE_URLS,

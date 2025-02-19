@@ -45,9 +45,9 @@ import {
 } from "./modules/robloxRegistry.js";
 import { checkUnsetValuePaths, setRegistryData } from "./modules/registry.js";
 import {
-    folderMappings,
-    AppSettings,
-    colors,
+    CLI_COLORS,
+    FOLDER_MAPPINGS,
+    APP_SETTINGS,
     PLAYER_PROCESSES,
     STUDIO_PROCESSES,
     BINARY_TYPES,
@@ -172,14 +172,14 @@ Conditions:
 
 See: https://choosealicense.com/licenses/gpl-3.0`;
     console.log(licenseInfo);
-    console.log(`${colors.RED}1. Back to main menu${colors.RESET}`);
+    console.log(`${CLI_COLORS.RED}1. Back to main menu${CLI_COLORS.RESET}`);
     const answer = await createPrompt("Select an option: ");
     switch (answer) {
         case "1":
             await showMainMenu(runnerType);
             break;
         default:
-            console.log(`${colors.RED}Invalid option selected. Please try again.${colors.RESET}`);
+            console.log(`${CLI_COLORS.RED}Invalid option selected. Please try again.${CLI_COLORS.RESET}`);
             await showLicenseMenu();
             break;
     }
@@ -187,30 +187,30 @@ See: https://choosealicense.com/licenses/gpl-3.0`;
 
 const showSettingsMenu = async () => {
     console.clear();
-    console.log(`${colors.MAGENTA}Settings Menu${colors.RESET}`);
-    console.log(`${colors.GREEN}1. Toggle delete existing folders (Current: ${runnerConfig.deleteExistingFolders})${colors.RESET}`);
-    console.log(`${colors.YELLOW}2. Toggle force update (Current: ${runnerConfig.forceUpdate})${colors.RESET}`);
-    console.log(`${colors.BLUE}3. Toggle always run latest version (Current: ${runnerConfig.alwaysRunLatest})${colors.RESET}`);
-    console.log(`${colors.RED}4. Back to main menu${colors.RESET}`);
+    console.log(`${CLI_COLORS.MAGENTA}Settings Menu${CLI_COLORS.RESET}`);
+    console.log(`${CLI_COLORS.GREEN}1. Toggle delete existing folders (Current: ${runnerConfig.deleteExistingFolders})${CLI_COLORS.RESET}`);
+    console.log(`${CLI_COLORS.YELLOW}2. Toggle force update (Current: ${runnerConfig.forceUpdate})${CLI_COLORS.RESET}`);
+    console.log(`${CLI_COLORS.BLUE}3. Toggle always run latest version (Current: ${runnerConfig.alwaysRunLatest})${CLI_COLORS.RESET}`);
+    console.log(`${CLI_COLORS.RED}4. Back to main menu${CLI_COLORS.RESET}`);
     const answer = await createPrompt("Select an option: ");
     switch (answer) {
         case "1":
             runnerConfig.deleteExistingFolders = !runnerConfig.deleteExistingFolders;
-            console.log(`${colors.BLUE}Delete existing folders set to: ${runnerConfig.deleteExistingFolders}${colors.RESET}`);
+            console.log(`${CLI_COLORS.BLUE}Delete existing folders set to: ${runnerConfig.deleteExistingFolders}${CLI_COLORS.RESET}`);
             saveConfig(runnerType);
             await createPrompt("Press Enter to continue...");
             await showSettingsMenu();
             break;
         case "2":
             runnerConfig.forceUpdate = !runnerConfig.forceUpdate;
-            console.log(`${colors.BLUE}Force update set to: ${runnerConfig.forceUpdate}${colors.RESET}`);
+            console.log(`${CLI_COLORS.BLUE}Force update set to: ${runnerConfig.forceUpdate}${CLI_COLORS.RESET}`);
             saveConfig(runnerType);
             await createPrompt("Press Enter to continue...");
             await showSettingsMenu();
             break;
         case "3":
             runnerConfig.alwaysRunLatest = !runnerConfig.alwaysRunLatest;
-            console.log(`${colors.BLUE}Force update set to: ${runnerConfig.alwaysRunLatest}${colors.RESET}`);
+            console.log(`${CLI_COLORS.BLUE}Force update set to: ${runnerConfig.alwaysRunLatest}${CLI_COLORS.RESET}`);
             saveConfig(runnerType);
             await createPrompt("Press Enter to continue...");
             await showSettingsMenu();
@@ -219,7 +219,7 @@ const showSettingsMenu = async () => {
             await showMainMenu(runnerType);
             break;
         default:
-            console.log(`${colors.RED}Invalid option selected. Please try again.${colors.RESET}`);
+            console.log(`${CLI_COLORS.RED}Invalid option selected. Please try again.${CLI_COLORS.RESET}`);
             await showSettingsMenu();
             break;
     }
@@ -286,7 +286,7 @@ const downloadVersion = async (version) => {
         logger.info(`Successfully verified file checksum: ${fileName}!`);
         if (fileName.endsWith(".zip")) {
             logger.info(`Extracting zip file ${fileName} to ${dumpDir}...`);
-            await extractZip(filePath, dumpDir, folderMappings);
+            await extractZip(filePath, dumpDir, FOLDER_MAPPINGS);
             logger.info(`Successfully extracted zip file ${fileName}!`);
             logger.info(`Deleting zip file: ${fileName}...`);
             nodeFs.unlinkSync(filePath);
@@ -295,7 +295,7 @@ const downloadVersion = async (version) => {
     }
     logger.info(`Successfully downloaded and extracted ${version} to ${dumpDir}!`);
     logger.info(`Creating AppSettings.xml...`);
-    nodeFs.writeFileSync(`${dumpDir}/AppSettings.xml`, AppSettings);
+    nodeFs.writeFileSync(`${dumpDir}/AppSettings.xml`, APP_SETTINGS);
     logger.info(`Successfully created AppSettings.xml!`);
 };
 
@@ -346,10 +346,10 @@ const launchAutoUpdater = async (binaryType) => {
         await downloadVersion(latestVersion);
         return latestVersion;
     }
-    console.log(`${colors.MAGENTA}Available versions:`);
+    console.log(`${CLI_COLORS.MAGENTA}Available versions:`);
     for (let i = 0; i < versions.length; i++) {
         const version = versions[i];
-        console.log(`${colors.CYAN}${i + 1}. ${versions[i]}${colors.RESET}${version === latestVersion ? " (Latest)" : ""}`);
+        console.log(`${CLI_COLORS.CYAN}${i + 1}. ${versions[i]}${CLI_COLORS.RESET}${version === latestVersion ? " (Latest)" : ""}`);
     }
     let selectedVersion = "";
     if (versions.length === 1) {
@@ -447,16 +447,16 @@ under certain conditions; type '8' for details.
 Download and launch ${runnerType} versions using just the command line.
 `;
     const mainMenu = `
-${colors.BLUE}${asciiArt}${colors.RESET}
-${colors.CYAN}1. Download latest version/update${colors.RESET}
-${colors.CYAN}2. Download the last LIVE version (downgrade)${colors.RESET}
-${colors.CYAN}3. Download a custom version hash${colors.RESET}
-${colors.CYAN}4. Download from a specific channel${colors.RESET}
-${colors.CYAN}5. Launch ${runnerType}${colors.RESET}
-${colors.CYAN}6. Launch ${runnerType} with args${colors.RESET}
-${colors.GREEN}7. Settings${colors.RESET}
-${colors.YELLOW}8. License${colors.RESET}
-${colors.RED}9. Exit${colors.RESET}
+${CLI_COLORS.BLUE}${asciiArt}${CLI_COLORS.RESET}
+${CLI_COLORS.CYAN}1. Download latest version/update${CLI_COLORS.RESET}
+${CLI_COLORS.CYAN}2. Download the last LIVE version (downgrade)${CLI_COLORS.RESET}
+${CLI_COLORS.CYAN}3. Download a custom version hash${CLI_COLORS.RESET}
+${CLI_COLORS.CYAN}4. Download from a specific channel${CLI_COLORS.RESET}
+${CLI_COLORS.CYAN}5. Launch ${runnerType}${CLI_COLORS.RESET}
+${CLI_COLORS.CYAN}6. Launch ${runnerType} with args${CLI_COLORS.RESET}
+${CLI_COLORS.GREEN}7. Settings${CLI_COLORS.RESET}
+${CLI_COLORS.YELLOW}8. License${CLI_COLORS.RESET}
+${CLI_COLORS.RED}9. Exit${CLI_COLORS.RESET}
 `;
     console.log(mainMenu);
     const answer = await createPrompt("Select an option: ");
@@ -511,12 +511,12 @@ ${colors.RED}9. Exit${colors.RESET}
             break;
         case "9":
             console.clear();
-            console.log(`${colors.BLUE}Exiting...${colors.RESET}`);
+            console.log(`${CLI_COLORS.BLUE}Exiting...${CLI_COLORS.RESET}`);
             nodeProcess.exit(0);
             break;
         default:
             console.clear();
-            console.log(`${colors.RED}Invalid option selected. Please try again.${colors.RESET}`);
+            console.log(`${CLI_COLORS.RED}Invalid option selected. Please try again.${CLI_COLORS.RESET}`);
             await showMainMenu(runnerType);
             break;
     }
