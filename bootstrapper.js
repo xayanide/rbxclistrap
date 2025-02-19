@@ -78,7 +78,7 @@ const resolveBinaryType = (type) => {
     } else if (type === "WindowsStudio64") {
         return "studio";
     } else {
-        return null;
+        throw new Error(`Unable to resolve binary type: ${type}`);
     }
 };
 
