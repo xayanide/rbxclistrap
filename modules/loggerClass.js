@@ -19,11 +19,13 @@ const LogLevels = {
     NONE: "NONE",
 };
 
+const logLevelValues = Object.values(LogLevels);
+
 /**
 Essentially creates a list of different levels of logging messages (like "INFO" or "ERROR") and
 assigns a unique number to each level. This numbering helps in comparing the importance or severity of messages below at _shouldLog()
 */
-const logLevelIndices = Object.values(LogLevels).reduce((acc, level, index) => {
+const logLevelIndices = logLevelValues.reduce((acc, level, index) => {
     acc[level] = index;
     return acc;
 }, {});
@@ -195,7 +197,7 @@ class InternalLogger {
         if (!useColors) {
             return { timestamp: "", level: "", category: "", text: ": " };
         }
-        const levelColorIndex = Object.values(LogLevels).indexOf(level);
+        const levelColorIndex = logLevelValues.indexOf(level);
         const levelColor = loglevelColors[levelColorIndex];
         if (isNodejs) {
             return {
