@@ -44,7 +44,7 @@ export default [
     {
         name: "xayanide/personal",
         files: ["**/*.js"],
-        languageOptions: { sourceType: "module", globals: { ...globals.node, ...globals.es2025 } },
+        languageOptions: { sourceType: "module", globals: { ...globals.node, ...globals.es2025, ...globals.browser } },
         plugins: { "@stylistic": stylisticEslintPlugin },
         rules: { ...stylisticFormattingRules, ...eslintFormattingRules, ...eslintCodeQualityRules },
     },

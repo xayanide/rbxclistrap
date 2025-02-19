@@ -1,29 +1,14 @@
-import * as nodeFs from "node:fs";
 import * as nodePath from "node:path";
-import { colors } from "./constants.js";
+import * as nodeFs from "node:fs";
+import * as nodeProcess from "node:process";
+import SimpleLogger from "./loggerClass.js";
 import { getDirname } from "./fileUtils.js";
-
-const metaUrl = import.meta.url;
-
-const LOG_LEVELS = {
-    info: `${colors.GREEN}INFO${colors.RESET}`,
-    warn: `${colors.YELLOW}WARN${colors.RESET}`,
-    error: `${colors.RED}ERROR${colors.RESET}`,
-    debug: `${colors.CYAN}DEBUG${colors.RESET}`,
-};
+import { BINARY_TYPES } from "./constants.js";
 
 const logFileISOTimestamp = new Date().toISOString().split(":").join("-");
-const logsPath = nodePath.join(getDirname(metaUrl), "..", "logs");
+const metaUrl = import.meta.url;
 
-try {
-    if (!nodeFs.existsSync(logsPath)) {
-        nodeFs.mkdirSync(logsPath, { recursive: true });
-    }
-} catch (dirErr) {
-    console.error(`Error creating logs directory: ${dirErr.message}\n${dirErr.stack}`);
-}
-
-const deleteOldLogs = (path) => {
+const deleteOldLogFiles = (path) => {
     const logFiles = nodeFs.readdirSync(path);
     const currentDate = new Date();
     // 3 days in milliseconds
@@ -40,35 +25,13 @@ const deleteOldLogs = (path) => {
     }
 };
 
-deleteOldLogs(logsPath);
+const argv = nodeProcess.argv;
+const binaryType = argv.find((arg) => {
+    return Object.values(BINARY_TYPES).includes(arg) ?? "Unknown";
+});
 
-const logger = {
-    binaryType: "Unknown",
-    log(level, message) {
-        const currentDate = new Date();
-        const isoTimestamp = currentDate.toISOString();
-        const logMessage = `[${isoTimestamp}] [${level}] ${message}`;
-        console.log(logMessage);
-        try {
-            const logFileName = `${logFileISOTimestamp}-${logger.binaryType}.log`;
-            const logFilePath = nodePath.join(logsPath, logFileName);
-            nodeFs.appendFileSync(logFilePath, `${logMessage}\n`);
-        } catch (logErr) {
-            console.error(`log(): Error appending log message:\n${logErr.message}\n${logErr.stack}`);
-        }
-    },
-    info: (message) => {
-        return logger.log(LOG_LEVELS.info, message);
-    },
-    warn: (message) => {
-        return logger.log(LOG_LEVELS.warn, message);
-    },
-    error: (message) => {
-        return logger.log(LOG_LEVELS.error, message);
-    },
-    debug: (message) => {
-        return logger.log(LOG_LEVELS.debug, message);
-    },
-};
+const logsFilePath = nodePath.join(getDirname(metaUrl), "..", "logs", `${binaryType}-${logFileISOTimestamp}.log`);
+deleteOldLogFiles(nodePath.dirname(logsFilePath));
+const logger = SimpleLogger.createLogger(binaryType, { filepath: logsFilePath, appendFile: true });
 
 export default logger;
