@@ -32,6 +32,6 @@ const binaryType = argv.find((arg) => {
 
 const logsFilePath = nodePath.join(getDirname(metaUrl), "..", "logs", `${binaryType}-${logFileISOTimestamp}.log`);
 deleteOldLogFiles(nodePath.dirname(logsFilePath));
-const logger = SimpleLogger.createLogger(binaryType, { filepath: logsFilePath, appendFile: true });
+const logger = SimpleLogger.createLogger(binaryType, { filePath: logsFilePath, appendFile: true });
 
 export default logger;
