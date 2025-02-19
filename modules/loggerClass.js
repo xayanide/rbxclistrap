@@ -1,4 +1,7 @@
-// https://github.com/haadcode/logplease
+/**
+Refactored by: xayanide (with assistance of StackOverflow and AI :>)
+Original code: https://github.com/haadcode/logplease
+*/
 import * as nodeProcess from "node:process";
 import * as nodeFs from "node:fs";
 import * as nodeUtil from "node:util";
@@ -6,40 +9,10 @@ import * as nodeEvents from "events";
 import * as nodePath from "node:path";
 
 const isElectronRenderer = nodeProcess.type && nodeProcess.type === "renderer";
+
 let isNodejs = !!(!isElectronRenderer && nodeProcess.version);
 
-const logLevels = {
-    TRACE: "TRACE",
-    DEBUG: "DEBUG",
-    VERBOSE: "VERBOSE",
-    INFO: "INFO",
-    WARN: "WARN",
-    ERROR: "ERROR",
-    FATAL: "FATAL",
-    NONE: "NONE",
-};
-
-const logLevelValues = Object.values(logLevels);
-
-/**
-Essentially creates a list of different levels of logging messages (like "INFO" or "ERROR") and
-assigns a unique number to each level. This numbering helps in comparing the importance or severity of messages below at _shouldLog()
-*/
-const logLevelIndices = logLevelValues.reduce((acc, level, index) => {
-    acc[level] = index;
-    return acc;
-}, {});
-
-// Global log level
-let GlobalLogLevel = logLevels.DEBUG;
-
-// Global log file path and filename
-let GlobalLogFilePath = null;
-
-const GlobalEventEmitter = new nodeEvents.EventEmitter();
-
-// ANSI colors
-let Colors = {
+const ansiColors = {
     Black: 0,
     Red: 1,
     Green: 2,
@@ -52,21 +25,49 @@ let Colors = {
     Default: 9,
 };
 
-// CSS colors
-if (!isNodejs) {
-    Colors = {
-        Black: "Black",
-        Red: "IndianRed",
-        Green: "LimeGreen",
-        Yellow: "Orange",
-        Blue: "RoyalBlue",
-        Magenta: "Orchid",
-        Cyan: "SkyBlue",
-        Grey: "DimGrey",
-        White: "White",
-        Default: "Black",
-    };
-}
+const cssColors = {
+    Black: "Black",
+    Red: "IndianRed",
+    Green: "LimeGreen",
+    Yellow: "Orange",
+    Blue: "RoyalBlue",
+    Magenta: "Orchid",
+    Cyan: "SkyBlue",
+    Grey: "DimGrey",
+    White: "White",
+    Default: "Black",
+};
+
+const logLevels = {
+    TRACE: "TRACE",
+    DEBUG: "DEBUG",
+    VERBOSE: "VERBOSE",
+    INFO: "INFO",
+    WARN: "WARN",
+    ERROR: "ERROR",
+    FATAL: "FATAL",
+    NONE: "NONE",
+};
+
+// Global log level
+let GlobalLogLevel = logLevels.DEBUG;
+// Global log file path and filename
+let GlobalLogFilePath = null;
+const GlobalEventEmitter = new nodeEvents.EventEmitter();
+
+const logLevelValues = Object.values(logLevels);
+
+/**
+Essentially creates a list of different levels of logging messages (like "INFO" or "ERROR") and
+assigns a unique number to each level. This numbering helps in comparing the importance or severity of messages below at _shouldLog()
+*/
+const logLevelIndices = logLevelValues.reduce((acc, level, index) => {
+    acc[level] = index;
+    return acc;
+}, {});
+
+// Colors to use based on the environment
+const Colors = isNodejs ? ansiColors : cssColors;
 
 const loglevelColors = [Colors.Grey, Colors.Cyan, Colors.Blue, Colors.Green, Colors.Yellow, Colors.Red, Colors.Red, Colors.Default];
 
@@ -201,7 +202,7 @@ class InternalLogger {
                 text: "\u001b[0m: ",
             };
         }
-        // Electron
+        /** Electron */
         return {
             timestamp: showTimestamp ? `color:${Colors.Grey}` : "",
             level: showLevel ? `color:${levelColor}` : "",
@@ -257,8 +258,8 @@ const SimpleLogger = {
     createLogger(category, options) {
         return new InternalLogger(category, options);
     },
-    forceBrowserMode(force) {
-        return (isNodejs = !force);
+    toggleBrowserMode(isEnabled) {
+        return (isNodejs = !isEnabled);
     },
     /**
     For testing
@@ -266,4 +267,4 @@ const SimpleLogger = {
     events: GlobalEventEmitter,
 };
 
-export { SimpleLogger };
+export { SimpleLogger, InternalLogger };
