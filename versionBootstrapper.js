@@ -52,7 +52,7 @@ import {
     STUDIO_PROCESSES,
     BINARY_TYPES,
     DEFAULT_CONFIG,
-    DEFAULT_FFLAGS,
+    DEFAULT_FAST_FLAGS,
     REGISTER_PLAYER_KEY_PATHS,
     REGISTER_STUDIO_KEY_PATHS,
     REGISTER_STUDIO_PLACE_KEY_PATHS,
@@ -63,8 +63,10 @@ import { getPackageData, logPackageVersion } from "./modules/packageData.js";
 const metaUrl = import.meta.url;
 
 let runnerConfig = { ...DEFAULT_CONFIG };
-let runnerFflags = { ...DEFAULT_FFLAGS };
+let runnerFastFlags = { ...DEFAULT_FAST_FLAGS };
 let runnerType = BINARY_TYPES.PLAYER;
+let clientSettingsBaseUrl = null;
+let cdnBaseUrl = null;
 
 const isPlayerRunnerType = (type) => {
     return type === BINARY_TYPES.PLAYER;
@@ -88,54 +90,51 @@ const loadConfig = (type) => {
     const CONFIG_FILE_PATH = nodePath.join(getDirname(metaUrl), `./${resolveBinaryType(type)}-config.json`);
     runnerConfig = loadJson(CONFIG_FILE_PATH, DEFAULT_CONFIG);
 };
-const loadFflags = (type) => {
-    const FFLAGS_FILE_PATH = nodePath.join(getDirname(metaUrl), `./${resolveBinaryType(type)}-fflags.json`);
-    runnerFflags = loadJson(FFLAGS_FILE_PATH, DEFAULT_FFLAGS);
+const loadFastFlags = (type) => {
+    const FAST_FLAGS_FILE_PATH = nodePath.join(getDirname(metaUrl), `./${resolveBinaryType(type)}-fflags.json`);
+    runnerFastFlags = loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS);
 };
 
 const getExistingVersions = (existingVersionsPath) => {
     if (!nodeFs.existsSync(existingVersionsPath)) {
         nodeFs.mkdirSync(existingVersionsPath, { recursive: true });
     }
-    return nodeFs.readdirSync(existingVersionsPath).filter((f) => {
-        return f.startsWith("version-");
+    return nodeFs.readdirSync(existingVersionsPath).filter((folderName) => {
+        return folderName.startsWith("version-");
     });
 };
 
 const attemptKillProcesses = async (processes) => {
-    logger.info(`Checking for processes...`);
+    logger.info(`Checking for Roblox processes to kill...`);
     if (!isProcessesRunning(processes)) {
-        logger.info("Checking and killing related processes...");
         killProcesses(processes);
         return;
     }
-    const answer = await createPrompt("One of the processes is running in the background. Do you want to forcibly close it? (y/n): ");
+    const answer = await createPrompt("One of Roblox's processes is running in the background. Do you want to forcibly close it? (y/n): ");
     if (answer.toLowerCase() !== "y") {
-        logger.info("One of the processes is still running.");
+        logger.info("One of Roblox's processes is still running.");
         nodeProcess.exit(0);
     }
-    logger.info("Killing processes...");
     killProcesses(processes);
 };
 
-const applyFflags = (clientSettingsPath) => {
+const applyFastFlags = (clientSettingsPath) => {
     const clientSettingsFolderPath = nodePath.join(clientSettingsPath, "ClientSettings");
     if (!nodeFs.existsSync(clientSettingsFolderPath)) {
         nodeFs.mkdirSync(clientSettingsFolderPath, { recursive: true });
     }
-    logger.info(`Applying fast flags...`);
     const clientAppSettingsJsonPath = nodePath.join(clientSettingsFolderPath, "ClientAppSettings.json");
     let existingSettings = "";
     if (nodeFs.existsSync(clientAppSettingsJsonPath)) {
         existingSettings = nodeFs.readFileSync(clientAppSettingsJsonPath, "utf8").trim();
     }
-    const jsonFflags = JSON.stringify(runnerFflags, null, 2);
-    if (existingSettings === jsonFflags) {
-        logger.info(`Fast flags already applied. No changes made.`);
-    } else {
-        nodeFs.writeFileSync(clientAppSettingsJsonPath, jsonFflags);
-        logger.info(`Successfully applied fast flags to ${clientAppSettingsJsonPath}`);
+    const jsonFastFlags = JSON.stringify(runnerFastFlags, null, 2);
+    if (existingSettings === jsonFastFlags) {
+        return;
     }
+    logger.info(`Applying fast flags...`);
+    nodeFs.writeFileSync(clientAppSettingsJsonPath, jsonFastFlags);
+    logger.info(`Successfully applied fast flags to ${clientAppSettingsJsonPath}!`);
 };
 
 const showLicenseMenu = async () => {
@@ -227,27 +226,30 @@ const showSettingsMenu = async () => {
 };
 
 const downloadVersion = async (version) => {
+    logger.info(`Downloading ${version}...`);
     const runnerProcesses = isPlayerRunnerType(runnerType) ? PLAYER_PROCESSES : STUDIO_PROCESSES;
     await attemptKillProcesses(runnerProcesses);
     const versionFolder = version.startsWith("version-") ? version : `version-${version}`;
     const versionsPath = nodePath.join(getDirname(metaUrl), isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
     const dumpDir = nodePath.join(versionsPath, versionFolder);
     if (nodeFs.existsSync(dumpDir) && !runnerConfig.forceUpdate) {
-        logger.info(`Version ${version} is already downloaded...`);
+        logger.info(`${version} is already downloaded!`);
         return;
     }
     if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingFolders) {
-        logger.info(`Deleting existing folder: ${dumpDir}`);
+        logger.info(`Deleting existing folder: ${dumpDir}...`);
         deleteFolderRecursive(dumpDir);
-        logger.info(`Successfully deleted existing folder: ${dumpDir}`);
+        logger.info(`Successfully deleted existing folder!`);
     }
     nodeFs.mkdirSync(dumpDir, { recursive: true });
-    const cdnBaseUrl = await getRobloxCDNBaseUrl();
+    if (!cdnBaseUrl) {
+        cdnBaseUrl = await getRobloxCDNBaseUrl();
+    }
     const cdnUrl = `${cdnBaseUrl}/${version}`;
     const manifestUrl = `${cdnUrl}-rbxPkgManifest.txt`;
-    logger.info(`Fetching manifest from ${manifestUrl}...`);
+    logger.info(`Fetching manifest: ${manifestUrl}...`);
     const axiosResponse = await axios.get(manifestUrl);
-    logger.info(`Successfully fetched manifest from ${manifestUrl}!`);
+    logger.info(`Successfully fetched manifest!`);
     const axiosResponseData = axiosResponse.data;
     const manifestContent = axiosResponseData.trim().split("\n");
     const firstLine = manifestContent[0].trim();
@@ -265,26 +267,27 @@ const downloadVersion = async (version) => {
         const uncompressedSize = parseInt(manifestContent[i + 3], 10);
         */
         if (!(fileName.endsWith(".zip") || fileName.endsWith(".exe"))) {
-            logger.info(`Skipped entry: ${fileName}. Unknown file extension.`);
+            logger.info(`Unknown file extension! Skipping entry: ${fileName}...`);
             continue;
         }
         const packageUrl = `${cdnUrl}-${fileName}`;
         const filePath = `${dumpDir}/${fileName}`;
-        logger.info(`Downloading ${fileName} from ${packageUrl}...`);
+        logger.info(`Downloading file ${fileName} from ${packageUrl}`);
         await downloadFile(packageUrl, filePath, progressBar);
-        logger.info(`Successfully downloaded ${fileName} from ${packageUrl}!`);
+        logger.info(`Successfully downloaded file ${fileName}!`);
         logger.info(`Verifying file checksum: ${fileName}...`);
         const isChecksumValid = await verifyChecksum(filePath, checksum);
         if (!isChecksumValid) {
-            logger.error(`Checksum mismatch for ${fileName}. Deleting file.`);
+            logger.error(`Checksum mismatch for file: ${fileName}. Deleting file...`);
             nodeFs.unlinkSync(filePath);
+            logger.error(`Successfully deleted file: ${fileName}!`);
             continue;
         }
         logger.info(`Successfully verified file checksum: ${fileName}!`);
         if (fileName.endsWith(".zip")) {
-            logger.info(`Extracting zip file: ${fileName}...`);
+            logger.info(`Extracting zip file ${fileName} to ${dumpDir}...`);
             await extractZip(filePath, dumpDir, folderMappings);
-            logger.info(`Successfully extracted zip file: ${fileName} to ${dumpDir}!`);
+            logger.info(`Successfully extracted zip file ${fileName}!`);
             logger.info(`Deleting zip file: ${fileName}...`);
             nodeFs.unlinkSync(filePath);
             logger.info(`Successfully deleted zip file: ${fileName}!`);
@@ -293,31 +296,30 @@ const downloadVersion = async (version) => {
     logger.info(`Successfully downloaded and extracted ${version} to ${dumpDir}!`);
     logger.info(`Creating AppSettings.xml...`);
     nodeFs.writeFileSync(`${dumpDir}/AppSettings.xml`, AppSettings);
-    logger.info(`Successfully created AppSettings.xml at root.`);
+    logger.info(`Successfully created AppSettings.xml!`);
 };
 
 const downloadLatestVersion = async () => {
-    logger.info("Fetching the latest version from channel: Live");
-    const latestVersion = await fetchLatestVersion(runnerType);
-    logger.info(`Successfully fetched the latest version from channel: Live!`);
-    logger.info(`Latest version: ${latestVersion}`);
+    logger.info("Fetching latest version from channel: Live...");
+    const latestVersion = await fetchLatestVersion(runnerType, clientSettingsBaseUrl);
+    logger.info(`Successfully fetched latest version!`);
+    logger.info(`Latest version: ${latestVersion}. Channel: Live`);
     await downloadVersion(latestVersion);
 };
 
 const downloadCustomVersion = async (version) => {
-    logger.info(`Downloading the custom version: ${version}`);
+    logger.info(`Custom version: ${version}`);
     await downloadVersion(version);
 };
 
 const downloadFromChannel = async (channel) => {
-    const clientSettingsBaseUrl = await getRobloxClientSettingsBaseUrl(runnerType);
     const versionUrl = `${clientSettingsBaseUrl}/v2/client-version/${runnerType}/channel/${channel}`;
-    logger.info(`Fetching the latest version from channel: ${channel}`);
+    logger.info(`Fetching latest version from channel: ${channel}...`);
     const axiosResponse = await axios.get(versionUrl);
-    logger.info(`Successfully fetched the latest version from channel: ${channel}`);
+    logger.info(`Successfully fetched latest version!`);
     const axiosResponseData = axiosResponse.data;
     const version = axiosResponseData.clientVersionUpload;
-    logger.info(`Version from channel ${channel}: ${version}`);
+    logger.info(`Version: ${version}. Channel: ${channel}`);
     await downloadVersion(version);
 };
 
@@ -331,9 +333,12 @@ const launchAutoUpdater = async (binaryType) => {
         await attemptKillProcesses(runnerProcesses);
     }
     logger.info(`Checking for ${runnerType} updates...`);
-    logger.info("Fetching the latest version from channel: Live");
-    const latestVersion = await fetchLatestVersion(runnerType);
-    logger.info(`Successfully fetched the latest version!`);
+    logger.info("Fetching latest version from channel: Live...");
+    if (!clientSettingsBaseUrl) {
+        clientSettingsBaseUrl = await getRobloxClientSettingsBaseUrl(runnerType);
+    }
+    const latestVersion = await fetchLatestVersion(runnerType, clientSettingsBaseUrl);
+    logger.info(`Successfully fetched latest version!`);
     const versionsPath = nodePath.join(getDirname(metaUrl), isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
     const versions = getExistingVersions(versionsPath);
     if (versions.length === 0) {
@@ -349,22 +354,22 @@ const launchAutoUpdater = async (binaryType) => {
     let selectedVersion = "";
     if (versions.length === 1) {
         selectedVersion = versions[0];
-        logger.info(`Skipping prompt. Only one version found: ${selectedVersion}`);
+        logger.info(`Only one version found: ${selectedVersion}. Skipping prompt...`);
     } else if (runnerConfig.alwaysRunLatest) {
-        logger.info(`Skipping prompt. Will always run the latest version: ${latestVersion}`);
+        logger.info(`Configured to always run the latest version: ${latestVersion}. Skipping prompt...`);
         await downloadVersion(latestVersion);
         return latestVersion;
     } else {
         const answer = await createPrompt("Select a version (1/2/3...): ");
         const versionIndex = parseInt(answer, 10) - 1;
         if (isNaN(versionIndex) || typeof versionIndex !== "number" || versionIndex < 0 || versionIndex >= versions.length) {
-            throw new Error("Invalid version selected.");
+            throw new Error("Invalid version selected!");
         }
         selectedVersion = versions[versionIndex];
     }
     logger.info(`Selected version: ${selectedVersion}`);
     if (latestVersion === "") {
-        logger.info(`Unable to determine the latest version.`);
+        logger.warn(`Unable to determine the latest version!`);
         return selectedVersion;
     }
     logger.info(`Latest version: ${latestVersion}`);
@@ -383,7 +388,7 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
     const binaryName = isPlayerRunnerType(runnerType) ? "RobloxPlayerBeta.exe" : "RobloxStudioBeta.exe";
     const binaryPath = nodePath.join(selectedVersionPath, binaryName);
     if (!nodeFs.existsSync(binaryPath)) {
-        logger.warn(`${binaryName} not found in ${selectedVersionPath}`);
+        logger.warn(`${binaryName} was not found in ${selectedVersionPath}`);
         return;
     }
     await installEdgeWebView(selectedVersionPath);
@@ -406,10 +411,10 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
             ...STUDIO_FILE_EXTENSIONS_UNSET_VALUE_PATHS,
         ]);
     }
-    applyFflags(selectedVersionPath);
+    applyFastFlags(selectedVersionPath);
     let launchArgs = "";
     if (hasArgs) {
-        launchArgs = await createPrompt("Enter the launch arguments (e.g., roblox://...): ");
+        launchArgs = await createPrompt("Enter launch arguments (e.g., roblox://...): ");
     }
     const robloxUri = argv[2];
     if (argv.length > 1 && robloxUri) {
@@ -430,6 +435,9 @@ async function showMainMenu(launchType) {
     }
     console.clear();
     logPackageVersion(getPackageData(), logger);
+    if (!clientSettingsBaseUrl) {
+        clientSettingsBaseUrl = await getRobloxClientSettingsBaseUrl(runnerType);
+    }
     // No ascii art lol
     const asciiArt = `rbxclistrap  Copyright (C) 2025  xayanide
 This program comes with ABSOLUTELY NO WARRANTY; for details type '8'.
@@ -459,7 +467,10 @@ ${colors.RED}9. Exit${colors.RESET}
             break;
         case "2": {
             console.clear();
-            const previousVersion = await fetchPreviousVersion(runnerType);
+            if (!cdnBaseUrl) {
+                cdnBaseUrl = await getRobloxCDNBaseUrl();
+            }
+            const previousVersion = await fetchPreviousVersion(runnerType, cdnBaseUrl);
             if (!previousVersion) {
                 break;
             }
@@ -468,13 +479,13 @@ ${colors.RED}9. Exit${colors.RESET}
         }
         case "3": {
             console.clear();
-            const versionHash = await createPrompt("Enter the custom version hash: ");
+            const versionHash = await createPrompt("Enter custom version hash: ");
             await downloadCustomVersion(versionHash);
             break;
         }
         case "4": {
             console.clear();
-            const channel = await createPrompt("Enter the channel name: ");
+            const channel = await createPrompt("Enter channel name: ");
             await downloadFromChannel(channel);
             break;
         }
@@ -511,4 +522,4 @@ ${colors.RED}9. Exit${colors.RESET}
     }
 }
 
-export { loadConfig, loadFflags, showMainMenu, launchAutoUpdater, launchRoblox };
+export { loadConfig, loadFastFlags, showMainMenu, launchAutoUpdater, launchRoblox };

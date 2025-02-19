@@ -7,10 +7,10 @@ const testUrl = async (baseUrl, fullUrl, priority, abortSignal, expectedData = n
         return setTimeout(resolve, priority * 1000);
     });
     try {
-        const { status, data } = await axios.get(fullUrl, {
+        const axiosResponse = await axios.get(fullUrl, {
             signal: abortSignal,
         });
-        if (status !== 200 || (expectedData && data !== expectedData)) {
+        if (axiosResponse.status !== 200 || (expectedData && axiosResponse.data !== expectedData)) {
             return null;
         }
         return baseUrl;
@@ -52,15 +52,15 @@ async function findFastestUrl(baseUrls, endpoint, expectedData = null) {
         }, fastestTime);
         try {
             const startTime = nodePerfHooks.performance.now();
-            const { status, data } = await axios.get(fullUrl, {
+            const axiosResponse = await axios.get(fullUrl, {
                 signal: abortController.signal,
             });
             clearTimeout(timeoutId);
-            if (status !== 200) {
+            if (axiosResponse.status !== 200) {
                 continue;
             }
             const elapsedTime = nodePerfHooks.performance.now() - startTime;
-            if (expectedData && data !== expectedData) {
+            if (expectedData && axiosResponse.data !== expectedData) {
                 return null;
             }
             if (elapsedTime > fastestTime) {

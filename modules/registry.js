@@ -191,8 +191,8 @@ const setRegistryData = async (valuesToPut, keyPaths) => {
         exclude: "existing",
     });
     if (missingKeyPaths.length > 0) {
-        logger.info("Creating missing registry keys...");
         logger.debug(`\n${JSON.stringify(missingKeyPaths, null, 2)}`);
+        logger.info("Creating missing registry keys...");
         await promisifiedRegedit.createKey(missingKeyPaths);
         logger.info("Successfully created registry keys!");
     }

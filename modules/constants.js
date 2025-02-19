@@ -79,7 +79,7 @@ const AppSettings = `<?xml version="1.0" encoding="UTF-8"?>
 
 const DEPLOYMENT_DEFAULT_CHANNEL = "production";
 const DEPLOYMENT_VERSION_STUDIO_HASH = "version-012732894899482c";
-const DEPLOYMENT_ROBLOX_CDN_URLS = [
+const DEPLOYMENT_ROBLOX_CDN_BASE_URLS = [
     { baseUrl: "https://setup.rbxcdn.com", priority: 0 },
     { baseUrl: "https://setup-aws.rbxcdn.com", priority: 2 },
     { baseUrl: "https://setup-ak.rbxcdn.com", priority: 2 },
@@ -91,7 +91,7 @@ const DEPLOYMENT_ROBLOX_CDN_URLS = [
     { baseUrl: "https://s3.amazonaws.com/setup.roblox.com", priority: 4 },
 ];
 
-const ROBLOX_CLIENTSETTINGS_URLS = [
+const ROBLOX_CLIENTSETTINGS_BASE_URLS = [
     { baseUrl: "https://clientsettingscdn.roblox.com", priority: 0 },
     { baseUrl: "https://clientsettings.roblox.com", priority: 2 },
 ];
@@ -110,7 +110,7 @@ const BINARY_TYPES = { PLAYER: "WindowsPlayer", STUDIO: "WindowsStudio64" };
 
 const DEFAULT_CONFIG = { deleteExistingFolders: false, forceUpdate: false, alwaysRunLatest: false };
 
-const DEFAULT_FFLAGS = {
+const DEFAULT_FAST_FLAGS = {
     FFlagAdServiceEnabled: "False",
     FIntCameraMaxZoomDistance: "9999",
     FFlagDebugDisplayFPS: "False",
@@ -131,7 +131,7 @@ const DEFAULT_FFLAGS = {
     DFIntTextureQualityOverride: "3",
 };
 
-const EXCLUDED_DEFAULT_FFLAGS = {
+const EXCLUDED_DEFAULT_FAST_FLAGS = {
     DFIntDebugFRMQualityLevelOverride: "1",
     DFIntCullFactorPixelThresholdShadowMapHighQuality: "2147483647",
     DFIntCullFactorPixelThresholdShadowMapLowQuality: "2147483647",
@@ -248,13 +248,13 @@ export {
     folderMappings,
     AppSettings,
     DEPLOYMENT_VERSION_STUDIO_HASH,
-    DEPLOYMENT_ROBLOX_CDN_URLS,
-    ROBLOX_CLIENTSETTINGS_URLS,
+    DEPLOYMENT_ROBLOX_CDN_BASE_URLS,
+    ROBLOX_CLIENTSETTINGS_BASE_URLS,
     PLAYER_PROCESSES,
     STUDIO_PROCESSES,
     BINARY_TYPES,
-    DEFAULT_FFLAGS,
+    DEFAULT_FAST_FLAGS,
     DEFAULT_CONFIG,
     WEBVIEW_REGISTRY_KEYPATHS,
-    EXCLUDED_DEFAULT_FFLAGS,
+    EXCLUDED_DEFAULT_FAST_FLAGS,
 };

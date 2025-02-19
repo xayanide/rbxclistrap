@@ -1,21 +1,19 @@
 import axios from "axios";
 import logger from "./logger.js";
-import { getRobloxCDNBaseUrl } from "./robloxUrls.js";
 import { BINARY_TYPES } from "./constants.js";
 
 const HISTORY_BINARY_TYPES = { PLAYER: "WindowsPlayer", STUDIO: "Studio64" };
 
-const fetchPreviousVersion = async (runnerType) => {
+const fetchPreviousVersion = async (runnerType, cdnBaseUrl) => {
     if (runnerType !== BINARY_TYPES.PLAYER || runnerType !== BINARY_TYPES.STUDIO) {
         throw new Error("Invalid runner type. Must be WindowsPlayer or WindowsStudio64");
     }
     try {
         const binaryType = runnerType === BINARY_TYPES.PLAYER ? HISTORY_BINARY_TYPES.PLAYER : HISTORY_BINARY_TYPES.STUDIO;
-        const cdnBaseUrl = await getRobloxCDNBaseUrl();
         const url = `${cdnBaseUrl}/DeployHistory.txt`;
-        logger.info(`Fetching DeployHistory from: ${url}...`);
+        logger.info(`Fetching previous version from ${url}`);
         const axiosResponse = await axios.get(url);
-        logger.info(`Successfully fetched DeployHistory!`);
+        logger.info(`Successfully fetched previous version!`);
         const axiosResponseData = axiosResponse.data;
         const deployHistory = axiosResponseData.trim().split("\n");
         let lastVersionIndex = -1;

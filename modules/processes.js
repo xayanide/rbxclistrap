@@ -5,8 +5,8 @@ const isProcessesRunning = (processNames) => {
     try {
         const stdout = nodeChildProcess.execSync("tasklist", { encoding: "utf8" }).toLowerCase();
         if (Array.isArray(processNames)) {
-            return processNames.some((name) => {
-                return stdout.includes(name.toLowerCase());
+            return processNames.some((processName) => {
+                return stdout.includes(processName.toLowerCase());
             });
         }
         return stdout.includes(processNames.toLowerCase());

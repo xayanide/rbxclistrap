@@ -1,6 +1,6 @@
 import * as nodeProcess from "node:process";
 import logger from "./modules/logger.js";
-import { loadConfig, loadFflags, launchAutoUpdater, launchRoblox } from "./versionBootstrapper.js";
+import { loadConfig, loadFastFlags, launchAutoUpdater, launchRoblox } from "./versionBootstrapper.js";
 import { BINARY_TYPES } from "./modules/constants.js";
 import { createPrompt } from "./modules/prompt.js";
 import { getPackageData, logPackageVersion } from "./modules/packageData.js";
@@ -16,7 +16,7 @@ try {
         return Object.values(BINARY_TYPES).includes(arg);
     });
     loadConfig(binaryType);
-    loadFflags(binaryType);
+    loadFastFlags(binaryType);
     if (!binaryType) {
         throw new Error(`Unknown binary type: ${binaryType}. Must be WindowsPlayer or Studio64.`);
     }
