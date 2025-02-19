@@ -21,17 +21,17 @@ import * as nodeProcess from "node:process";
 import * as nodeChildProcess from "node:child_process";
 import cliProgress from "cli-progress";
 import axios from "axios";
-import logger from "./modules/logger.js";
-import downloadFile from "./modules/downloadFile.js";
-import verifyChecksum from "./modules/verifyChecksum.js";
-import extractZip from "./modules/extractZip.js";
-import fetchLatestVersion from "./modules/fetchLatestVersion.js";
-import fetchPreviousVersion from "./modules/fetchPreviousVersion.js";
-import { createPrompt } from "./modules/prompt.js";
-import { killProcesses, isProcessesRunning } from "./modules/processes.js";
-import { deleteFolderRecursive, saveJson, loadJson, getDirname } from "./modules/fileUtils.js";
-import { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } from "./modules/robloxUrls.js";
-import { installEdgeWebView } from "./modules/webview.js";
+import logger from "./logger.js";
+import downloadFile from "./downloadFile.js";
+import verifyChecksum from "./verifyChecksum.js";
+import extractZip from "./extractZip.js";
+import fetchLatestVersion from "./fetchLatestVersion.js";
+import fetchPreviousVersion from "./fetchPreviousVersion.js";
+import { createPrompt } from "./prompt.js";
+import { killProcesses, isProcessesRunning } from "./processes.js";
+import { deleteFolderRecursive, saveJson, loadJson, getDirname } from "./fileUtils.js";
+import { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } from "./robloxUrls.js";
+import { installEdgeWebView } from "./webview.js";
 import {
     getPlayerRegistryData,
     getStudioRegistryData,
@@ -42,8 +42,8 @@ import {
     STUDIO_PLACE_UNSET_VALUE_PATHS,
     STUDIO_FILE_EXTENSIONS_UNSET_VALUE_PATHS,
     CORPORATION_UNSET_VALUE_PATHS,
-} from "./modules/robloxRegistry.js";
-import { checkUnsetValuePaths, setRegistryData } from "./modules/registry.js";
+} from "./robloxRegistry.js";
+import { checkUnsetValuePaths, setRegistryData } from "./registry.js";
 import {
     CLI_COLORS,
     FOLDER_MAPPINGS,
@@ -57,10 +57,11 @@ import {
     REGISTER_STUDIO_KEY_PATHS,
     REGISTER_STUDIO_PLACE_KEY_PATHS,
     REGISTER_STUDIO_FILE_EXTENSIONS_KEY_PATHS,
-} from "./modules/constants.js";
-import { getPackageData, logPackageVersion } from "./modules/packageData.js";
+} from "./constants.js";
+import { getPackageData, logPackageVersion } from "./packageData.js";
 
-const dirName = getDirname(import.meta.url);
+/** This path is associated with the location of the bootstrapper file. Must point to root. */
+const dirName = `${getDirname(import.meta.url)}/../`;
 
 let runnerConfig = { ...DEFAULT_CONFIG };
 let runnerFastFlags = { ...DEFAULT_FAST_FLAGS };
@@ -83,15 +84,15 @@ const resolveBinaryType = (type) => {
 };
 
 const saveConfig = (type) => {
-    const CONFIG_FILE_PATH = nodePath.join(dirName, `./${resolveBinaryType(type)}-config.json`);
+    const CONFIG_FILE_PATH = nodePath.join(dirName, `${resolveBinaryType(type)}-config.json`);
     return saveJson(CONFIG_FILE_PATH, runnerConfig);
 };
 const loadConfig = (type) => {
-    const CONFIG_FILE_PATH = nodePath.join(dirName, `./${resolveBinaryType(type)}-config.json`);
+    const CONFIG_FILE_PATH = nodePath.join(dirName, `${resolveBinaryType(type)}-config.json`);
     runnerConfig = loadJson(CONFIG_FILE_PATH, DEFAULT_CONFIG);
 };
 const loadFastFlags = (type) => {
-    const FAST_FLAGS_FILE_PATH = nodePath.join(dirName, `./${resolveBinaryType(type)}-fflags.json`);
+    const FAST_FLAGS_FILE_PATH = nodePath.join(dirName, `${resolveBinaryType(type)}-fflags.json`);
     runnerFastFlags = loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS);
 };
 
