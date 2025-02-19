@@ -19,6 +19,15 @@ const LogLevels = {
     NONE: "NONE",
 };
 
+/**
+Essentially creates a list of different levels of logging messages (like "INFO" or "ERROR") and
+assigns a unique number to each level. This numbering helps in comparing the importance or severity of messages below at _shouldLog()
+*/
+const logLevelIndices = Object.values(LogLevels).reduce((acc, level, index) => {
+    acc[level] = index;
+    return acc;
+}, {});
+
 // Global log level
 let GlobalLogLevel = LogLevels.DEBUG;
 
@@ -69,207 +78,173 @@ const defaultOptions = {
     appendFile: true,
 };
 
-class Logger {
+class InternalLogger {
     constructor(category, options) {
         this.category = category;
-        const opts = {};
-        Object.assign(opts, defaultOptions);
-        Object.assign(opts, options);
-        this.options = opts;
-        /* 
-           this.debug = this.debug.bind(this);
-           this.log = this.log.bind(this);
-           this.info = this.info.bind(this);
-           this.warn = this.warn.bind(this);
-           this.error = this.error.bind(this);
-        */
+        this.options = { ...defaultOptions, ...options };
+        this.fileDescriptor = this._getLogFileDescriptor();
     }
 
-    log() {
-        if (this._shouldLog(LogLevels.DEBUG)) {
-            this.debug.apply(this, arguments);
+    _log(level, ...args) {
+        if (this._shouldLog(level)) {
+            this._write(level, nodeUtil.format(...args));
         }
     }
 
-    trace() {
-        if (this._shouldLog(LogLevels.TRACE)) {
-            this._write(LogLevels.TRACE, nodeUtil.format.apply(null, arguments));
-        }
+    log(...args) {
+        this._log(LogLevels.DEBUG, ...args);
     }
 
-    debug() {
-        if (this._shouldLog(LogLevels.DEBUG)) {
-            this._write(LogLevels.DEBUG, nodeUtil.format.apply(null, arguments));
-        }
+    trace(...args) {
+        this._log(LogLevels.TRACE, ...args);
     }
 
-    verbose() {
-        if (this._shouldLog(LogLevels.VERBOSE)) {
-            this._write(LogLevels.VERBOSE, nodeUtil.format.apply(null, arguments));
-        }
+    debug(...args) {
+        this._log(LogLevels.DEBUG, ...args);
     }
 
-    info() {
-        if (this._shouldLog(LogLevels.INFO)) {
-            this._write(LogLevels.INFO, nodeUtil.format.apply(null, arguments));
-        }
+    verbose(...args) {
+        this._log(LogLevels.VERBOSE, ...args);
     }
 
-    warn() {
-        if (this._shouldLog(LogLevels.WARN)) {
-            this._write(LogLevels.WARN, nodeUtil.format.apply(null, arguments));
-        }
+    info(...args) {
+        this._log(LogLevels.INFO, ...args);
     }
 
-    error() {
-        if (this._shouldLog(LogLevels.ERROR)) {
-            this._write(LogLevels.ERROR, nodeUtil.format.apply(null, arguments));
-        }
+    warn(...args) {
+        this._log(LogLevels.WARN, ...args);
     }
 
-    fatal() {
-        if (this._shouldLog(LogLevels.FATAL)) {
-            this._write(LogLevels.FATAL, nodeUtil.format.apply(null, arguments));
+    error(...args) {
+        this._log(LogLevels.ERROR, ...args);
+    }
+
+    fatal(...args) {
+        this._log(LogLevels.FATAL, ...args);
+    }
+
+    _getLogFileDescriptor() {
+        const logFilePath = this.options.filepath ?? GlobalLogFilePath;
+        if (!logFilePath || this.fileDescriptor || (!isNodejs && !isElectronRenderer)) {
+            return;
+        }
+        const logDir = nodePath.dirname(logFilePath);
+        if (!nodeFs.existsSync(logDir)) {
+            nodeFs.mkdirSync(logDir, { recursive: true });
+        }
+        return nodeFs.openSync(logFilePath, this.options.appendFile ? "a+" : "w+");
+    }
+
+    _writeToLogFile(text) {
+        // https://github.com/haadcode/logplease/pull/21
+        if (this.fileWriter && (isNodejs || isElectronRenderer)) {
+            if (isElectronRenderer) {
+                text = text.replace(/%c/gm, "");
+            }
+            nodeFs.writeSync(this.fileWriter, text + "\n", null, "utf-8");
         }
     }
 
     _write(level, text) {
-        const logFilePath = this.options.filepath || GlobalLogFilePath;
-        if ((logFilePath && !this.fileWriter && isNodejs) || isElectronRenderer) {
-            // Extract directory from the file path
-            const logDir = nodePath.dirname(logFilePath);
-            // Make sure the directory exists
-            if (!nodeFs.existsSync(logDir)) {
-                nodeFs.mkdirSync(logDir, { recursive: true });
-            }
-            this.fileWriter = nodeFs.openSync(logFilePath, this.options.appendFile ? "a+" : "w+");
-        }
-        const format = this._format(level, text);
-        let unformattedText = this._createLogMessage(level, text);
-        const formattedText = this._createLogMessage(level, text, format.timestamp, format.level, format.category, format.text);
-        // https://github.com/haadcode/logplease/pull/21
-        if (this.fileWriter && (isNodejs || isElectronRenderer)) {
-            if (isElectronRenderer) {
-                unformattedText = unformattedText.replace(/%c/gm, "");
-            }
-            nodeFs.writeSync(this.fileWriter, unformattedText + "\n", null, "utf-8");
-        }
+        const levelFormat = this._getLevelFormat(level);
+        const unformattedText = this._createLogMessage(level, text);
+        const formattedText = this._createLogMessage(level, text, levelFormat.timestamp, levelFormat.level, levelFormat.category, levelFormat.text);
+        this._writeToLogFile(unformattedText);
         if (isNodejs || !this.options.useColors) {
             console.log(formattedText);
+            /** For testing */
             GlobalEventEmitter.emit("data", this.category, level, text);
-        } else {
-            if (level === LogLevels.ERROR) {
-                if (this.options.showTimestamp && this.options.showLevel) {
-                    console.error(formattedText, format.timestamp, format.level, format.category, format.text);
-                } else if (this.options.showTimestamp && !this.options.showLevel) {
-                    console.error(formattedText, format.timestamp, format.category, format.text);
-                } else if (!this.options.showTimestamp && this.options.showLevel) {
-                    console.error(formattedText, format.level, format.category, format.text);
-                } else {
-                    console.error(formattedText, format.category, format.text);
-                }
-            } else {
-                if (this.options.showTimestamp && this.options.showLevel) {
-                    console.log(formattedText, format.timestamp, format.level, format.category, format.text);
-                } else if (this.options.showTimestamp && !this.options.showLevel) {
-                    console.log(formattedText, format.timestamp, format.category, format.text);
-                } else if (!this.options.showTimestamp && this.options.showLevel) {
-                    console.log(formattedText, format.level, format.category, format.text);
-                } else {
-                    console.log(formattedText, format.category, format.text);
-                }
-            }
+            return;
         }
+        const consoleMethod = level === LogLevels.ERROR || level === LogLevels.FATAL ? console.error : console.log;
+        // Initialize an array with the formatted text
+        const logArgs = [formattedText];
+        // Conditionally add timestamp and level to the log arguments
+        if (this.options.showTimestamp) {
+            logArgs.push(levelFormat.timestamp);
+        }
+        if (this.options.showLevel) {
+            logArgs.push(levelFormat.level);
+        }
+        // Add category and text to the log arguments,
+        logArgs.push(levelFormat.category, levelFormat.text);
+        // Log the message with the appropriate console method
+        consoleMethod(...logArgs);
+        /** Reference from refactoring:
+        // Both timestamp and level display are enabled
+        if (this.options.showTimestamp && this.options.showLevel) {
+            consoleMethod(formattedText, levelFormat.timestamp, levelFormat.level, levelFormat.category, levelFormat.text);
+        }
+        // Only timestamp display is enabled
+        else if (this.options.showTimestamp && !this.options.showLevel) {
+            consoleMethod(formattedText, levelFormat.timestamp, levelFormat.category, levelFormat.text);
+        }
+        // Only level display is enabled
+        else if (!this.options.showTimestamp && this.options.showLevel) {
+            consoleMethod(formattedText, levelFormat.level, levelFormat.category, levelFormat.text);
+        }
+        // Neither timestamp nor level display is enabled
+        else {
+            consoleMethod(formattedText, levelFormat.category, levelFormat.text);
+        }
+        */
     }
 
-    _format(level) {
-        let timestampFormat = "";
-        let levelFormat = "";
-        let categoryFormat = "";
-        let textFormat = ": ";
-        if (this.options.useColors) {
-            const levelColor = Object.keys(LogLevels)
-                .map((f) => {
-                    return LogLevels[f];
-                })
-                .indexOf(level);
-            const categoryColor = this.options.color;
-            if (isNodejs) {
-                if (this.options.showTimestamp) {
-                    timestampFormat = "\u001b[3" + Colors.Grey + "m";
-                }
-                if (this.options.showLevel) {
-                    levelFormat = "\u001b[3" + loglevelColors[levelColor] + ";22m";
-                }
-                categoryFormat = "\u001b[3" + categoryColor + ";1m";
-                textFormat = "\u001b[0m: ";
-            } else {
-                if (this.options.showTimestamp) {
-                    timestampFormat = "color:" + Colors.Grey;
-                }
-                if (this.options.showLevel) {
-                    levelFormat = "color:" + loglevelColors[levelColor];
-                }
-                categoryFormat = "color:" + categoryColor + "; font-weight: bold";
-            }
+    _getLevelFormat(level) {
+        const { useColors, color: categoryColor, showTimestamp, showLevel } = this.options;
+        if (!useColors) {
+            return { timestamp: "", level: "", category: "", text: ": " };
         }
+        const levelColorIndex = Object.values(LogLevels).indexOf(level);
+        const levelColor = loglevelColors[levelColorIndex];
+        if (isNodejs) {
+            return {
+                timestamp: showTimestamp ? `\u001b[3${Colors.Grey}m` : "",
+                level: showLevel ? `\u001b[3${levelColor};22m` : "",
+                category: `\u001b[3${categoryColor};1m`,
+                text: "\u001b[0m: ",
+            };
+        }
+        // Electron
         return {
-            timestamp: timestampFormat,
-            level: levelFormat,
-            category: categoryFormat,
-            text: textFormat,
+            timestamp: showTimestamp ? `color:${Colors.Grey}` : "",
+            level: showLevel ? `color:${levelColor}` : "",
+            category: `color:${categoryColor}; font-weight: bold`,
+            text: ": ",
         };
     }
-
-    _createLogMessage(level, text, timestampFormat, levelFormat, categoryFormat, textFormat) {
-        timestampFormat = timestampFormat || "";
-        levelFormat = levelFormat || "";
-        categoryFormat = categoryFormat || "";
-        textFormat = textFormat || ": ";
-        if (!isNodejs && this.options.useColors) {
-            if (this.options.showTimestamp) {
+    _createLogMessage(level, text, timestampFormat = "", levelFormat = "", categoryFormat = "", textFormat = ": ") {
+        const { useColors, showTimestamp, useLocalTime, showLevel } = this.options;
+        if (!isNodejs && useColors) {
+            if (showTimestamp) {
                 timestampFormat = "%c";
             }
-
-            if (this.options.showLevel) {
+            if (showLevel) {
                 levelFormat = "%c";
             }
-
             categoryFormat = "%c";
             textFormat = ": %c";
         }
-        let result = "";
-        if (this.options.showTimestamp && !this.options.useLocalTime) {
-            result += "" + new Date().toISOString() + " ";
+        let logMessage = "";
+        if (showTimestamp) {
+            logMessage += useLocalTime ? new Date().toLocaleString() : new Date().toISOString();
+            logMessage += " ";
         }
-        if (this.options.showTimestamp && this.options.useLocalTime) {
-            result += "" + new Date().toLocaleString() + " ";
+        logMessage = `${timestampFormat}${logMessage}`;
+        if (showLevel) {
+            const spacing = level === LogLevels.INFO || level === LogLevels.WARN ? " " : "";
+            logMessage += `${levelFormat}[${level}]${spacing} `;
         }
-        result = timestampFormat + result;
-        if (this.options.showLevel) {
-            result += levelFormat + "[" + level + "]" + (level === LogLevels.INFO || level === LogLevels.WARN ? " " : "") + " ";
-        }
-        result += categoryFormat + this.category;
-        result += textFormat + text;
-        return result;
+        return `${logMessage}${categoryFormat}${this.category}${textFormat}${text}`;
     }
 
     _shouldLog(level) {
-        let envLogLevel =
-            typeof nodeProcess !== "undefined" && nodeProcess.env !== undefined && nodeProcess.env.LOG !== undefined ? nodeProcess.env.LOG.toUpperCase() : null;
-        envLogLevel = typeof window !== "undefined" && window.LOG ? window.LOG.toUpperCase() : envLogLevel;
-        const logLevel = envLogLevel || GlobalLogLevel;
-        const levels = Object.keys(LogLevels).map((f) => {
-            return LogLevels[f];
-        });
-        const index = levels.indexOf(level);
-        const levelIdx = levels.indexOf(logLevel);
-        return index >= levelIdx;
+        const envLogLevel = nodeProcess.env?.LOG?.toUpperCase() || (typeof window !== "undefined" && window.LOG?.toUpperCase()) || null;
+        return logLevelIndices[level] >= logLevelIndices[envLogLevel || GlobalLogLevel];
     }
 }
 
-/* Public API */
-const publicLogger = {
+const SimpleLogger = {
     setLogLevel(level) {
         GlobalLogLevel = level;
     },
@@ -277,13 +252,15 @@ const publicLogger = {
         GlobalLogFilePath = filePath;
     },
     createLogger(category, options) {
-        return new Logger(category, options);
+        return new InternalLogger(category, options);
     },
     forceBrowserMode(force) {
         return (isNodejs = !force);
     },
-    // For testing
+    /**
+    For testing
+    */
     events: GlobalEventEmitter,
 };
 
-export default publicLogger;
+export { SimpleLogger };

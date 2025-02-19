@@ -1,7 +1,7 @@
 import * as nodePath from "node:path";
 import * as nodeFs from "node:fs";
 import * as nodeProcess from "node:process";
-import LoggerClass from "./loggerClass.js";
+import { SimpleLogger } from "./loggerClass.js";
 import { getDirname } from "./fileUtils.js";
 import { BINARY_TYPES } from "./constants.js";
 
@@ -31,7 +31,7 @@ const binaryType = argv.find((arg) => {
 });
 
 const logsFilePath = nodePath.join(getDirname(metaUrl), "..", "logs", `${binaryType}-${logFileISOTimestamp}.log`);
-deleteOldLogFiles(logsFilePath);
-const logger = LoggerClass.createLogger(binaryType, { filepath: logsFilePath, appendFile: true });
+deleteOldLogFiles(nodePath.dirname(logsFilePath));
+const logger = SimpleLogger.createLogger(binaryType, { filepath: logsFilePath, appendFile: true });
 
 export default logger;
