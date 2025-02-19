@@ -213,6 +213,7 @@ class InternalLogger {
             text: ": ",
         };
     }
+
     _createLogMessage(level, text, timestampFormat = "", levelFormat = "", categoryFormat = "", textFormat = ": ") {
         const { useColors, showTimestamp, useLocalTime, showLevel } = this.options;
         if (!isNodejs && useColors) {
