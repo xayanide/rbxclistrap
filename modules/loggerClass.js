@@ -57,14 +57,11 @@ const GlobalEventEmitter = new nodeEvents.EventEmitter();
 
 const logLevelValues = Object.values(logLevels);
 
-/**
-Essentially creates a list of different levels of logging messages (like "INFO" or "ERROR") and
-assigns a unique number to each level. This numbering helps in comparing the importance or severity of messages below at _shouldLog()
-*/
-const logLevelIndices = logLevelValues.reduce((acc, level, index) => {
-    acc[level] = index;
-    return acc;
-}, {});
+const logLevelIndices = {};
+let valueIndex = 0;
+for (const [, value] of Object.entries(logLevels)) {
+    logLevelIndices[value] = valueIndex++;
+}
 
 // Colors to use based on the environment
 const Colors = isNodejs ? ansiColors : cssColors;
