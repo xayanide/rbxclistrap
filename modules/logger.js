@@ -1,7 +1,7 @@
 import * as nodePath from "node:path";
 import * as nodeFs from "node:fs";
 import * as nodeProcess from "node:process";
-import { SimpleLogger } from "./loggerClass.js";
+import SimpleLogger from "./loggerClass.js";
 import { getDirname } from "./fileUtils.js";
 import { BINARY_TYPES } from "./constants.js";
 

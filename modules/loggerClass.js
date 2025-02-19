@@ -239,7 +239,7 @@ class InternalLogger {
     }
 }
 
-const SimpleLogger = {
+export default {
     setLogLevel(level) {
         GlobalLogLevel = level;
     },
@@ -252,10 +252,8 @@ const SimpleLogger = {
     toggleBrowserMode(isEnabled) {
         return (isNodejs = !isEnabled);
     },
-    /** For testing */
-    events: GlobalEventEmitter,
     LogLevels: logLevels,
     Colors: Colors,
+    /** For testing */
+    events: GlobalEventEmitter,
 };
-
-export { SimpleLogger, InternalLogger };
