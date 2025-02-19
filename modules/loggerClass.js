@@ -8,7 +8,7 @@ import * as nodePath from "node:path";
 const isElectronRenderer = nodeProcess.type && nodeProcess.type === "renderer";
 let isNodejs = !!(!isElectronRenderer && nodeProcess.version);
 
-const LogLevels = {
+const logLevels = {
     TRACE: "TRACE",
     DEBUG: "DEBUG",
     VERBOSE: "VERBOSE",
@@ -19,7 +19,7 @@ const LogLevels = {
     NONE: "NONE",
 };
 
-const logLevelValues = Object.values(LogLevels);
+const logLevelValues = Object.values(logLevels);
 
 /**
 Essentially creates a list of different levels of logging messages (like "INFO" or "ERROR") and
@@ -31,7 +31,7 @@ const logLevelIndices = logLevelValues.reduce((acc, level, index) => {
 }, {});
 
 // Global log level
-let GlobalLogLevel = LogLevels.DEBUG;
+let GlobalLogLevel = logLevels.DEBUG;
 
 // Global log file path and filename
 let GlobalLogFilePath = null;
@@ -87,42 +87,36 @@ class InternalLogger {
         this.fileDescriptor = this._getLogFileDescriptor();
     }
 
-    _log(level, ...args) {
-        if (this._shouldLog(level)) {
-            this._write(level, nodeUtil.format(...args));
-        }
-    }
-
     log(...args) {
-        this._log(LogLevels.DEBUG, ...args);
+        this._log(logLevels.DEBUG, ...args);
     }
 
     trace(...args) {
-        this._log(LogLevels.TRACE, ...args);
+        this._log(logLevels.TRACE, ...args);
     }
 
     debug(...args) {
-        this._log(LogLevels.DEBUG, ...args);
+        this._log(logLevels.DEBUG, ...args);
     }
 
     verbose(...args) {
-        this._log(LogLevels.VERBOSE, ...args);
+        this._log(logLevels.VERBOSE, ...args);
     }
 
     info(...args) {
-        this._log(LogLevels.INFO, ...args);
+        this._log(logLevels.INFO, ...args);
     }
 
     warn(...args) {
-        this._log(LogLevels.WARN, ...args);
+        this._log(logLevels.WARN, ...args);
     }
 
     error(...args) {
-        this._log(LogLevels.ERROR, ...args);
+        this._log(logLevels.ERROR, ...args);
     }
 
     fatal(...args) {
-        this._log(LogLevels.FATAL, ...args);
+        this._log(logLevels.FATAL, ...args);
     }
 
     _getLogFileDescriptor() {
@@ -158,7 +152,7 @@ class InternalLogger {
             GlobalEventEmitter.emit("data", this.category, level, text);
             return;
         }
-        const consoleMethod = level === LogLevels.ERROR || level === LogLevels.FATAL ? console.error : console.log;
+        const consoleMethod = level === logLevels.ERROR || level === logLevels.FATAL ? console.error : console.log;
         // Initialize an array with the formatted text
         const logArgs = [formattedText];
         // Conditionally add timestamp and level to the log arguments
@@ -235,10 +229,16 @@ class InternalLogger {
         }
         logMessage = `${timestampFormat}${logMessage}`;
         if (showLevel) {
-            const spacing = level === LogLevels.INFO || level === LogLevels.WARN ? " " : "";
+            const spacing = level === logLevels.INFO || level === logLevels.WARN ? " " : "";
             logMessage += `${levelFormat}[${level}]${spacing} `;
         }
         return `${logMessage}${categoryFormat}${this.category}${textFormat}${text}`;
+    }
+
+    _log(level, ...args) {
+        if (this._shouldLog(level)) {
+            this._write(level, nodeUtil.format(...args));
+        }
     }
 
     _shouldLog(level) {
