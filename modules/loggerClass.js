@@ -1,5 +1,5 @@
 /**
-Refactored by: xayanide (with assistance of StackOverflow and AI :>)
+Refactored by: xayanide (With assistance of StackOverflow and AI :>)
 Original code: https://github.com/haadcode/logplease
 */
 import * as nodeProcess from "node:process";
@@ -49,9 +49,7 @@ const logLevels = {
     NONE: "NONE",
 };
 
-// Global log level
 let GlobalLogLevel = logLevels.DEBUG;
-// Global log file path and filename
 let GlobalLogFilePath = null;
 const GlobalEventEmitter = new nodeEvents.EventEmitter();
 
@@ -63,7 +61,6 @@ for (const [, value] of Object.entries(logLevels)) {
     logLevelIndices[value] = valueIndex++;
 }
 
-// Colors to use based on the environment
 const Colors = isNodejs ? ansiColors : cssColors;
 
 const loglevelColors = [Colors.Grey, Colors.Cyan, Colors.Blue, Colors.Green, Colors.Yellow, Colors.Red, Colors.Red, Colors.Default];
@@ -74,7 +71,7 @@ const defaultOptions = {
     showTimestamp: true,
     useLocalTime: false,
     showLevel: true,
-    filepath: GlobalLogFilePath,
+    filePath: GlobalLogFilePath,
     appendFile: true,
 };
 
@@ -82,7 +79,6 @@ class InternalLogger {
     constructor(category, options) {
         this.category = category;
         this.options = { ...defaultOptions, ...options };
-        this.fileDescriptor = this._getLogFileDescriptor();
     }
 
     log(...args) {
@@ -117,8 +113,8 @@ class InternalLogger {
         this._log(logLevels.FATAL, ...args);
     }
 
-    _getLogFileDescriptor() {
-        const logFilePath = this.options.filepath ?? GlobalLogFilePath;
+    _getFileDescriptor() {
+        const logFilePath = this.options.filePath ?? GlobalLogFilePath;
         if (!logFilePath || this.fileDescriptor || (!isNodejs && !isElectronRenderer)) {
             return;
         }
@@ -130,22 +126,18 @@ class InternalLogger {
     }
 
     _writeToLogFile(text) {
-        if (!this.fileDescriptor) {
-            return;
-        }
-        /** Implements https://github.com/haadcode/logplease/pull/21 */
-        if (!isNodejs && !isElectronRenderer) {
-            return;
-        }
         const resolvedText = isElectronRenderer ? text.replace(/%c/gm, "") : text;
         nodeFs.writeSync(this.fileDescriptor, `${resolvedText}\n`, null, "utf-8");
     }
 
     _write(level, text) {
-        const levelFormat = this._getLevelFormat(level);
+        const style = this._getStyle(level);
         const unformattedText = this._createLogMessage(level, text);
-        const formattedText = this._createLogMessage(level, text, levelFormat.timestamp, levelFormat.level, levelFormat.category, levelFormat.text);
-        this._writeToLogFile(unformattedText);
+        const formattedText = this._createLogMessage(level, text, style.timestamp, style.level, style.category, style.text);
+        /** Implements https://github.com/haadcode/logplease/pull/21 */
+        if ((this.fileDescriptor && isNodejs) || (this.fileDescriptor && isElectronRenderer)) {
+            this._writeToLogFile(unformattedText);
+        }
         if (isNodejs || !this.options.useColors) {
             console.log(formattedText);
             /** For testing */
@@ -153,40 +145,36 @@ class InternalLogger {
             return;
         }
         const consoleMethod = level === logLevels.ERROR || level === logLevels.FATAL ? console.error : console.log;
-        // Initialize an array with the formatted text
         const logArgs = [formattedText];
-        // Conditionally add timestamp and level to the log arguments
         if (this.options.showTimestamp) {
-            logArgs.push(levelFormat.timestamp);
+            logArgs.push(style.timestamp);
         }
         if (this.options.showLevel) {
-            logArgs.push(levelFormat.level);
+            logArgs.push(style.level);
         }
-        // Add category and text to the log arguments,
-        logArgs.push(levelFormat.category, levelFormat.text);
-        // Log the message with the appropriate console method
+        logArgs.push(style.category, style.text);
         consoleMethod(...logArgs);
         /** Reference from refactoring:
         // Both timestamp and level display are enabled
         if (this.options.showTimestamp && this.options.showLevel) {
-            consoleMethod(formattedText, levelFormat.timestamp, levelFormat.level, levelFormat.category, levelFormat.text);
+            consoleMethod(formattedText, style.timestamp, style.level, style.category, style.text);
         }
         // Only timestamp display is enabled
         else if (this.options.showTimestamp && !this.options.showLevel) {
-            consoleMethod(formattedText, levelFormat.timestamp, levelFormat.category, levelFormat.text);
+            consoleMethod(formattedText, style.timestamp, style.category, style.text);
         }
         // Only level display is enabled
         else if (!this.options.showTimestamp && this.options.showLevel) {
-            consoleMethod(formattedText, levelFormat.level, levelFormat.category, levelFormat.text);
+            consoleMethod(formattedText, style.level, style.category, style.text);
         }
         // Neither timestamp nor level display is enabled
         else {
-            consoleMethod(formattedText, levelFormat.category, levelFormat.text);
+            consoleMethod(formattedText, style.category, style.text);
         }
         */
     }
 
-    _getLevelFormat(level) {
+    _getStyle(level) {
         const { useColors, color: categoryColor, showTimestamp, showLevel } = this.options;
         if (!useColors) {
             return { timestamp: "", level: "", category: "", text: ": " };
@@ -194,6 +182,7 @@ class InternalLogger {
         const levelColorIndex = logLevelValues.indexOf(level);
         const levelColor = loglevelColors[levelColorIndex];
         if (isNodejs) {
+            /** ANSI style */
             return {
                 timestamp: showTimestamp ? `\u001b[3${Colors.Grey}m` : "",
                 level: showLevel ? `\u001b[3${levelColor};22m` : "",
@@ -201,7 +190,7 @@ class InternalLogger {
                 text: "\u001b[0m: ",
             };
         }
-        /** Electron */
+        /** CSS style */
         return {
             timestamp: showTimestamp ? `color:${Colors.Grey}` : "",
             level: showLevel ? `color:${levelColor}` : "",
@@ -210,14 +199,14 @@ class InternalLogger {
         };
     }
 
-    _createLogMessage(level, text, timestampFormat = "", levelFormat = "", categoryFormat = "", textFormat = ": ") {
+    _createLogMessage(level, text, timestampFormat = "", style = "", categoryFormat = "", textFormat = ": ") {
         const { useColors, showTimestamp, useLocalTime, showLevel } = this.options;
         if (!isNodejs && useColors) {
             if (showTimestamp) {
                 timestampFormat = "%c";
             }
             if (showLevel) {
-                levelFormat = "%c";
+                style = "%c";
             }
             categoryFormat = "%c";
             textFormat = ": %c";
@@ -230,12 +219,15 @@ class InternalLogger {
         logMessage = `${timestampFormat}${logMessage}`;
         if (showLevel) {
             const spacing = level === logLevels.INFO || level === logLevels.WARN ? " " : "";
-            logMessage += `${levelFormat}[${level}]${spacing} `;
+            logMessage += `${style}[${level}]${spacing} `;
         }
         return `${logMessage}${categoryFormat}${this.category}${textFormat}${text}`;
     }
 
     _log(level, ...args) {
+        if (!this.fileDescriptor) {
+            this.fileDescriptor = this._getFileDescriptor();
+        }
         if (this._shouldLog(level)) {
             this._write(level, nodeUtil.format(...args));
         }
@@ -260,10 +252,10 @@ const SimpleLogger = {
     toggleBrowserMode(isEnabled) {
         return (isNodejs = !isEnabled);
     },
-    /**
-    For testing
-    */
+    /** For testing */
     events: GlobalEventEmitter,
+    LogLevels: logLevels,
+    Colors: Colors,
 };
 
 export { SimpleLogger, InternalLogger };
