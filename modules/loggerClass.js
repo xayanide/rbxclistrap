@@ -133,13 +133,15 @@ class InternalLogger {
     }
 
     _writeToLogFile(text) {
-        // https://github.com/haadcode/logplease/pull/21
-        if (this.fileWriter && (isNodejs || isElectronRenderer)) {
-            if (isElectronRenderer) {
-                text = text.replace(/%c/gm, "");
-            }
-            nodeFs.writeSync(this.fileWriter, text + "\n", null, "utf-8");
+        if (!this.fileDescriptor) {
+            return;
         }
+        // https://github.com/haadcode/logplease/pull/21
+        if (!isNodejs && !isElectronRenderer) {
+            return;
+        }
+        const resolvedText = isElectronRenderer ? text.replace(/%c/gm, "") : text;
+        nodeFs.writeSync(this.fileDescriptor, `${resolvedText}\n`, null, "utf-8");
     }
 
     _write(level, text) {
