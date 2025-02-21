@@ -87,6 +87,11 @@ const saveConfig = (binaryType) => {
     return saveJson(CONFIG_FILE_PATH, runnerConfig);
 };
 
+const saveFastFlags = (binaryType) => {
+    const FAST_FLAGS_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-fflags.json`);
+    return saveJson(FAST_FLAGS_FILE_PATH, runnerFastFlags);
+};
+
 const loadConfig = (binaryType) => {
     const CONFIG_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-config.json`);
     runnerConfig = loadJson(CONFIG_FILE_PATH, DEFAULT_CONFIG);
@@ -134,11 +139,13 @@ const applyFastFlags = (clientSettingsPath) => {
         existingSettings = nodeFs.readFileSync(clientAppSettingsJsonPath, "utf8").trim();
     }
     const jsonFastFlags = JSON.stringify(runnerFastFlags, null, 2);
+    console.log(jsonFastFlags);
+    console.log(existingSettings);
     if (existingSettings === jsonFastFlags) {
         return;
     }
     logger.info("Applying fast flags...");
-    nodeFs.writeFileSync(clientAppSettingsJsonPath, jsonFastFlags);
+    saveFastFlags(runnerType);
     logger.info(`Successfully applied fast flags to ${clientAppSettingsJsonPath}!`);
 };
 
@@ -426,21 +433,22 @@ const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunch
         ]);
     }
     applyFastFlags(selectedVersionPath);
-    const launchArgs = [];
+    const spawnArgs = [];
     if (robloxLaunchArgv.length > 2 && !hasPromptArgs) {
         const robloxUri = robloxLaunchArgv[2];
         if (robloxUri) {
-            launchArgs.push(robloxUri);
+            spawnArgs.push(robloxUri);
         }
     } else if (hasPromptArgs) {
         const userArgs = await createPrompt("Type and enter to set launch arguments (e.g., roblox://...): ");
         const trimmedArgs = userArgs.trim();
         if (trimmedArgs) {
-            launchArgs.push(...trimmedArgs.split(" "));
+            spawnArgs.push(...trimmedArgs.split(" "));
         }
     }
-    logger.info(`Launching with command: "${binaryPath}" "${launchArgs.join(" ")}"`);
-    const childProcess = nodeChildProcess.spawn(binaryPath, launchArgs, { detached: true, stdio: "ignore" });
+    const launchArgs = spawnArgs.join(" ");
+    logger.info(`Launching with command: "${binaryPath}"${launchArgs === "" ? "" : ` "${launchArgs}"`}`);
+    const childProcess = nodeChildProcess.spawn(binaryPath, spawnArgs, { detached: true, stdio: "ignore" });
     childProcess.unref();
     logger.info(`Successfully launched ${binaryName}!`);
 };
