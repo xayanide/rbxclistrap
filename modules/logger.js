@@ -31,7 +31,7 @@ const appType = argv.find((arg) => {
 });
 const binaryType = BINARY_TYPES_MAP[appType];
 
-const logsFilePath = nodePath.join(getDirname(metaUrl), "..", "logs", `${appType ?? "unknown"}-${logFileISOTimestamp}.log`);
+const logsFilePath = nodePath.join(getDirname(metaUrl), "..", "logs", `${binaryType ?? "unknown"}-${logFileISOTimestamp}.log`);
 deleteOldLogFiles(nodePath.dirname(logsFilePath));
 const logger = SimpleLogger.createLogger(binaryType ?? "Unknown", { filePath: logsFilePath, appendFile: true });
 
