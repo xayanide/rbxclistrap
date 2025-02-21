@@ -197,15 +197,16 @@ See: https://choosealicense.com/licenses/gpl-3.0`;
 const showSettingsMenu = async () => {
     console.clear();
     console.log(`${CLI_COLORS.MAGENTA}Settings Menu${CLI_COLORS.RESET}`);
-    console.log(`${CLI_COLORS.GREEN}1. Toggle delete existing folders (Current: ${runnerConfig.deleteExistingFolders})${CLI_COLORS.RESET}`);
-    console.log(`${CLI_COLORS.YELLOW}2. Toggle force update (Current: ${runnerConfig.forceUpdate})${CLI_COLORS.RESET}`);
+    console.log(`${CLI_COLORS.BLUE}1. Toggle delete existing folders (Current: ${runnerConfig.deleteExistingVersion})${CLI_COLORS.RESET}`);
+    console.log(`${CLI_COLORS.BLUE}2. Toggle force update (Current: ${runnerConfig.forceUpdate})${CLI_COLORS.RESET}`);
     console.log(`${CLI_COLORS.BLUE}3. Toggle always run latest version (Current: ${runnerConfig.alwaysRunLatest})${CLI_COLORS.RESET}`);
-    console.log(`${CLI_COLORS.RED}4. Back to main menu${CLI_COLORS.RESET}`);
+    console.log(`${CLI_COLORS.BLUE}4. Toggle only keep latest version (Current: ${runnerConfig.onlyKeepLatest})${CLI_COLORS.RESET}`);
+    console.log(`${CLI_COLORS.RED}5. Back to main menu${CLI_COLORS.RESET}`);
     const answer = await createPrompt("Type and enter to select an option: ");
     switch (answer) {
         case "1":
-            runnerConfig.deleteExistingFolders = !runnerConfig.deleteExistingFolders;
-            console.log(`${CLI_COLORS.BLUE}Delete existing folders set to: ${runnerConfig.deleteExistingFolders}${CLI_COLORS.RESET}`);
+            runnerConfig.deleteExistingVersion = !runnerConfig.deleteExistingVersion;
+            console.log(`${CLI_COLORS.BLUE}Delete existing folders set to: ${runnerConfig.deleteExistingVersion}${CLI_COLORS.RESET}`);
             saveConfig(runnerType);
             await createPrompt("Press Enter key to continue.");
             await showSettingsMenu();
@@ -219,12 +220,19 @@ const showSettingsMenu = async () => {
             break;
         case "3":
             runnerConfig.alwaysRunLatest = !runnerConfig.alwaysRunLatest;
-            console.log(`${CLI_COLORS.BLUE}Force update set to: ${runnerConfig.alwaysRunLatest}${CLI_COLORS.RESET}`);
+            console.log(`${CLI_COLORS.BLUE}Always run latest to: ${runnerConfig.alwaysRunLatest}${CLI_COLORS.RESET}`);
             saveConfig(runnerType);
             await createPrompt("Press Enter key to continue.");
             await showSettingsMenu();
             break;
         case "4":
+            runnerConfig.onlyKeepLatest = !runnerConfig.onlyKeepLatest;
+            console.log(`${CLI_COLORS.BLUE}Always keep latest set to: ${runnerConfig.onlyKeepLatest}${CLI_COLORS.RESET}`);
+            saveConfig(runnerType);
+            await createPrompt("Press Enter key to continue.");
+            await showSettingsMenu();
+            break;
+        case "5":
             await showMainMenu(runnerType);
             break;
         default:
@@ -235,7 +243,6 @@ const showSettingsMenu = async () => {
 };
 
 const downloadVersion = async (version) => {
-    logger.info(`Downloading ${version}...`);
     const isPlayer = isPlayerBinaryType(runnerType);
     const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
     const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
@@ -243,11 +250,29 @@ const downloadVersion = async (version) => {
     const versionFolder = version.startsWith("version-") ? version : `version-${version}`;
     const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
     const dumpDir = nodePath.join(versionsPath, versionFolder);
+    if (runnerConfig.onlyKeepLatest) {
+        const existingVersions = getExistingVersions(versionsPath);
+        if (existingVersions[0] !== versionFolder) {
+            logger.info(`Configured to only keep the latest version: ${versionFolder}. Deleting existing versions except latest...`);
+        }
+        for (let i = 0; i < existingVersions.length; i++) {
+            const folderName = existingVersions[i];
+            const folderPath = nodePath.join(versionsPath, folderName);
+            if (!nodeFs.statSync(folderPath).isDirectory() || folderName === versionFolder) {
+                continue;
+            }
+            logger.info(`Deleting existing folder: ${folderPath}...`);
+            deleteFolderRecursive(folderPath);
+            logger.info("Successfully deleted existing folder!");
+        }
+    }
     if (nodeFs.existsSync(dumpDir) && !runnerConfig.forceUpdate) {
         logger.info(`${version} is already downloaded!`);
         return;
     }
-    if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingFolders) {
+    logger.info(`Downloading ${version}...`);
+    if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingVersion) {
+        logger.info(`Configured to delete the existing version: ${version}. Deleting existing version...`);
         logger.info(`Deleting existing folder: ${dumpDir}...`);
         deleteFolderRecursive(dumpDir);
         logger.info("Successfully deleted existing folder!");
@@ -365,7 +390,7 @@ const launchAutoUpdater = async (binaryType) => {
         console.log(`${CLI_COLORS.CYAN}${i + 1}. ${versions[i]}${CLI_COLORS.RESET}${version === latestVersion ? " (Latest)" : ""}`);
     }
     let selectedVersion = "";
-    if (versions.length === 1) {
+    if (versions.length === 1 && !runnerConfig.alwaysRunLatest) {
         selectedVersion = versions[0];
         logger.info(`Only one version found: ${selectedVersion}. Skipping prompt...`);
     } else if (runnerConfig.alwaysRunLatest) {

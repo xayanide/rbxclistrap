@@ -119,7 +119,7 @@ const APP_TYPES_MAP = {
 };
 const DEPLOY_TYPES_MAP = { player: "WindowsPlayer", studio: "Studio64", WindowsPlayer: "WindowsPlayer", WindowsStudio64: "Studio64" };
 
-const DEFAULT_CONFIG = { deleteExistingFolders: false, forceUpdate: false, alwaysRunLatest: false };
+const DEFAULT_CONFIG = { deleteExistingVersion: false, forceUpdate: false, alwaysRunLatest: false, onlyKeepLatest: true };
 
 const DEFAULT_FAST_FLAGS = {
     FFlagAdServiceEnabled: "False",
