@@ -278,7 +278,7 @@ const downloadVersion = async (version) => {
         const uncompressedSize = parseInt(manifestContent[i + 3], 10);
         */
         if (!(fileName.endsWith(".zip") || fileName.endsWith(".exe"))) {
-            logger.info(`Unknown file extension! Skipping entry: ${fileName}...`);
+            logger.warn(`Unknown file extension! Skipping entry: ${fileName}...`);
             continue;
         }
         const packageUrl = `${cdnUrl}-${fileName}`;
