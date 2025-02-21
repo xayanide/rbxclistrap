@@ -2,14 +2,13 @@ import * as nodeProcess from "node:process";
 import { promisified as promisifiedRegedit } from "regedit";
 import { getRegistryKeyPaths } from "./modules/registry.js";
 import { createPrompt } from "./modules/prompt.js";
-import { UNREGISTER_PLAYER_VALUE_PATHS, UNREGISTER_PLAYER_KEY_PATHS, UNREGISTER_STUDIO_VALUE_PATHS, UNREGISTER_STUDIO_KEY_PATHS } from "./modules/constants.js";
+import { UNREGISTER_PLAYER_VALUE_PATHS, UNREGISTER_PLAYER_KEY_PATHS, UNREGISTER_STUDIO_VALUE_PATHS, UNREGISTER_STUDIO_KEY_PATHS, APP_TYPES } from "./modules/constants.js";
 
-/**
-Get app type from command-line arguments
-Expecting "player" or "studio"
-*/
-const appType = process.argv[2];
-if (!appType || (appType !== "player" && appType !== "studio")) {
+const argv = nodeProcess.argv;
+const appType = argv.find((arg) => {
+    return APP_TYPES.includes(arg);
+});
+if (!appType) {
     console.error("Usage Examples:\nnode unregisterRoblox.js player\nnode unregisterRoblox.js studio");
     await createPrompt("Press and enter any key to exit.");
     nodeProcess.exit(1);
