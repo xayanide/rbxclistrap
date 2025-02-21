@@ -10,7 +10,7 @@ const appType = argv.find((arg) => {
 });
 if (!appType) {
     console.error("Usage Examples:\nnode index.cli.js player\nnode index.cli.js studio");
-    await createPrompt("Press and enter any key to exit.");
+    await createPrompt("Press Enter key to exit.");
     nodeProcess.exit(1);
 }
 const binaryType = BINARY_TYPES_MAP[appType];
@@ -22,6 +22,6 @@ try {
     await showMainMenu(binaryType);
 } catch (error) {
     logger.error(`index.cli.js():\n${error.message}\n${error.stack}`);
-    await createPrompt("Something went wrong! Press and enter any key to exit.");
+    await createPrompt("Something went wrong! Press Enter key to exit.");
     nodeProcess.exit(1);
 }

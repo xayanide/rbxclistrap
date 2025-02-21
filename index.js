@@ -16,7 +16,7 @@ const appType = argv.find((arg) => {
 });
 if (!appType) {
     console.error("Usage Examples:\nnode . player\nnode . studio\nnode index.js player\nnode index.js studio");
-    await createPrompt("Press and enter any key to exit.");
+    await createPrompt("Press Enter key to exit.");
     nodeProcess.exit(1);
 }
 const robloxLaunchArgv = argv.filter((arg) => {
@@ -36,6 +36,6 @@ try {
     nodeProcess.exit(0);
 } catch (bootstrapperErr) {
     logger.error(`index.js():\n${bootstrapperErr.message}\n${bootstrapperErr.stack}`);
-    await createPrompt("Something went wrong! Press and enter any key to exit.");
+    await createPrompt("Something went wrong! Press Enter key to exit.");
     nodeProcess.exit(1);
 }

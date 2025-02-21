@@ -10,7 +10,7 @@ const appType = argv.find((arg) => {
 });
 if (!appType) {
     console.error("Usage Examples:\nnode unregisterRoblox.js player\nnode unregisterRoblox.js studio");
-    await createPrompt("Press and enter any key to exit.");
+    await createPrompt("Press Enter key to exit.");
     nodeProcess.exit(1);
 }
 
@@ -43,5 +43,5 @@ if (appType === "player") {
     await unregisterApplication(UNREGISTER_STUDIO_VALUE_PATHS, UNREGISTER_STUDIO_KEY_PATHS);
 }
 
-await createPrompt("Press and enter any key to exit.");
+await createPrompt("Press Enter key to exit.");
 nodeProcess.exit(0);

@@ -112,9 +112,13 @@ const attemptKillProcesses = async (processes) => {
         killProcesses(processes);
         return;
     }
-    const answer = await createPrompt("One of Roblox's processes is running in the background. Do you want to forcibly close it? (y/n): ");
-    if (answer.toLowerCase() !== "y") {
-        logger.info("One of Roblox's processes is still running.");
+    const answer = await createPrompt(
+        "One of Roblox's processes is running in the background. Do you want to forcibly close it? Type y (yes) or type any key if no and press enter: ",
+    );
+    const answerLower = answer.toLowerCase();
+    const agreeAnswers = ["y", "yes"];
+    if (!agreeAnswers.includes(answerLower)) {
+        logger.info("One of Roblox's processes is still running. Bootstrapper is closing...");
         nodeProcess.exit(0);
     }
     killProcesses(processes);
@@ -175,7 +179,7 @@ Conditions:
 See: https://choosealicense.com/licenses/gpl-3.0`;
     console.log(licenseInfo);
     console.log(`${CLI_COLORS.RED}1. Back to main menu${CLI_COLORS.RESET}`);
-    const answer = await createPrompt("Select an option: ");
+    const answer = await createPrompt("Type and enter to select an option: ");
     switch (answer) {
         case "1":
             await showMainMenu(runnerType);
@@ -194,27 +198,27 @@ const showSettingsMenu = async () => {
     console.log(`${CLI_COLORS.YELLOW}2. Toggle force update (Current: ${runnerConfig.forceUpdate})${CLI_COLORS.RESET}`);
     console.log(`${CLI_COLORS.BLUE}3. Toggle always run latest version (Current: ${runnerConfig.alwaysRunLatest})${CLI_COLORS.RESET}`);
     console.log(`${CLI_COLORS.RED}4. Back to main menu${CLI_COLORS.RESET}`);
-    const answer = await createPrompt("Select an option: ");
+    const answer = await createPrompt("Type and enter to select an option: ");
     switch (answer) {
         case "1":
             runnerConfig.deleteExistingFolders = !runnerConfig.deleteExistingFolders;
             console.log(`${CLI_COLORS.BLUE}Delete existing folders set to: ${runnerConfig.deleteExistingFolders}${CLI_COLORS.RESET}`);
             saveConfig(runnerType);
-            await createPrompt("Press Enter to continue...");
+            await createPrompt("Press Enter key to continue.");
             await showSettingsMenu();
             break;
         case "2":
             runnerConfig.forceUpdate = !runnerConfig.forceUpdate;
             console.log(`${CLI_COLORS.BLUE}Force update set to: ${runnerConfig.forceUpdate}${CLI_COLORS.RESET}`);
             saveConfig(runnerType);
-            await createPrompt("Press Enter to continue...");
+            await createPrompt("Press Enter key to continue.");
             await showSettingsMenu();
             break;
         case "3":
             runnerConfig.alwaysRunLatest = !runnerConfig.alwaysRunLatest;
             console.log(`${CLI_COLORS.BLUE}Force update set to: ${runnerConfig.alwaysRunLatest}${CLI_COLORS.RESET}`);
             saveConfig(runnerType);
-            await createPrompt("Press Enter to continue...");
+            await createPrompt("Press Enter key to continue.");
             await showSettingsMenu();
             break;
         case "4":
@@ -366,7 +370,7 @@ const launchAutoUpdater = async (binaryType) => {
         await downloadVersion(latestVersion);
         return latestVersion;
     } else {
-        const answer = await createPrompt("Select a version (1/2/3...): ");
+        const answer = await createPrompt("Type and enter to select a version (1/2/3...): ");
         const versionIndex = parseInt(answer, 10) - 1;
         if (isNaN(versionIndex) || typeof versionIndex !== "number" || versionIndex < 0 || versionIndex >= versions.length) {
             throw new Error("Invalid version selected!");
@@ -430,7 +434,7 @@ const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunch
             launchArgs.push(robloxUri);
         }
     } else if (hasPromptArgs) {
-        const userArgs = await createPrompt("Enter launch arguments (e.g., roblox://...): ");
+        const userArgs = await createPrompt("Type and enter to set launch arguments (e.g., roblox://...): ");
         const trimmedArgs = userArgs.trim();
         if (trimmedArgs) {
             launchArgs.push(...trimmedArgs.split(" "));
@@ -473,7 +477,7 @@ ${CLI_COLORS.YELLOW}8. License${CLI_COLORS.RESET}
 ${CLI_COLORS.RED}9. Exit${CLI_COLORS.RESET}
 `;
     console.log(mainMenu);
-    const answer = await createPrompt("Select an option: ");
+    const answer = await createPrompt("Type and enter to select an option: ");
     switch (answer) {
         case "1":
             console.clear();
@@ -493,13 +497,13 @@ ${CLI_COLORS.RED}9. Exit${CLI_COLORS.RESET}
         }
         case "3": {
             console.clear();
-            const versionHash = await createPrompt("Enter custom version hash: ");
+            const versionHash = await createPrompt("Type and enter to set a custom version hash: ");
             await downloadCustomVersion(versionHash);
             break;
         }
         case "4": {
             console.clear();
-            const channel = await createPrompt("Enter channel name: ");
+            const channel = await createPrompt("Type and enter to set a channel name: ");
             await downloadFromChannel(channel);
             break;
         }
