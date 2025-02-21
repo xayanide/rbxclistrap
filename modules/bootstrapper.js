@@ -109,7 +109,6 @@ const getExistingVersions = (existingVersionsPath) => {
 const attemptKillProcesses = async (processes) => {
     logger.info("Checking for Roblox processes to kill...");
     if (!isProcessesRunning(processes)) {
-        killProcesses(processes);
         return;
     }
     const answer = await createPrompt(
