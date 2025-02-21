@@ -50,6 +50,7 @@ import {
     APP_SETTINGS,
     PLAYER_PROCESSES,
     STUDIO_PROCESSES,
+    APP_TYPES_MAP,
     BINARY_TYPES,
     DEFAULT_CONFIG,
     DEFAULT_FAST_FLAGS,
@@ -65,34 +66,34 @@ const dirName = `${getDirname(import.meta.url)}/../`;
 
 let runnerConfig = { ...DEFAULT_CONFIG };
 let runnerFastFlags = { ...DEFAULT_FAST_FLAGS };
-let runnerType = BINARY_TYPES.PLAYER;
+let runnerType = null;
 let clientSettingsBaseUrl = null;
 let cdnBaseUrl = null;
 
-const isPlayerRunnerType = (type) => {
-    return type === BINARY_TYPES.PLAYER;
+const isPlayerBinaryType = (binaryType) => {
+    return binaryType === "WindowsPlayer";
 };
 
-const resolveBinaryType = (type) => {
-    if (type === "WindowsPlayer") {
-        return "player";
-    } else if (type === "WindowsStudio64") {
-        return "studio";
-    } else {
-        throw new Error(`Unable to resolve binary type: ${type}`);
+const getAppType = (binaryType) => {
+    const appType = APP_TYPES_MAP[binaryType];
+    if (!appType) {
+        throw new Error(`Unable to get app type for binary type: ${binaryType}`);
     }
+    return appType;
 };
 
-const saveConfig = (type) => {
-    const CONFIG_FILE_PATH = nodePath.join(dirName, `${resolveBinaryType(type)}-config.json`);
+const saveConfig = (binaryType) => {
+    const CONFIG_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-config.json`);
     return saveJson(CONFIG_FILE_PATH, runnerConfig);
 };
-const loadConfig = (type) => {
-    const CONFIG_FILE_PATH = nodePath.join(dirName, `${resolveBinaryType(type)}-config.json`);
+
+const loadConfig = (binaryType) => {
+    const CONFIG_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-config.json`);
     runnerConfig = loadJson(CONFIG_FILE_PATH, DEFAULT_CONFIG);
 };
-const loadFastFlags = (type) => {
-    const FAST_FLAGS_FILE_PATH = nodePath.join(dirName, `${resolveBinaryType(type)}-fflags.json`);
+
+const loadFastFlags = (binaryType) => {
+    const FAST_FLAGS_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-fflags.json`);
     runnerFastFlags = loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS);
 };
 
@@ -228,10 +229,12 @@ const showSettingsMenu = async () => {
 
 const downloadVersion = async (version) => {
     logger.info(`Downloading ${version}...`);
-    const runnerProcesses = isPlayerRunnerType(runnerType) ? PLAYER_PROCESSES : STUDIO_PROCESSES;
+    const isPlayer = isPlayerBinaryType(runnerType);
+    const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
+    const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
     await attemptKillProcesses(runnerProcesses);
     const versionFolder = version.startsWith("version-") ? version : `version-${version}`;
-    const versionsPath = nodePath.join(dirName, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
+    const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
     const dumpDir = nodePath.join(versionsPath, versionFolder);
     if (nodeFs.existsSync(dumpDir) && !runnerConfig.forceUpdate) {
         logger.info(`${version} is already downloaded!`);
@@ -325,12 +328,14 @@ const downloadFromChannel = async (channel) => {
 };
 
 const launchAutoUpdater = async (binaryType) => {
-    if (!binaryType) {
-        throw new Error("Unknown binary type. Must be WindowsPlayer or WindowsStudio64.");
+    if (!BINARY_TYPES.includes(binaryType)) {
+        throw new Error(`Unknown binary type: ${runnerType}. Must be WindowsPlayer or WindowsStudio64.`);
     }
     runnerType = binaryType;
-    const runnerProcesses = isPlayerRunnerType(runnerType) ? PLAYER_PROCESSES : STUDIO_PROCESSES;
-    if (isPlayerRunnerType(runnerType)) {
+    const isPlayer = isPlayerBinaryType(runnerType);
+    const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
+    const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
+    if (isPlayer) {
         await attemptKillProcesses(runnerProcesses);
     }
     logger.info(`Checking for ${runnerType} updates...`);
@@ -340,7 +345,7 @@ const launchAutoUpdater = async (binaryType) => {
     }
     const latestVersion = await fetchLatestVersion(runnerType, clientSettingsBaseUrl);
     logger.info("Successfully fetched latest version!");
-    const versionsPath = nodePath.join(dirName, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
+    const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
     const versions = getExistingVersions(versionsPath);
     if (versions.length === 0) {
         logger.warn("No installed version found!");
@@ -384,16 +389,21 @@ const launchAutoUpdater = async (binaryType) => {
 };
 
 const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunchArgv = []) => {
-    const versionsPath = nodePath.join(dirName, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
+    if (!BINARY_TYPES.includes(runnerType)) {
+        throw new Error(`Unknown runner type: ${runnerType}. Must be WindowsPlayer or WindowsStudio64.`);
+    }
+    const isPlayer = isPlayerBinaryType(runnerType);
+    const binaryName = isPlayer ? "RobloxPlayerBeta.exe" : "RobloxStudioBeta.exe";
+    const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
+    const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
     const selectedVersionPath = nodePath.join(versionsPath, selectedVersion);
-    const binaryName = isPlayerRunnerType(runnerType) ? "RobloxPlayerBeta.exe" : "RobloxStudioBeta.exe";
     const binaryPath = nodePath.join(selectedVersionPath, binaryName);
     if (!nodeFs.existsSync(binaryPath)) {
         logger.warn(`${binaryName} was not found in ${selectedVersionPath}`);
         return;
     }
     await installEdgeWebView(selectedVersionPath);
-    if (isPlayerRunnerType(runnerType)) {
+    if (isPlayer) {
         await setRegistryData(getPlayerRegistryData(binaryPath, selectedVersion), REGISTER_PLAYER_KEY_PATHS);
         await checkUnsetValuePaths([...CORPORATION_UNSET_VALUE_PATHS, ...PLAYER_UNSET_VALUE_PATHS]);
     } else {
@@ -432,11 +442,11 @@ const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunch
     logger.info(`Successfully launched ${binaryName}!`);
 };
 
-async function showMainMenu(launchType) {
-    runnerType = launchType;
-    if (!Object.values(BINARY_TYPES).includes(runnerType)) {
-        throw new Error(`Unknown binary type: ${runnerType}. Must be WindowsPlayer or Studio64.`);
+async function showMainMenu(binaryType) {
+    if (!BINARY_TYPES.includes(binaryType)) {
+        throw new Error(`Unknown binary type: ${runnerType}. Must be WindowsPlayer or WindowsStudio64.`);
     }
+    runnerType = binaryType;
     console.clear();
     logPackageVersion(getPackageData(), logger);
     if (!clientSettingsBaseUrl) {

@@ -10,7 +10,8 @@ Expecting "player" or "studio"
 */
 const appType = process.argv[2];
 if (!appType || (appType !== "player" && appType !== "studio")) {
-    console.error("Usage: node unregisterRoblox.js <player | studio>");
+    console.error("Usage Examples:\nnode unregisterRoblox.js player\nnode unregisterRoblox.js studio");
+    await createPrompt("Press and enter any key to exit.");
     nodeProcess.exit(1);
 }
 

@@ -1,6 +1,6 @@
 # rbxclistrap
 
-A CLI tool for managing Roblox WindowsPlayer and WindowsStudio64 versions, allowing you to download the latest, previous, or custom version hash of Roblox. This tool also includes the ability to launch Roblox through deeplinks, with or without custom arguments and apply fast flags.
+A CLI tool for managing Roblox Player and Roblox Studio versions, allowing you to download the latest, previous, or custom version hash of Roblox. This tool also includes the ability to launch Roblox through deeplinks, with or without custom arguments and apply fast flags.
 
 ### Differences from upstream (`rbxcli`) and `rbxclistrap`
 - Deeplinks support. Allows you to run Roblox Player and Roblox Studio from Roblox's website through URIs (which involves Windows' Registry)
@@ -51,7 +51,7 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
 > [!NOTE]
 > Navigate to the directory of rbxclistrap then run either type of applications at least once for the bootstrapper to set the registry keys required to support deeplinks.
 
-- **Running RobloxPlayer**
+- **Running Roblox Player**
     > Choose among the methods to run the RobloxPlayer.
 
     - Start application by running file:
@@ -60,13 +60,13 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
       ```bash
       npm run start:player
       ```
-    - Start application by running in terminal (WindowsPlayer by Default):
+    - Start application by running in terminal:
       ```bash
-      node launchBootstrapper.js
+      node . player
       ```
     - Start application by running in terminal:
       ```bash
-      node launchBootstrapper.js WindowsPlayer
+      node index.js player
       ```
     - Start application by running in terminal:
       ```bash
@@ -75,11 +75,11 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
       Type 5 and press enter key.
     - Start application by running in terminal:
       ```bash
-      node launchCLI.js WindowsPlayer
+      node index.cli.js WindowsPlayer
       ```
       Type 5 and press enter key.
 
-- **Running RobloxStudio**
+- **Running Roblox Studio**
     > Choose among the methods to run the RobloxStudio.
 
     - Start application by running file:
@@ -90,7 +90,11 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
       ```
     - Start application by running in terminal:
       ```bash
-      node launchBootstrapper.js WindowsStudio64
+      node . studio
+      ```
+    - Start application by running in terminal:
+      ```bash
+      node index.js studio
       ```
     - Start application by running in terminal:
       ```bash
@@ -99,7 +103,7 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
       Type 5 and press enter key.
     - Start application by running in terminal:
       ```bash
-      node launchCLI.js WindowsStudio64
+      node index.cli.js studio
       ```
       Type 5 and press enter key.
 

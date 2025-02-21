@@ -1,15 +1,13 @@
 import axios from "axios";
 import logger from "./logger.js";
-import { BINARY_TYPES } from "./constants.js";
-
-const HISTORY_BINARY_TYPES = { PLAYER: "WindowsPlayer", STUDIO: "Studio64" };
+import { DEPLOY_TYPES_MAP } from "./constants.js";
 
 const fetchPreviousVersion = async (runnerType, cdnBaseUrl) => {
-    if (runnerType !== BINARY_TYPES.PLAYER || runnerType !== BINARY_TYPES.STUDIO) {
-        throw new Error("Invalid runner type. Must be WindowsPlayer or WindowsStudio64");
+    const deployType = DEPLOY_TYPES_MAP[runnerType];
+    if (!deployType) {
+        throw new Error("Unknown deploy type.");
     }
     try {
-        const binaryType = runnerType === BINARY_TYPES.PLAYER ? HISTORY_BINARY_TYPES.PLAYER : HISTORY_BINARY_TYPES.STUDIO;
         const url = `${cdnBaseUrl}/DeployHistory.txt`;
         logger.info(`Fetching previous version from ${url}`);
         const axiosResponse = await axios.get(url);
@@ -20,7 +18,7 @@ const fetchPreviousVersion = async (runnerType, cdnBaseUrl) => {
         let previousVersion = "";
         for (let i = deployHistory.length - 1; i >= 0; i--) {
             const line = deployHistory[i];
-            if (!line.startsWith(`New ${binaryType} version-`)) {
+            if (!line.startsWith(`New ${deployType} version-`)) {
                 continue;
             }
             if (lastVersionIndex === -1) {
@@ -31,10 +29,10 @@ const fetchPreviousVersion = async (runnerType, cdnBaseUrl) => {
             break;
         }
         if (!previousVersion || previousVersion === "") {
-            logger.error(`Could not find a previous ${binaryType} version.`);
+            logger.error(`Could not find a previous ${deployType} version.`);
             return null;
         }
-        logger.info(`Previous ${binaryType} version: ${previousVersion}`);
+        logger.info(`Previous ${deployType} version: ${previousVersion}`);
         return previousVersion;
     } catch (error) {
         logger.error(`async fetchPreviousVersion():\n${error.message}\n${error.stack}`);

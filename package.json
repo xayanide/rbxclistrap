@@ -6,12 +6,12 @@
     "node": ">=20.11.0"
   },
   "description": "A CLI alternative Roblox Player and Roblox Studio bootstrapper",
-  "main": "launchBootstrapper.js",
+  "main": "index.js",
   "scripts": {
-    "start:player": "node launchBootstrapper.js WindowsPlayer",
-    "start:studio": "node launchBootstrapper.js WindowsStudio64",
-    "cli:player": "node launchCLI.js WindowsPlayer",
-    "cli:studio": "node launchCLI.js WindowsStudio64",
+    "start:player": "node index.js player",
+    "start:studio": "node index.js studio",
+    "cli:player": "node index.cli.js player",
+    "cli:studio": "node index.cli.js studio",
     "lint": "eslint . --ignore-pattern '**/.config/'",
     "lint:fix": "eslint . --fix --ignore-pattern '**/.config/'",
     "format:write": "prettier . --write",

@@ -106,7 +106,18 @@ const WEBVIEW_REGISTRY_KEYPATHS = [
     "HKCU\\Software\\Microsoft\\EdgeUpdate\\Clients\\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}",
 ];
 
-const BINARY_TYPES = { PLAYER: "WindowsPlayer", STUDIO: "WindowsStudio64" };
+const BINARY_TYPES = ["WindowsPlayer", "WindowsStudio64"];
+const APP_TYPES = ["player", "studio"];
+const DEPLOY_TYPES = ["WindowsPlayer", "Studio64"];
+const BINARY_TYPES_MAP = {
+    player: "WindowsPlayer",
+    studio: "WindowsStudio64",
+};
+const APP_TYPES_MAP = {
+    WindowsPlayer: "player",
+    WindowsStudio64: "studio",
+};
+const DEPLOY_TYPES_MAP = { player: "WindowsPlayer", studio: "Studio64", WindowsPlayer: "WindowsPlayer", WindowsStudio64: "Studio64" };
 
 const DEFAULT_CONFIG = { deleteExistingFolders: false, forceUpdate: false, alwaysRunLatest: false };
 
@@ -253,6 +264,11 @@ export {
     PLAYER_PROCESSES,
     STUDIO_PROCESSES,
     BINARY_TYPES,
+    BINARY_TYPES_MAP,
+    APP_TYPES,
+    APP_TYPES_MAP,
+    DEPLOY_TYPES,
+    DEPLOY_TYPES_MAP,
     DEFAULT_FAST_FLAGS,
     DEFAULT_CONFIG,
     WEBVIEW_REGISTRY_KEYPATHS,

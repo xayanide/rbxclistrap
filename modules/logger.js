@@ -3,7 +3,7 @@ import * as nodeFs from "node:fs";
 import * as nodeProcess from "node:process";
 import SimpleLogger from "./loggerClass.js";
 import { getDirname } from "./fileUtils.js";
-import { BINARY_TYPES } from "./constants.js";
+import { APP_TYPES, BINARY_TYPES_MAP } from "./constants.js";
 
 const logFileISOTimestamp = new Date().toISOString().split(":").join("-");
 const metaUrl = import.meta.url;
@@ -26,12 +26,13 @@ const deleteOldLogFiles = (path) => {
 };
 
 const argv = nodeProcess.argv;
-const binaryType = argv.find((arg) => {
-    return Object.values(BINARY_TYPES).includes(arg) ?? "Unknown";
+const appType = argv.find((arg) => {
+    return APP_TYPES.includes(arg);
 });
+const binaryType = BINARY_TYPES_MAP[appType];
 
-const logsFilePath = nodePath.join(getDirname(metaUrl), "..", "logs", `${binaryType}-${logFileISOTimestamp}.log`);
+const logsFilePath = nodePath.join(getDirname(metaUrl), "..", "logs", `${appType ?? "unknown"}-${logFileISOTimestamp}.log`);
 deleteOldLogFiles(nodePath.dirname(logsFilePath));
-const logger = SimpleLogger.createLogger(binaryType, { filePath: logsFilePath, appendFile: true });
+const logger = SimpleLogger.createLogger(binaryType ?? "Unknown", { filePath: logsFilePath, appendFile: true });
 
 export default logger;
