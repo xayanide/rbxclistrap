@@ -10,24 +10,26 @@ This program comes with ABSOLUTELY NO WARRANTY.
 This is free software, and you are welcome to redistribute it
 under certain conditions.`);
 
+const argv = nodeProcess.argv;
+const binaryType = argv.find((arg) => {
+    return Object.values(BINARY_TYPES).includes(arg);
+});
+if (!binaryType) {
+    console.error("Usage: node launchBootstrapper.js <WindowsPlayer | WindowsStudio64>");
+    nodeProcess.exit(1);
+}
+const robloxLaunchArgv = argv.filter((arg) => {
+    return arg !== binaryType;
+});
+
 try {
-    const argv = nodeProcess.argv;
-    const binaryType = argv.find((arg) => {
-        return Object.values(BINARY_TYPES).includes(arg);
-    });
     loadConfig(binaryType);
     loadFastFlags(binaryType);
-    if (!binaryType) {
-        throw new Error(`Unknown binary type: ${binaryType}. Must be WindowsPlayer or Studio64.`);
-    }
     const packageData = getPackageData();
     logPackageVersion(packageData, logger);
     logger.info(`${binaryType} bootstrapper starting...`);
     const selectedVersion = await launchAutoUpdater(binaryType);
-    const filteredArgv = argv.filter((arg) => {
-        return arg !== binaryType;
-    });
-    await launchRoblox(false, selectedVersion, filteredArgv);
+    await launchRoblox(false, selectedVersion, robloxLaunchArgv);
     logger.info(`${binaryType} bootstrapper finished.`);
     nodeProcess.exit(0);
 } catch (bootstrapperErr) {

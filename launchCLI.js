@@ -8,8 +8,8 @@ import { BINARY_TYPES } from "./modules/constants.js";
 Get binary type from command-line arguments
 Expecting "WindowsPlayer" or "WindowsStudio64"
 */
-const binaryType = process.argv[2];
 
+const binaryType = nodeProcess.argv[2];
 if (!binaryType || (binaryType !== BINARY_TYPES.PLAYER && binaryType !== BINARY_TYPES.STUDIO)) {
     console.error("Usage: node launchCLI.js <WindowsPlayer | WindowsStudio64>");
     nodeProcess.exit(1);

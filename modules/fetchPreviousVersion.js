@@ -13,7 +13,7 @@ const fetchPreviousVersion = async (runnerType, cdnBaseUrl) => {
         const url = `${cdnBaseUrl}/DeployHistory.txt`;
         logger.info(`Fetching previous version from ${url}`);
         const axiosResponse = await axios.get(url);
-        logger.info(`Successfully fetched previous version!`);
+        logger.info("Successfully fetched previous version!");
         const axiosResponseData = axiosResponse.data;
         const deployHistory = axiosResponseData.trim().split("\n");
         let lastVersionIndex = -1;

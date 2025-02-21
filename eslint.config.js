@@ -10,6 +10,7 @@ const stylisticFormattingRules = {
     "@stylistic/comma-dangle": ["error", "always-multiline"],
     "@stylistic/comma-style": ["error", "last"],
     "@stylistic/no-floating-decimal": "error",
+    "@stylistic/quotes": ["error", "double", { allowTemplateLiterals: false }],
     "@stylistic/indent": ["error", 4, { SwitchCase: 1, tabLength: 4 }],
     "@stylistic/no-multiple-empty-lines": ["error", { max: 1, maxEOF: 0, maxBOF: 0 }],
     "@stylistic/multiline-comment-style": ["error", "bare-block"],

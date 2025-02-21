@@ -38,7 +38,7 @@ const installEdgeWebView = async (installerPath) => {
     }
     logger.info("Installing Microsoft Edge WebView2 Runtime...");
     const spawnArgs = ["/silent", "/install"];
-    logger.info(`Launching with command: ${webviewSetupFilePath} ${spawnArgs.join(" ")}`);
+    logger.info(`Launching with command: "${webviewSetupFilePath}" "${spawnArgs.join(" ")}"`);
     try {
         await new Promise((resolve, reject) => {
             const childProcess = nodeChildProcess.spawn(webviewSetupFilePath, spawnArgs, {
@@ -51,7 +51,7 @@ const installEdgeWebView = async (installerPath) => {
                 } else {
                     const WINGET_ERROR_CODE_ALREADY_INSTALLED = 2147747880;
                     if (code === WINGET_ERROR_CODE_ALREADY_INSTALLED) {
-                        logger.error(`Microsoft Edge WebView2 Runtime installation failed because it was already installed.`);
+                        logger.error("Microsoft Edge WebView2 Runtime installation failed because it was already installed.");
                         resolve();
                         return;
                     }

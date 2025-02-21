@@ -106,7 +106,7 @@ const getExistingVersions = (existingVersionsPath) => {
 };
 
 const attemptKillProcesses = async (processes) => {
-    logger.info(`Checking for Roblox processes to kill...`);
+    logger.info("Checking for Roblox processes to kill...");
     if (!isProcessesRunning(processes)) {
         killProcesses(processes);
         return;
@@ -133,7 +133,7 @@ const applyFastFlags = (clientSettingsPath) => {
     if (existingSettings === jsonFastFlags) {
         return;
     }
-    logger.info(`Applying fast flags...`);
+    logger.info("Applying fast flags...");
     nodeFs.writeFileSync(clientAppSettingsJsonPath, jsonFastFlags);
     logger.info(`Successfully applied fast flags to ${clientAppSettingsJsonPath}!`);
 };
@@ -240,7 +240,7 @@ const downloadVersion = async (version) => {
     if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingFolders) {
         logger.info(`Deleting existing folder: ${dumpDir}...`);
         deleteFolderRecursive(dumpDir);
-        logger.info(`Successfully deleted existing folder!`);
+        logger.info("Successfully deleted existing folder!");
     }
     nodeFs.mkdirSync(dumpDir, { recursive: true });
     if (!cdnBaseUrl) {
@@ -250,7 +250,7 @@ const downloadVersion = async (version) => {
     const manifestUrl = `${cdnUrl}-rbxPkgManifest.txt`;
     logger.info(`Fetching manifest: ${manifestUrl}...`);
     const axiosResponse = await axios.get(manifestUrl);
-    logger.info(`Successfully fetched manifest!`);
+    logger.info("Successfully fetched manifest!");
     const axiosResponseData = axiosResponse.data;
     const manifestContent = axiosResponseData.trim().split("\n");
     const firstLine = manifestContent[0].trim();
@@ -295,15 +295,15 @@ const downloadVersion = async (version) => {
         }
     }
     logger.info(`Successfully downloaded and extracted ${version} to ${dumpDir}!`);
-    logger.info(`Creating AppSettings.xml...`);
+    logger.info("Creating AppSettings.xml...");
     nodeFs.writeFileSync(`${dumpDir}/AppSettings.xml`, APP_SETTINGS);
-    logger.info(`Successfully created AppSettings.xml!`);
+    logger.info("Successfully created AppSettings.xml!");
 };
 
 const downloadLatestVersion = async () => {
     logger.info("Fetching latest version from channel: Live...");
     const latestVersion = await fetchLatestVersion(runnerType, clientSettingsBaseUrl);
-    logger.info(`Successfully fetched latest version!`);
+    logger.info("Successfully fetched latest version!");
     logger.info(`Latest version: ${latestVersion}. Channel: Live`);
     await downloadVersion(latestVersion);
 };
@@ -317,7 +317,7 @@ const downloadFromChannel = async (channel) => {
     const versionUrl = `${clientSettingsBaseUrl}/v2/client-version/${runnerType}/channel/${channel}`;
     logger.info(`Fetching latest version from channel: ${channel}...`);
     const axiosResponse = await axios.get(versionUrl);
-    logger.info(`Successfully fetched latest version!`);
+    logger.info("Successfully fetched latest version!");
     const axiosResponseData = axiosResponse.data;
     const version = axiosResponseData.clientVersionUpload;
     logger.info(`Version: ${version}. Channel: ${channel}`);
@@ -339,11 +339,11 @@ const launchAutoUpdater = async (binaryType) => {
         clientSettingsBaseUrl = await getRobloxClientSettingsBaseUrl(runnerType);
     }
     const latestVersion = await fetchLatestVersion(runnerType, clientSettingsBaseUrl);
-    logger.info(`Successfully fetched latest version!`);
+    logger.info("Successfully fetched latest version!");
     const versionsPath = nodePath.join(dirName, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
     const versions = getExistingVersions(versionsPath);
     if (versions.length === 0) {
-        logger.warn(`No installed version found!`);
+        logger.warn("No installed version found!");
         await downloadVersion(latestVersion);
         return latestVersion;
     }
@@ -370,20 +370,20 @@ const launchAutoUpdater = async (binaryType) => {
     }
     logger.info(`Selected version: ${selectedVersion}`);
     if (latestVersion === "") {
-        logger.warn(`Unable to determine the latest version!`);
+        logger.warn("Unable to determine the latest version!");
         return selectedVersion;
     }
     logger.info(`Latest version: ${latestVersion}`);
     if (selectedVersion === latestVersion) {
-        logger.info(`You're already on the latest version!`);
+        logger.info("You're already on the latest version!");
         return selectedVersion;
     }
-    logger.info(`A new version is available!`);
+    logger.info("A new version is available!");
     await downloadVersion(latestVersion);
     return latestVersion;
 };
 
-const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
+const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunchArgv = []) => {
     const versionsPath = nodePath.join(dirName, isPlayerRunnerType(runnerType) ? "PlayerVersions" : "StudioVersions");
     const selectedVersionPath = nodePath.join(versionsPath, selectedVersion);
     const binaryName = isPlayerRunnerType(runnerType) ? "RobloxPlayerBeta.exe" : "RobloxStudioBeta.exe";
@@ -413,18 +413,21 @@ const launchRoblox = async (hasArgs = false, selectedVersion, argv = []) => {
         ]);
     }
     applyFastFlags(selectedVersionPath);
-    let launchArgs = "";
-    if (hasArgs) {
-        launchArgs = await createPrompt("Enter launch arguments (e.g., roblox://...): ");
+    const launchArgs = [];
+    if (robloxLaunchArgv.length > 2 && !hasPromptArgs) {
+        const robloxUri = robloxLaunchArgv[2];
+        if (robloxUri) {
+            launchArgs.push(robloxUri);
+        }
+    } else if (hasPromptArgs) {
+        const userArgs = await createPrompt("Enter launch arguments (e.g., roblox://...): ");
+        const trimmedArgs = userArgs.trim();
+        if (trimmedArgs) {
+            launchArgs.push(...trimmedArgs.split(" "));
+        }
     }
-    const robloxUri = argv[2];
-    if (argv.length > 1 && robloxUri) {
-        launchArgs = `${robloxUri} ${launchArgs}`;
-    }
-    const args = launchArgs.trim().split(" ");
-    const spawnArgs = args.length > 0 && args[0] !== "" ? args : [];
-    logger.info(`Launching with command: ${binaryPath} ${spawnArgs.join(" ")}`);
-    const childProcess = nodeChildProcess.spawn(binaryPath, spawnArgs, { detached: true, stdio: "ignore" });
+    logger.info(`Launching with command: "${binaryPath}" "${launchArgs.join(" ")}"`);
+    const childProcess = nodeChildProcess.spawn(binaryPath, launchArgs, { detached: true, stdio: "ignore" });
     childProcess.unref();
     logger.info(`Successfully launched ${binaryName}!`);
 };
