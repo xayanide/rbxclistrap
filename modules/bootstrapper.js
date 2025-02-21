@@ -134,14 +134,11 @@ const applyFastFlags = (clientSettingsPath) => {
         nodeFs.mkdirSync(clientSettingsFolderPath, { recursive: true });
     }
     const clientAppSettingsJsonPath = nodePath.join(clientSettingsFolderPath, "ClientAppSettings.json");
-    let existingSettings = "";
+    let existingSettingsJson = "";
     if (nodeFs.existsSync(clientAppSettingsJsonPath)) {
-        existingSettings = nodeFs.readFileSync(clientAppSettingsJsonPath, "utf8").trim();
+        existingSettingsJson = nodeFs.readFileSync(clientAppSettingsJsonPath, "utf8").trim();
     }
-    const jsonFastFlags = JSON.stringify(runnerFastFlags, null, 2);
-    console.log(jsonFastFlags);
-    console.log(existingSettings);
-    if (existingSettings === jsonFastFlags) {
+    if (existingSettingsJson === JSON.stringify(runnerFastFlags, null, 2)) {
         return;
     }
     logger.info("Applying fast flags...");
