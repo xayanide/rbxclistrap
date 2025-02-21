@@ -27,7 +27,7 @@ const killProcesses = (processNames) => {
         return;
     }
     logger.info(`Killing processes: ${runningProcesses.join(", ")}...`);
-    for (let i = 0; i < runningProcesses.length; i++) {
+    for (let i = 0, n = runningProcesses.length; i < n; i++) {
         const processName = runningProcesses[i];
         nodeChildProcess.execSync(`taskkill /F /IM ${processName} /T`, { stdio: "ignore" });
         logger.info(`Successfully killed ${processName}`);

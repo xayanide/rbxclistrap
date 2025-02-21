@@ -13,7 +13,7 @@ const deleteOldLogFiles = (path) => {
     const currentDate = new Date();
     // 3 days in milliseconds
     const logExpireTime = 3 * 24 * 60 * 60 * 1000;
-    for (let i = 0; i < logFiles.length; i++) {
+    for (let i = 0, n = logFiles.length; i < n; i++) {
         const logFile = logFiles[i];
         const filePath = nodePath.join(path, logFile);
         const fileStat = nodeFs.statSync(filePath);

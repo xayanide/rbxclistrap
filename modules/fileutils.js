@@ -7,7 +7,7 @@ const deleteFolderRecursive = (folderPath) => {
         return;
     }
     const folderFiles = nodeFs.readdirSync(folderPath);
-    for (let i = 0; i < folderFiles.length; i++) {
+    for (let i = 0, n = folderFiles.length; i < n; i++) {
         const currentPath = nodePath.join(folderPath, folderFiles[i]);
         if (!nodeFs.lstatSync(currentPath).isDirectory()) {
             nodeFs.unlinkSync(currentPath);

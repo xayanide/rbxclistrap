@@ -255,7 +255,7 @@ const downloadVersion = async (version) => {
         if (existingVersions[0] !== versionFolder) {
             logger.info(`Configured to only keep the latest version: ${versionFolder}. Deleting existing versions except latest...`);
         }
-        for (let i = 0; i < existingVersions.length; i++) {
+        for (let i = 0, n = existingVersions.length; i < n; i++) {
             const folderName = existingVersions[i];
             const folderPath = nodePath.join(versionsPath, folderName);
             if (!nodeFs.statSync(folderPath).isDirectory() || folderName === versionFolder) {
@@ -295,7 +295,7 @@ const downloadVersion = async (version) => {
     }
     logger.info(`Manifest version: ${firstLine}`);
     const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
-    for (let i = 1; i < manifestContent.length; i += 4) {
+    for (let i = 1, n = manifestContent.length; i < n; i += 4) {
         const fileName = manifestContent[i].trim();
         const checksum = manifestContent[i + 1].trim();
         /**
@@ -385,7 +385,7 @@ const launchAutoUpdater = async (binaryType) => {
         return latestVersion;
     }
     console.log(`${CLI_COLORS.MAGENTA}Available versions:`);
-    for (let i = 0; i < versions.length; i++) {
+    for (let i = 0, n = versions.length; i < n; i++) {
         const version = versions[i];
         console.log(`${CLI_COLORS.CYAN}${i + 1}. ${versions[i]}${CLI_COLORS.RESET}${version === latestVersion ? " (Latest)" : ""}`);
     }
