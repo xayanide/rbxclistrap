@@ -161,7 +161,7 @@ const EXCLUDED_DEFAULT_FAST_FLAGS = {
     FFlagDebugDisableTelemetryV2Event: true,
     FFlagDebugDisableTelemetryV2Stat: true,
     FFlagDebugDisplayFPS: true,
-    FFlagDisablePostFx: false,
+    FFlagDisablePostFx: true,
     FIntRenderShadowIntensity: 0,
     FIntTerrainArraySliceSize: 0,
     FLogNetwork: 7,
