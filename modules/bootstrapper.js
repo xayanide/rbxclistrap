@@ -127,7 +127,7 @@ const attemptKillProcesses = async (processes) => {
     killProcesses(processes);
 };
 
-const applyFastFlags = (clientSettingsPath) => {
+const applyFastFlags = async (clientSettingsPath) => {
     const clientSettingsFolderPath = nodePath.join(clientSettingsPath, "ClientSettings");
     if (!nodeFs.existsSync(clientSettingsFolderPath)) {
         nodeFs.mkdirSync(clientSettingsFolderPath, { recursive: true });
@@ -141,7 +141,7 @@ const applyFastFlags = (clientSettingsPath) => {
         return;
     }
     logger.info("Applying fast flags...");
-    saveFastFlags(clientAppSettingsJsonPath);
+    await saveFastFlags(clientAppSettingsJsonPath);
     logger.info(`Successfully applied fast flags to ${clientAppSettingsJsonPath}!`);
 };
 
@@ -453,7 +453,7 @@ const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunch
             ...STUDIO_FILE_EXTENSIONS_UNSET_VALUE_PATHS,
         ]);
     }
-    applyFastFlags(selectedVersionPath);
+    await applyFastFlags(selectedVersionPath);
     const spawnArgs = [];
     if (robloxLaunchArgv.length > 2 && !hasPromptArgs) {
         const robloxUri = robloxLaunchArgv[2];
