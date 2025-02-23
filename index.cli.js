@@ -16,8 +16,8 @@ if (!appType) {
 const binaryType = BINARY_TYPES_MAP[appType];
 
 try {
-    loadConfig(binaryType);
-    loadFastFlags(binaryType);
+    await loadConfig(binaryType);
+    await loadFastFlags(binaryType);
     logger.info(`${binaryType} menu starting...`);
     await showMainMenu(binaryType);
 } catch (error) {
