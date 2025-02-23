@@ -27,7 +27,7 @@ const binaryType = BINARY_TYPES_MAP[appType];
 try {
     await loadConfig(binaryType);
     await loadFastFlags(binaryType);
-    const packageData = getPackageData();
+    const packageData = await getPackageData();
     logPackageVersion(packageData, logger);
     logger.info(`${binaryType} bootstrapper starting...`);
     const selectedVersion = await launchAutoUpdater(binaryType);

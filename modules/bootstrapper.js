@@ -480,7 +480,8 @@ async function showMainMenu(binaryType) {
     }
     runnerType = binaryType;
     console.clear();
-    logPackageVersion(getPackageData(), logger);
+    const packageData = await getPackageData();
+    logPackageVersion(packageData, logger);
     if (!clientSettingsBaseUrl) {
         clientSettingsBaseUrl = await getRobloxClientSettingsBaseUrl(runnerType);
     }

@@ -3,8 +3,8 @@ import { getDirname, loadJson } from "./fileUtils.js";
 
 const packageDataPath = nodePath.join(getDirname(import.meta.url), "..", "package.json");
 
-function getPackageData() {
-    return loadJson(packageDataPath, null);
+async function getPackageData() {
+    return await loadJson(packageDataPath, null);
 }
 
 function logPackageVersion(packageData, logger = console) {
