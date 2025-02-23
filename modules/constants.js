@@ -121,36 +121,50 @@ const DEPLOY_TYPES_MAP = { player: "WindowsPlayer", studio: "Studio64", WindowsP
 
 const DEFAULT_CONFIG = { deleteExistingVersion: false, forceUpdate: false, alwaysRunLatest: false, onlyKeepLatest: true };
 
+/**
+The bootstrapper will use these preset fast flags if they're not set by the user.
+They're not invasive, so your game should feel almost the same as if no fast flags are set.
+References:
+https://github.com/slattist/nvrmaintain
+https://github.com/MaximumADHD/Roblox-FFlag-Tracker/blob/main/PCDesktopClient.json
+*/
 const DEFAULT_FAST_FLAGS = {
-    FFlagAdServiceEnabled: "False",
-    FIntCameraMaxZoomDistance: "9999",
-    FFlagDebugDisplayFPS: "False",
-    FFlagDebugDisableTelemetryEphemeralCounter: "True",
-    FFlagDebugDisableTelemetryEphemeralStat: "True",
-    FFlagDebugDisableTelemetryEventIngest: "True",
-    FFlagDebugDisableTelemetryPoint: "True",
-    FFlagDebugDisableTelemetryV2Counter: "True",
-    FFlagDebugDisableTelemetryV2Event: "True",
-    FFlagDebugDisableTelemetryV2Stat: "True",
-    FFlagHandleAltEnterFullscreenManually: "True",
-    FIntDebugForceMSAASamples: "4",
-    FFlagDisablePostFx: "False",
-    DFIntTaskSchedulerTargetFps: "2000",
-    DFFlagDisableDPIScale: "True",
-    FFlagDebugGraphicsPreferD3D11: "True",
-    DFFlagTextureQualityOverrideEnabled: "True",
-    DFIntTextureQualityOverride: "3",
+    DFIntTaskSchedulerTargetFps: 2000,
+    DFIntTextureQualityOverride: 3,
+    DFFlagDisableDPIScale: true,
+    DFFlagTextureQualityOverrideEnabled: true,
+    FFlagAdServiceEnabled: false,
+    FFlagDebugDisableTelemetryEphemeralCounter: true,
+    FFlagDebugDisableTelemetryEphemeralStat: true,
+    FFlagDebugDisableTelemetryEventIngest: true,
+    FFlagDebugDisableTelemetryPoint: true,
+    FFlagDebugDisableTelemetryV2Counter: true,
+    FFlagDebugDisableTelemetryV2Event: true,
+    FFlagDebugDisableTelemetryV2Stat: true,
+    FFlagDebugDisplayFPS: false,
+    FFlagDebugGraphicsPreferD3D11: true,
+    FFlagHandleAltEnterFullscreenManually: false,
+    FFlagTaskSchedulerLimitTargetFpsTo2402: false,
+    FFlagDisablePostFx: false,
+    FIntCameraMaxZoomDistance: 9999,
+    FIntDebugForceMSAASamples: 4,
 };
 
+/**
+These are just placeholders and for easy grabbing of fast flags.
+Some can alter default behavior of the client so your game
+would probably look and behave just slightly different
+compared to clients with unmodified fast flags.
+*/
 const EXCLUDED_DEFAULT_FAST_FLAGS = {
-    DFIntDebugFRMQualityLevelOverride: "1",
-    DFIntCullFactorPixelThresholdShadowMapHighQuality: "2147483647",
-    DFIntCullFactorPixelThresholdShadowMapLowQuality: "2147483647",
-    FLogNetwork: "7",
-    FIntRenderShadowIntensity: "0",
-    FIntTerrainArraySliceSize: "0",
-    DFIntVoiceChatRollOffMinDistance: "1000",
-    DFIntVoiceChatRollOffMaxDistance: "1000",
+    DFIntCullFactorPixelThresholdShadowMapHighQuality: 2147483647,
+    DFIntCullFactorPixelThresholdShadowMapLowQuality: 2147483647,
+    DFIntDebugFRMQualityLevelOverride: 1,
+    DFIntVoiceChatRollOffMaxDistance: 1000,
+    DFIntVoiceChatRollOffMinDistance: 1000,
+    FIntRenderShadowIntensity: 0,
+    FIntTerrainArraySliceSize: 0,
+    FLogNetwork: 7,
 };
 
 /** Keys to create when registering Roblox Player */
