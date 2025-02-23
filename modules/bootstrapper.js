@@ -82,13 +82,13 @@ const getAppType = (binaryType) => {
     return appType;
 };
 
-const saveConfig = (binaryType) => {
+const saveConfig = async (binaryType) => {
     const CONFIG_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-config.json`);
-    return saveJson(CONFIG_FILE_PATH, runnerConfig);
+    return await saveJson(CONFIG_FILE_PATH, runnerConfig);
 };
 
-const saveFastFlags = (clientAppSettingsPath) => {
-    return saveJson(clientAppSettingsPath, runnerFastFlags);
+const saveFastFlags = async (clientAppSettingsPath) => {
+    return await saveJson(clientAppSettingsPath, runnerFastFlags);
 };
 
 const loadConfig = async (binaryType) => {
@@ -206,28 +206,28 @@ const showSettingsMenu = async () => {
         case "1":
             runnerConfig.deleteExistingVersion = !runnerConfig.deleteExistingVersion;
             console.log(`${CLI_COLORS.BLUE}Delete existing folders set to: ${runnerConfig.deleteExistingVersion}${CLI_COLORS.RESET}`);
-            saveConfig(runnerType);
+            await saveConfig(runnerType);
             await createPrompt("Press Enter key to continue.");
             await showSettingsMenu();
             break;
         case "2":
             runnerConfig.forceUpdate = !runnerConfig.forceUpdate;
             console.log(`${CLI_COLORS.BLUE}Force update set to: ${runnerConfig.forceUpdate}${CLI_COLORS.RESET}`);
-            saveConfig(runnerType);
+            await saveConfig(runnerType);
             await createPrompt("Press Enter key to continue.");
             await showSettingsMenu();
             break;
         case "3":
             runnerConfig.alwaysRunLatest = !runnerConfig.alwaysRunLatest;
             console.log(`${CLI_COLORS.BLUE}Always run latest to: ${runnerConfig.alwaysRunLatest}${CLI_COLORS.RESET}`);
-            saveConfig(runnerType);
+            await saveConfig(runnerType);
             await createPrompt("Press Enter key to continue.");
             await showSettingsMenu();
             break;
         case "4":
             runnerConfig.onlyKeepLatest = !runnerConfig.onlyKeepLatest;
             console.log(`${CLI_COLORS.BLUE}Always keep latest set to: ${runnerConfig.onlyKeepLatest}${CLI_COLORS.RESET}`);
-            saveConfig(runnerType);
+            await saveConfig(runnerType);
             await createPrompt("Press Enter key to continue.");
             await showSettingsMenu();
             break;
@@ -261,7 +261,7 @@ const downloadVersion = async (version) => {
                 continue;
             }
             logger.info(`Deleting existing folder: ${folderPath}...`);
-            deleteFolderRecursive(folderPath);
+            await deleteFolderRecursive(folderPath);
             logger.info("Successfully deleted existing folder!");
         }
     }
@@ -273,7 +273,7 @@ const downloadVersion = async (version) => {
     if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingVersion) {
         logger.info(`Configured to delete the existing version: ${version}. Deleting existing version...`);
         logger.info(`Deleting existing folder: ${dumpDir}...`);
-        deleteFolderRecursive(dumpDir);
+        await deleteFolderRecursive(dumpDir);
         logger.info("Successfully deleted existing folder!");
     }
     nodeFs.mkdirSync(dumpDir, { recursive: true });
