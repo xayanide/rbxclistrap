@@ -91,14 +91,14 @@ const saveFastFlags = (clientAppSettingsPath) => {
     return saveJson(clientAppSettingsPath, runnerFastFlags);
 };
 
-const loadConfig = (binaryType) => {
+const loadConfig = async (binaryType) => {
     const CONFIG_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-config.json`);
-    runnerConfig = loadJson(CONFIG_FILE_PATH, DEFAULT_CONFIG);
+    runnerConfig = await loadJson(CONFIG_FILE_PATH, DEFAULT_CONFIG);
 };
 
-const loadFastFlags = (binaryType) => {
+const loadFastFlags = async (binaryType) => {
     const FAST_FLAGS_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-fflags.json`);
-    runnerFastFlags = loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS);
+    runnerFastFlags = await loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS);
 };
 
 const getExistingVersions = (existingVersionsPath) => {

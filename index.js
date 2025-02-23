@@ -25,8 +25,8 @@ const robloxLaunchArgv = argv.filter((arg) => {
 const binaryType = BINARY_TYPES_MAP[appType];
 
 try {
-    loadConfig(binaryType);
-    loadFastFlags(binaryType);
+    await loadConfig(binaryType);
+    await loadFastFlags(binaryType);
     const packageData = getPackageData();
     logPackageVersion(packageData, logger);
     logger.info(`${binaryType} bootstrapper starting...`);
