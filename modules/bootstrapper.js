@@ -87,9 +87,8 @@ const saveConfig = (binaryType) => {
     return saveJson(CONFIG_FILE_PATH, runnerConfig);
 };
 
-const saveFastFlags = (binaryType) => {
-    const FAST_FLAGS_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-fflags.json`);
-    return saveJson(FAST_FLAGS_FILE_PATH, runnerFastFlags);
+const saveFastFlags = (clientAppSettingsPath) => {
+    return saveJson(clientAppSettingsPath, runnerFastFlags);
 };
 
 const loadConfig = (binaryType) => {
@@ -142,7 +141,7 @@ const applyFastFlags = (clientSettingsPath) => {
         return;
     }
     logger.info("Applying fast flags...");
-    saveFastFlags(runnerType);
+    saveFastFlags(clientAppSettingsJsonPath);
     logger.info(`Successfully applied fast flags to ${clientAppSettingsJsonPath}!`);
 };
 
