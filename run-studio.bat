@@ -1,2 +1,2 @@
 cd /d "%~dp0"
-node index.js studio %*
+node index.js studio "%*"
