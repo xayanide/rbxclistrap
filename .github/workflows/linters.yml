@@ -6,16 +6,16 @@ on:
     branches: [dev]
 
 jobs:
-  lint-commit-message:
+  lint-commit:
     permissions: write-all
-    name: Lint commit message
+    name: Lint commit
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Lint commit message
+      - name: Lint commit
         uses: wagoid/commitlint-github-action@v6
         with:
           configFile: './commitlint.config.mjs'
