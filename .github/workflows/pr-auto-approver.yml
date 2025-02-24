@@ -1,4 +1,4 @@
-name: DependabotPRAutoApprover
+name: PRAutoApprover
 on:
   pull_request_target:
     branches: [dev]
@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   approve-pr:
-    name: Approve PR for non-major updates only
+    name: Approve dependabot PR for non-major updates only
     if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'xayanide/rbxclistrap'
     runs-on: ubuntu-latest
     steps:
