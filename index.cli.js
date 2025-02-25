@@ -8,12 +8,14 @@ const argv = nodeProcess.argv;
 const appType = argv.find((arg) => {
     return APP_TYPES.includes(arg);
 });
+logger.info(`Executor: ${JSON.stringify(argv, null, 2)}`);
 if (!appType) {
     console.error("Usage Examples:\nnode index.cli.js player\nnode index.cli.js studio");
     await createPrompt("Press Enter key to exit.");
     nodeProcess.exit(1);
 }
 const binaryType = BINARY_TYPES_MAP[appType];
+logger.debug(`Raw arguments:\n${JSON.stringify(argv, null, 2)}`);
 
 try {
     await loadConfig(binaryType);

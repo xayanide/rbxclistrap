@@ -23,6 +23,7 @@ const robloxLaunchArgv = argv.filter((arg) => {
     return arg !== appType;
 });
 const binaryType = BINARY_TYPES_MAP[appType];
+logger.debug(`Raw arguments:\n${JSON.stringify(argv, null, 2)}`);
 
 try {
     await loadConfig(binaryType);
