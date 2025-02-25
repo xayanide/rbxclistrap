@@ -121,8 +121,8 @@ const attemptKillProcesses = async (processes) => {
     const answerLower = answer.toLowerCase();
     const agreeAnswers = ["y", "yes"];
     if (!agreeAnswers.includes(answerLower)) {
-        logger.info("One of Roblox's processes is still running. Bootstrapper is closing...");
-        nodeProcess.exit(0);
+        logger.warn("One of Roblox's processes is still running!");
+        return;
     }
     killProcesses(processes);
 };
@@ -244,8 +244,6 @@ const showSettingsMenu = async () => {
 const downloadVersion = async (version) => {
     const isPlayer = isPlayerBinaryType(runnerType);
     const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
-    const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
-    await attemptKillProcesses(runnerProcesses);
     const versionFolder = version.startsWith("version-") ? version : `version-${version}`;
     const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
     const dumpDir = nodePath.join(versionsPath, versionFolder);
@@ -365,10 +363,6 @@ const launchAutoUpdater = async (binaryType) => {
     runnerType = binaryType;
     const isPlayer = isPlayerBinaryType(runnerType);
     const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
-    const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
-    if (isPlayer) {
-        await attemptKillProcesses(runnerProcesses);
-    }
     logger.info(`Checking for ${runnerType} updates...`);
     logger.info("Fetching latest version from channel: Live...");
     if (!clientSettingsBaseUrl) {
@@ -469,6 +463,8 @@ const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunch
     }
     const launchArgs = spawnArgs.join(" ");
     logger.info(`Launching with command: "${binaryPath}"${launchArgs === "" ? "" : ` "${launchArgs}`}"`);
+    const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
+    await attemptKillProcesses(runnerProcesses);
     const childProcess = nodeChildProcess.spawn(binaryPath, spawnArgs, { detached: true, stdio: "ignore" });
     childProcess.unref();
     logger.info(`Successfully launched ${binaryName}!`);
