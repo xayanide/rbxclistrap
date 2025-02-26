@@ -136,7 +136,7 @@ const DEFAULT_FAST_FLAGS = {
     FFlagDebugGraphicsPreferD3D11: true,
     FFlagHandleAltEnterFullscreenManually: false,
     FFlagTaskSchedulerLimitTargetFpsTo2402: false,
-    FIntCameraMaxZoomDistance: 9999,
+    FIntCameraMaxZoomDistance: 1000000000000000,
     FIntDebugForceMSAASamples: 4,
 };
 
