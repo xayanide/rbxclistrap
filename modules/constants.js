@@ -129,14 +129,14 @@ https://github.com/slattist/nvrmaintain
 https://github.com/MaximumADHD/Roblox-FFlag-Tracker/blob/main/PCDesktopClient.json
 */
 const DEFAULT_FAST_FLAGS = {
-    DFIntTaskSchedulerTargetFps: 60,
+    DFIntTaskSchedulerTargetFps: 240,
     DFIntTextureQualityOverride: 3,
     DFFlagDisableDPIScale: true,
     DFFlagTextureQualityOverrideEnabled: true,
     FFlagDebugGraphicsPreferD3D11: true,
     FFlagHandleAltEnterFullscreenManually: false,
     FFlagTaskSchedulerLimitTargetFpsTo2402: false,
-    FIntCameraMaxZoomDistance: 9999,
+    FIntCameraMaxZoomDistance: 1000000000000000,
     FIntDebugForceMSAASamples: 4,
 };
 
@@ -150,8 +150,8 @@ const EXCLUDED_DEFAULT_FAST_FLAGS = {
     DFIntCullFactorPixelThresholdShadowMapHighQuality: 2147483647,
     DFIntCullFactorPixelThresholdShadowMapLowQuality: 2147483647,
     DFIntDebugFRMQualityLevelOverride: 1,
-    DFIntVoiceChatRollOffMaxDistance: 1000,
-    DFIntVoiceChatRollOffMinDistance: 1000,
+    DFIntVoiceChatRollOffMaxDistance: 1000000000000000,
+    DFIntVoiceChatRollOffMinDistance: 1000000000000000,
     FFlagAdServiceEnabled: false,
     FFlagDebugDisableTelemetryEphemeralCounter: true,
     FFlagDebugDisableTelemetryEphemeralStat: true,
