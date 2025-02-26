@@ -249,11 +249,11 @@ const downloadVersion = async (version, isUpdate = false) => {
     const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
     const dumpDir = nodePath.join(versionsPath, versionFolder);
     const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
-    let isKilled = false;
+    let isProcessKilled = false;
     if (isUpdate) {
-        isKilled = await attemptKillProcesses(runnerProcesses);
+        isProcessKilled = await attemptKillProcesses(runnerProcesses);
     }
-    if (runnerConfig.onlyKeepLatest && isKilled) {
+    if (runnerConfig.onlyKeepLatest && isProcessKilled) {
         const existingVersions = getExistingVersions(versionsPath);
         if (existingVersions[0] !== versionFolder) {
             logger.info(`Configured to only keep the latest version: ${versionFolder}. Deleting existing versions except latest...`);
@@ -274,7 +274,7 @@ const downloadVersion = async (version, isUpdate = false) => {
         return;
     }
     logger.info(`Downloading ${version}...`);
-    if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingVersion && isKilled) {
+    if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingVersion && isProcessKilled) {
         logger.info(`Configured to delete the existing version: ${version}. Deleting existing version...`);
         logger.info(`Deleting existing folder: ${dumpDir}...`);
         await deleteFolderRecursive(dumpDir);
