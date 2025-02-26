@@ -113,7 +113,7 @@ const getExistingVersions = (existingVersionsPath) => {
 const attemptKillProcesses = async (processes) => {
     logger.info("Checking for Roblox processes to kill...");
     if (!isProcessesRunning(processes)) {
-        return;
+        return false;
     }
     const answer = await createPrompt(
         "One of Roblox's processes is running in the background. Do you want to forcibly close it? Type y (yes) or type any key if no and press enter: ",
@@ -122,9 +122,10 @@ const attemptKillProcesses = async (processes) => {
     const agreeAnswers = ["y", "yes"];
     if (!agreeAnswers.includes(answerLower)) {
         logger.warn("One of Roblox's processes is still running!");
-        return;
+        return false;
     }
     killProcesses(processes);
+    return true;
 };
 
 const applyFastFlags = async (clientSettingsPath) => {
@@ -241,13 +242,18 @@ const showSettingsMenu = async () => {
     }
 };
 
-const downloadVersion = async (version) => {
+const downloadVersion = async (version, isUpdate = false) => {
     const isPlayer = isPlayerBinaryType(runnerType);
     const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
     const versionFolder = version.startsWith("version-") ? version : `version-${version}`;
     const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
     const dumpDir = nodePath.join(versionsPath, versionFolder);
-    if (runnerConfig.onlyKeepLatest) {
+    const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
+    let isKilled = false;
+    if (isUpdate) {
+        isKilled = await attemptKillProcesses(runnerProcesses);
+    }
+    if (runnerConfig.onlyKeepLatest && isKilled) {
         const existingVersions = getExistingVersions(versionsPath);
         if (existingVersions[0] !== versionFolder) {
             logger.info(`Configured to only keep the latest version: ${versionFolder}. Deleting existing versions except latest...`);
@@ -268,7 +274,7 @@ const downloadVersion = async (version) => {
         return;
     }
     logger.info(`Downloading ${version}...`);
-    if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingVersion) {
+    if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingVersion && isKilled) {
         logger.info(`Configured to delete the existing version: ${version}. Deleting existing version...`);
         logger.info(`Deleting existing folder: ${dumpDir}...`);
         await deleteFolderRecursive(dumpDir);
@@ -388,7 +394,7 @@ const launchAutoUpdater = async (binaryType) => {
         logger.info(`Only one version found: ${selectedVersion}. Skipping prompt...`);
     } else if (runnerConfig.alwaysRunLatest) {
         logger.info(`Configured to always run the latest version: ${latestVersion}. Skipping prompt...`);
-        await downloadVersion(latestVersion);
+        await downloadVersion(latestVersion, true);
         return latestVersion;
     } else {
         const answer = await createPrompt("Type and enter to select a version (1/2/3...): ");
@@ -409,7 +415,7 @@ const launchAutoUpdater = async (binaryType) => {
         return selectedVersion;
     }
     logger.info("A new version is available!");
-    await downloadVersion(latestVersion);
+    await downloadVersion(latestVersion, true);
     return latestVersion;
 };
 
