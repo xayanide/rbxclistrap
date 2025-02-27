@@ -111,7 +111,7 @@ const STUDIO_FILE_EXTENSIONS_UNSET_VALUE_PATHS = [
 
 const getPlayerRegistryData = (binaryPath, selectedVersion) => {
     const playerDefaultIconPath = binaryPath;
-    const playerOpenCommandPath = `"${playerRunPath}" %1`;
+    const playerOpenCommandPath = `"${playerRunPath}" "%1"`;
     const playerProtocolName = "URL:RobloxPlayerCLIStrap Protocol";
     const playerApplicationIconPath = `"${binaryPath},0"`;
     return {
@@ -184,7 +184,7 @@ const getPlayerRegistryData = (binaryPath, selectedVersion) => {
 
 const getStudioRegistryData = (binaryPath, selectedVersion) => {
     const studioDefaultIconPath = binaryPath;
-    const studioOpenCommandPath = `"${studioRunPath}" %1`;
+    const studioOpenCommandPath = `"${studioRunPath}" "%1"`;
     const studioProtocolName = "URL:RobloxStudioCLIStrap Protocol";
     return {
         /** ROBLOX Corporation */
@@ -258,7 +258,7 @@ const getStudioRegistryData = (binaryPath, selectedVersion) => {
 
 const getStudioPlaceRegistryData = (binaryPath) => {
     const placeDefaultIconPath = `${binaryPath},0`;
-    const placeOpenCommandPath = `"${studioRunPath}" %1`;
+    const placeOpenCommandPath = `"${studioRunPath}" "%1"`;
     return {
         "HKCU\\Software\\Classes\\Roblox.Place": {
             DEFAULT_VALUE_NAME: { value: "Roblox Place", type: "REG_DEFAULT" },
