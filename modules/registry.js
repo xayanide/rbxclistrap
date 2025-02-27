@@ -104,7 +104,7 @@ const findChangedRegistryValues = (valuesToPut, currentRegistryItems) => {
             if (currentValue && putValueDataLower === currentValueDataLower && resolvedPutValueType === currentValueType) {
                 continue;
             }
-            logger.warn(`ValueName: ${resolvedPutValueName === "" ? "(Default)" : resolvedPutValueName}`);
+            logger.warn(`ValueName: ${resolvedPutValueName ? resolvedPutValueName : "(Default)"}`);
             logger.warn(`Value has changed:\n${putValueDataLower} !== ${currentValueDataLower} || ${resolvedPutValueType} !== ${currentValueType}\n`);
             if (!filteredValues[putKeyPath]) {
                 filteredValues[putKeyPath] = {};
@@ -185,6 +185,16 @@ const updateRegistryValues = async (valuesToPut, options = { overwrite: true, cu
     logger.info("Successfully put registry values!");
 };
 
+const getConfiguredRobloxChannelName = async (keyPath) => {
+    const registryItems = await promisifiedRegedit.list(keyPath);
+    const key = registryItems[keyPath];
+    const valueData = key.values["www.roblox.com"].value;
+    if (!key || !key.exists || !valueData) {
+        return "live";
+    }
+    return valueData;
+};
+
 const setRegistryData = async (valuesToPut, keyPaths) => {
     const registryItems = await promisifiedRegedit.list(keyPaths);
     const missingKeyPaths = getRegistryKeyPaths(registryItems, {
@@ -203,4 +213,4 @@ const setRegistryData = async (valuesToPut, keyPaths) => {
     });
 };
 
-export { getRegistryKeyPaths, getRegistryDataKeyPaths, setRegistryData, checkUnsetValuePaths };
+export { getRegistryKeyPaths, getRegistryDataKeyPaths, setRegistryData, checkUnsetValuePaths, getConfiguredRobloxChannelName };

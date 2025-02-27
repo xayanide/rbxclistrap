@@ -22,7 +22,7 @@ const testUrl = async (baseUrl, fullUrl, priority, abortSignal, expectedData = n
 const findOptimalUrl = async (baseUrls, endpoint, expectedData = null) => {
     const abortController = new AbortController();
     const testedUrls = baseUrls.map(async ({ baseUrl, priority }) => {
-        const fullUrl = !endpoint || endpoint === "" ? baseUrl : `${baseUrl}/${endpoint.startsWith("/") ? endpoint.slice(1) : endpoint}`;
+        const fullUrl = endpoint ? `${baseUrl}/${endpoint.startsWith("/") ? endpoint.slice(1) : endpoint}` : baseUrl;
         return await testUrl(baseUrl, fullUrl, priority, abortController.signal, expectedData);
     });
     const exceptions = [];
@@ -45,7 +45,7 @@ async function findFastestUrl(baseUrls, endpoint, expectedData = null) {
     let fastestUrl = null;
     let fastestTime = 10000;
     for (const { baseUrl } of baseUrls) {
-        const fullUrl = !endpoint || endpoint === "" ? baseUrl : `${baseUrl}/${endpoint.startsWith("/") ? endpoint.slice(1) : endpoint}`;
+        const fullUrl = endpoint ? `${baseUrl}/${endpoint.startsWith("/") ? endpoint.slice(1) : endpoint}` : baseUrl;
         const abortController = new AbortController();
         const timeoutId = setTimeout(function () {
             return abortController.abort();

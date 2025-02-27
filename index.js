@@ -32,7 +32,7 @@ try {
     logPackageVersion(packageData, logger);
     logger.info(`${binaryType} bootstrapper starting...`);
     const selectedVersion = await launchAutoUpdater(binaryType);
-    await launchRoblox(false, selectedVersion, robloxLaunchArgv);
+    await launchRoblox(binaryType, false, selectedVersion, robloxLaunchArgv);
     logger.info(`${binaryType} bootstrapper finished.`);
     nodeProcess.exit(0);
 } catch (bootstrapperErr) {

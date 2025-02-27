@@ -70,7 +70,7 @@ const FOLDER_MAPPINGS = {
     },
 };
 
-const APP_SETTINGS = `<?xml version="1.0" encoding="UTF-8"?>
+const APP_SETTINGS_XML = `<?xml version="1.0" encoding="UTF-8"?>
 <Settings>
     <ContentFolder>content</ContentFolder>
     <BaseUrl>http://www.roblox.com</BaseUrl>
@@ -108,6 +108,14 @@ const WEBVIEW_REGISTRY_KEYPATHS = [
 
 const BINARY_TYPES = ["WindowsPlayer", "WindowsStudio64"];
 const APP_TYPES = ["player", "studio"];
+const BOOTSTRAPPER_DEPLOYMENT_TYPES_MAP = {
+    WindowsPlayer: "PCClientBootstrapper",
+    WindowsStudio64: "PCStudioBootstrapper",
+};
+const DESKTOP_DEPLOYMENT_TYPES_MAP = {
+    WindowsPlayer: "PCDesktopClient",
+    WindowsStudio64: "PCStudioApp",
+};
 const DEPLOY_TYPES = ["WindowsPlayer", "Studio64"];
 const BINARY_TYPES_MAP = {
     player: "WindowsPlayer",
@@ -118,8 +126,20 @@ const APP_TYPES_MAP = {
     WindowsStudio64: "studio",
 };
 const DEPLOY_TYPES_MAP = { player: "WindowsPlayer", studio: "Studio64", WindowsPlayer: "WindowsPlayer", WindowsStudio64: "Studio64" };
+const PRODUCTION_CHANNEL_NAMES = [DEPLOYMENT_DEFAULT_CHANNEL, "live"];
 
-const DEFAULT_CONFIG = { deleteExistingVersion: false, forceUpdate: false, alwaysRunLatest: false, onlyKeepLatest: true };
+const DEFAULT_CONFIG = {
+    deleteExistingVersion: false,
+    forceUpdate: false,
+    alwaysRunLatest: false,
+    onlyKeepLatest: true,
+    /**
+    Retrieves the channel name set by Roblox from the registry if present, it's a user specific channel.
+    Otherwise, it's just the same as live
+    */
+    letRobloxChooseChannels: false,
+    preferredChannel: "live",
+};
 
 /**
 The bootstrapper will use these preset fast flags if they're not set by the user.
@@ -167,14 +187,15 @@ const EXCLUDED_DEFAULT_FAST_FLAGS = {
     FLogNetwork: 7,
 };
 
+const PLAYER_CHANNEL_KEYPATH = "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer\\Channel";
+const STUDIO_CHANNEL_KEYPATH = "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio\\Channel";
+
 /** Keys to create when registering Roblox Player */
 const REGISTER_PLAYER_KEY_PATHS = [
     "HKCU\\Software\\ROBLOX Corporation",
     "HKCU\\Software\\ROBLOX Corporation\\Environments",
-    /** External:
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer",
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer\\Channel",
-    */
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player",
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player\\Capabilities",
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player\\Capabilities\\UrlAssociations",
@@ -194,10 +215,8 @@ const REGISTER_PLAYER_KEY_PATHS = [
 const REGISTER_STUDIO_KEY_PATHS = [
     "HKCU\\Software\\ROBLOX Corporation",
     "HKCU\\Software\\ROBLOX Corporation\\Environments",
-    /** External:
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio",
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio\\Channel",
-    */
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio",
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio\\Capabilities",
     "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio\\Capabilities\\UrlAssociations",
@@ -260,6 +279,10 @@ const UNREGISTER_STUDIO_KEY_PATHS = [
 ];
 
 export {
+    PLAYER_CHANNEL_KEYPATH,
+    STUDIO_CHANNEL_KEYPATH,
+    BOOTSTRAPPER_DEPLOYMENT_TYPES_MAP,
+    DESKTOP_DEPLOYMENT_TYPES_MAP,
     REGISTER_PLAYER_KEY_PATHS,
     REGISTER_STUDIO_KEY_PATHS,
     REGISTER_STUDIO_PLACE_KEY_PATHS,
@@ -271,7 +294,7 @@ export {
     CLI_COLORS,
     DEPLOYMENT_DEFAULT_CHANNEL,
     FOLDER_MAPPINGS,
-    APP_SETTINGS,
+    APP_SETTINGS_XML,
     DEPLOYMENT_VERSION_STUDIO_HASH,
     DEPLOYMENT_ROBLOX_CDN_BASE_URLS,
     ROBLOX_CLIENTSETTINGS_BASE_URLS,
@@ -287,4 +310,5 @@ export {
     DEFAULT_CONFIG,
     WEBVIEW_REGISTRY_KEYPATHS,
     EXCLUDED_DEFAULT_FAST_FLAGS,
+    PRODUCTION_CHANNEL_NAMES,
 };

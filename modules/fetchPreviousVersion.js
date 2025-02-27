@@ -2,8 +2,8 @@ import axios from "axios";
 import logger from "./logger.js";
 import { DEPLOY_TYPES_MAP } from "./constants.js";
 
-const fetchPreviousVersion = async (runnerType, cdnBaseUrl) => {
-    const deployType = DEPLOY_TYPES_MAP[runnerType];
+const fetchPreviousVersion = async (binaryType, cdnBaseUrl) => {
+    const deployType = DEPLOY_TYPES_MAP[binaryType];
     if (!deployType) {
         throw new Error("Unknown deploy type.");
     }
@@ -28,7 +28,7 @@ const fetchPreviousVersion = async (runnerType, cdnBaseUrl) => {
             previousVersion = line.match(/version-([\w\d]+)/)[0].trim();
             break;
         }
-        if (!previousVersion || previousVersion === "") {
+        if (!previousVersion) {
             logger.error(`Could not find a previous ${deployType} version.`);
             return null;
         }

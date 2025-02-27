@@ -81,10 +81,8 @@ If any kind of value is set under these paths, they should be deleted, because t
 const NULL_CHAR = "\0";
 const CORPORATION_UNSET_VALUE_PATHS = [`HKCU\\Software\\ROBLOX Corporation\\${NULL_CHAR}`, `HKCU\\Software\\ROBLOX Corporation\\Environments\\${NULL_CHAR}`];
 const PLAYER_UNSET_VALUE_PATHS = [
-    /** External Placeholder:
     `HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer\\${NULL_CHAR}`,
     `HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer\\Channel\\${NULL_CHAR}`,
-    */
     `HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player\\Capabilities\\${NULL_CHAR}`,
     `HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player\\Capabilities\\UrlAssociations\\${NULL_CHAR}`,
     `HKCU\\Software\\Classes\\roblox\\shell\\${NULL_CHAR}`,
@@ -109,18 +107,21 @@ const STUDIO_FILE_EXTENSIONS_UNSET_VALUE_PATHS = [
 ];
 /** SECTION END: Unset value paths */
 
-const getPlayerRegistryData = (binaryPath, selectedVersion) => {
+const getPlayerRegistryData = (binaryPath, selectedVersion, channel = "live") => {
+    const playerChannel = channel === "live" ? "" : channel;
     const playerDefaultIconPath = binaryPath;
     const playerOpenCommandPath = `"${playerRunPath}" "%1"`;
     const playerProtocolName = "URL:RobloxPlayerCLIStrap Protocol";
     const playerApplicationIconPath = `"${binaryPath},0"`;
     return {
         /** ROBLOX Corporation */
-        /** External Placeholder:
-        "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer\\Channel": {
-            "www.roblox.com": { value: "zliveforbeta", type: "REG_SZ" },
-        },
+        /**
+        If you want to check the channel Roblox has specifically chosen for you, visit this with your Roblox account logged in:
+        https://clientsettings.roblox.com/v2/user-channel?binaryType=WindowsPlayer
         */
+        "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer\\Channel": {
+            "www.roblox.com": { value: playerChannel, type: "REG_SZ" },
+        },
         "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-player": {
             DEFAULT_VALUE_NAME: {
                 value: playerRunPath,
@@ -182,17 +183,20 @@ const getPlayerRegistryData = (binaryPath, selectedVersion) => {
     };
 };
 
-const getStudioRegistryData = (binaryPath, selectedVersion) => {
+const getStudioRegistryData = (binaryPath, selectedVersion, channel = "live") => {
+    const studioChannel = channel === "live" ? "" : channel;
     const studioDefaultIconPath = binaryPath;
     const studioOpenCommandPath = `"${studioRunPath}" "%1"`;
     const studioProtocolName = "URL:RobloxStudioCLIStrap Protocol";
     return {
         /** ROBLOX Corporation */
-        /** RobloxStudio actually does not have a value under key "Channel" unlike RobloxPlayer */
-        /** ROBLOX Corporation */
-        /** External Placeholder:
-        "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio\\Channel": DEFAULT_VALUE,
+        /**
+        If you want to check the channel Roblox has specifically chosen for you, visit this with your Roblox account logged in:
+        https://clientsettings.roblox.com/v2/user-channel?binaryType=WindowsStudio64
         */
+        "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxStudio\\Channel": {
+            "www.roblox.com": { value: studioChannel, type: "REG_SZ" },
+        },
         "HKCU\\Software\\ROBLOX Corporation\\Environments\\roblox-studio": {
             DEFAULT_VALUE_NAME: {
                 value: studioRunPath,

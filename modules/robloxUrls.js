@@ -1,11 +1,12 @@
 import { DEPLOYMENT_VERSION_STUDIO_HASH, DEPLOYMENT_ROBLOX_CDN_BASE_URLS, ROBLOX_CLIENTSETTINGS_BASE_URLS } from "./constants.js";
 import { findFastestUrl } from "./urlUtils.js";
 
-const getRobloxClientSettingsBaseUrl = async (runnerType) => {
-    if (!runnerType) {
+const getRobloxClientSettingsBaseUrl = async (binaryType) => {
+    if (!binaryType) {
         throw new Error("Unable to find ClientSettings BaseURL. Runner type unprovided.");
     }
-    return await findFastestUrl(ROBLOX_CLIENTSETTINGS_BASE_URLS, `/v2/client-version/${runnerType}/channel/live`);
+    /** Alternative endpoint we can query: /v2/client-version/${binaryType}/channel/${channel} */
+    return await findFastestUrl(ROBLOX_CLIENTSETTINGS_BASE_URLS, `/v2/user-channel?binaryType=${binaryType}`);
 };
 
 const getRobloxCDNBaseUrl = async () => {

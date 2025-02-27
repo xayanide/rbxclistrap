@@ -43,11 +43,11 @@ import {
     STUDIO_FILE_EXTENSIONS_UNSET_VALUE_PATHS,
     CORPORATION_UNSET_VALUE_PATHS,
 } from "./robloxRegistry.js";
-import { checkUnsetValuePaths, setRegistryData } from "./registry.js";
+import { checkUnsetValuePaths, getConfiguredRobloxChannelName, setRegistryData } from "./registry.js";
 import {
     CLI_COLORS,
     FOLDER_MAPPINGS,
-    APP_SETTINGS,
+    APP_SETTINGS_XML,
     PLAYER_PROCESSES,
     STUDIO_PROCESSES,
     APP_TYPES_MAP,
@@ -58,15 +58,21 @@ import {
     REGISTER_STUDIO_KEY_PATHS,
     REGISTER_STUDIO_PLACE_KEY_PATHS,
     REGISTER_STUDIO_FILE_EXTENSIONS_KEY_PATHS,
+    PLAYER_CHANNEL_KEYPATH,
+    STUDIO_CHANNEL_KEYPATH,
+    PRODUCTION_CHANNEL_NAMES,
 } from "./constants.js";
 import { getPackageData, logPackageVersion } from "./packageData.js";
+import { getRobloxDownloadUrl } from "./robloxDownloadUrl.js";
+import { getBootstrapperAppSettings } from "./appSettings.js";
+import { compareRobloxClientVersions } from "./helpers.js";
 
 /** This path is associated with the location of the bootstrapper file. Must point to root. */
 const dirName = `${getDirname(import.meta.url)}/../`;
 
 let runnerConfig = { ...DEFAULT_CONFIG };
 let runnerFastFlags = { ...DEFAULT_FAST_FLAGS };
-let runnerType = null;
+let runnerChannel = null;
 let clientSettingsBaseUrl = null;
 let cdnBaseUrl = null;
 
@@ -151,7 +157,7 @@ const applyFastFlags = async (clientSettingsPath) => {
     logger.info(`Successfully applied fast flags to ${clientAppSettingsJsonPath}!`);
 };
 
-const showLicenseMenu = async () => {
+const showLicenseMenu = async (binaryType) => {
     console.clear();
     const licenseInfo = `rbxclistrap - A CLI alternative Roblox Player and Roblox Studio bootstrapper
 Copyright (C) 2025 xayanide
@@ -190,65 +196,84 @@ See: https://choosealicense.com/licenses/gpl-3.0`;
     const answer = await createPrompt("Type and enter to select an option: ");
     switch (answer) {
         case "1":
-            await showMainMenu(runnerType);
+            await showMainMenu(binaryType);
             break;
         default:
             console.log(`${CLI_COLORS.RED}Invalid option selected. Please try again.${CLI_COLORS.RESET}`);
-            await showLicenseMenu();
+            await showLicenseMenu(binaryType);
             break;
     }
 };
 
-const showSettingsMenu = async () => {
+const showSettingsMenu = async (binaryType) => {
     console.clear();
     console.log(`${CLI_COLORS.MAGENTA}Settings Menu${CLI_COLORS.RESET}`);
     console.log(`${CLI_COLORS.BLUE}1. Toggle delete existing folders (Current: ${runnerConfig.deleteExistingVersion})${CLI_COLORS.RESET}`);
     console.log(`${CLI_COLORS.BLUE}2. Toggle force update (Current: ${runnerConfig.forceUpdate})${CLI_COLORS.RESET}`);
     console.log(`${CLI_COLORS.BLUE}3. Toggle always run latest version (Current: ${runnerConfig.alwaysRunLatest})${CLI_COLORS.RESET}`);
     console.log(`${CLI_COLORS.BLUE}4. Toggle only keep latest version (Current: ${runnerConfig.onlyKeepLatest})${CLI_COLORS.RESET}`);
-    console.log(`${CLI_COLORS.RED}5. Back to main menu${CLI_COLORS.RESET}`);
+    console.log(`${CLI_COLORS.BLUE}5. Toggle let roblox choose channels (Current: ${runnerConfig.letRobloxChooseChannels})${CLI_COLORS.RESET}`);
+    console.log(`${CLI_COLORS.BLUE}6. Set preferred channel (Current: ${runnerConfig.preferredChannel})${CLI_COLORS.RESET}`);
+    console.log(`${CLI_COLORS.RED}7. Back to main menu${CLI_COLORS.RESET}`);
     const answer = await createPrompt("Type and enter to select an option: ");
     switch (answer) {
         case "1":
             runnerConfig.deleteExistingVersion = !runnerConfig.deleteExistingVersion;
-            console.log(`${CLI_COLORS.BLUE}Delete existing folders set to: ${runnerConfig.deleteExistingVersion}${CLI_COLORS.RESET}`);
-            await saveConfig(runnerType);
+            console.log(`${CLI_COLORS.BLUE}"deleteExistingVersion" has been set to: ${runnerConfig.deleteExistingVersion}${CLI_COLORS.RESET}`);
+            await saveConfig(binaryType);
             await createPrompt("Press Enter key to continue.");
-            await showSettingsMenu();
+            await showSettingsMenu(binaryType);
             break;
         case "2":
             runnerConfig.forceUpdate = !runnerConfig.forceUpdate;
-            console.log(`${CLI_COLORS.BLUE}Force update set to: ${runnerConfig.forceUpdate}${CLI_COLORS.RESET}`);
-            await saveConfig(runnerType);
+            console.log(`${CLI_COLORS.BLUE}"forceUpdate" has been set to: ${runnerConfig.forceUpdate}${CLI_COLORS.RESET}`);
+            await saveConfig(binaryType);
             await createPrompt("Press Enter key to continue.");
-            await showSettingsMenu();
+            await showSettingsMenu(binaryType);
             break;
         case "3":
             runnerConfig.alwaysRunLatest = !runnerConfig.alwaysRunLatest;
-            console.log(`${CLI_COLORS.BLUE}Always run latest to: ${runnerConfig.alwaysRunLatest}${CLI_COLORS.RESET}`);
-            await saveConfig(runnerType);
+            console.log(`${CLI_COLORS.BLUE}"alwaysRunLatest" has been set to: ${runnerConfig.alwaysRunLatest}${CLI_COLORS.RESET}`);
+            await saveConfig(binaryType);
             await createPrompt("Press Enter key to continue.");
-            await showSettingsMenu();
+            await showSettingsMenu(binaryType);
             break;
         case "4":
             runnerConfig.onlyKeepLatest = !runnerConfig.onlyKeepLatest;
-            console.log(`${CLI_COLORS.BLUE}Always keep latest set to: ${runnerConfig.onlyKeepLatest}${CLI_COLORS.RESET}`);
-            await saveConfig(runnerType);
+            console.log(`${CLI_COLORS.BLUE}"onlyKeepLatest" has been set to: ${runnerConfig.onlyKeepLatest}${CLI_COLORS.RESET}`);
+            await saveConfig(binaryType);
             await createPrompt("Press Enter key to continue.");
-            await showSettingsMenu();
+            await showSettingsMenu(binaryType);
             break;
         case "5":
-            await showMainMenu(runnerType);
+            runnerConfig.letRobloxChooseChannels = !runnerConfig.letRobloxChooseChannels;
+            console.log(`${CLI_COLORS.BLUE}"letRobloxChooseChannels" has been set to: ${runnerConfig.letRobloxChooseChannels}${CLI_COLORS.RESET}`);
+            await saveConfig(binaryType);
+            await createPrompt("Press Enter key to continue.");
+            await showSettingsMenu(binaryType);
+            break;
+        case "6": {
+            const channel = await createPrompt("Type and enter a channel name you prefer: ");
+            runnerConfig.preferredChannel = channel ? channel.toLowerCase() : "live";
+            runnerChannel = runnerConfig.preferredChannel;
+            console.log(`${CLI_COLORS.BLUE}"preferredChannel" has been set to: ${runnerConfig.preferredChannel}${CLI_COLORS.RESET}`);
+            await saveConfig(binaryType);
+            await createPrompt("Press Enter key to continue.");
+            await showSettingsMenu(binaryType);
+            break;
+        }
+        case "7":
+            await showMainMenu(binaryType);
             break;
         default:
             console.log(`${CLI_COLORS.RED}Invalid option selected. Please try again.${CLI_COLORS.RESET}`);
-            await showSettingsMenu();
+            await showSettingsMenu(binaryType);
             break;
     }
 };
 
-const downloadVersion = async (version, isUpdate = false) => {
-    const isPlayer = isPlayerBinaryType(runnerType);
+const downloadVersion = async (binaryType, version, isUpdate = false) => {
+    const isPlayer = isPlayerBinaryType(binaryType);
     const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
     const versionFolder = version.startsWith("version-") ? version : `version-${version}`;
     const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
@@ -290,10 +315,12 @@ const downloadVersion = async (version, isUpdate = false) => {
     if (!cdnBaseUrl) {
         cdnBaseUrl = await getRobloxCDNBaseUrl();
     }
-    const cdnUrl = `${cdnBaseUrl}/${version}`;
-    const manifestUrl = `${cdnUrl}-rbxPkgManifest.txt`;
-    logger.info(`Fetching manifest: ${manifestUrl}...`);
-    const axiosResponse = await axios.get(manifestUrl);
+    const bootStrapperAppSettings = await getBootstrapperAppSettings(clientSettingsBaseUrl, binaryType, runnerChannel);
+    const downloadUrl = getRobloxDownloadUrl(cdnBaseUrl, runnerChannel, bootStrapperAppSettings);
+    const versionDownloadUrl = `${downloadUrl}/${version}`;
+    const versionManifestUrl = `${versionDownloadUrl}-rbxPkgManifest.txt`;
+    logger.info(`Fetching manifest: ${versionManifestUrl}...`);
+    const axiosResponse = await axios.get(versionManifestUrl);
     logger.info("Successfully fetched manifest!");
     const axiosResponseData = axiosResponse.data;
     const manifestContent = axiosResponseData.trim().split("\n");
@@ -315,7 +342,7 @@ const downloadVersion = async (version, isUpdate = false) => {
             logger.warn(`Unknown file extension! Skipping entry: ${fileName}...`);
             continue;
         }
-        const packageUrl = `${cdnUrl}-${fileName}`;
+        const packageUrl = `${versionDownloadUrl}-${fileName}`;
         const filePath = `${dumpDir}/${fileName}`;
         logger.info(`Downloading file ${fileName} from ${packageUrl}`);
         await downloadFile(packageUrl, filePath, progressBar);
@@ -340,53 +367,66 @@ const downloadVersion = async (version, isUpdate = false) => {
     }
     logger.info(`Successfully downloaded and extracted ${version} to ${dumpDir}!`);
     logger.info("Creating AppSettings.xml...");
-    await nodeFsPromises.writeFile(`${dumpDir}/AppSettings.xml`, APP_SETTINGS, "utf-8");
+    await nodeFsPromises.writeFile(`${dumpDir}/AppSettings.xml`, APP_SETTINGS_XML, "utf-8");
     logger.info("Successfully created AppSettings.xml!");
 };
 
-const downloadLatestVersion = async () => {
-    logger.info("Fetching latest version from channel: Live...");
-    const latestVersion = await fetchLatestVersion(runnerType, clientSettingsBaseUrl);
-    logger.info("Successfully fetched latest version!");
-    logger.info(`Latest version: ${latestVersion}. Channel: Live`);
-    await downloadVersion(latestVersion);
-};
-
-const downloadCustomVersion = async (version) => {
-    logger.info(`Custom version: ${version}`);
-    await downloadVersion(version);
-};
-
-const downloadFromChannel = async (channel) => {
-    const versionUrl = `${clientSettingsBaseUrl}/v2/client-version/${runnerType}/channel/${channel}`;
+const downloadLatestVersion = async (binaryType, channel = "live") => {
     logger.info(`Fetching latest version from channel: ${channel}...`);
-    const axiosResponse = await axios.get(versionUrl);
+    const latestVersion = await fetchLatestVersion(binaryType, clientSettingsBaseUrl, channel);
     logger.info("Successfully fetched latest version!");
-    const axiosResponseData = axiosResponse.data;
-    const version = axiosResponseData.clientVersionUpload;
+    logger.info(`Latest version: ${latestVersion}. Channel: ${channel}`);
+    await downloadVersion(binaryType, latestVersion);
+};
+
+const downloadCustomVersion = async (binaryType, version) => {
+    logger.info(`Custom version: ${version}`);
+    await downloadVersion(binaryType, version);
+};
+
+const downloadFromChannel = async (binaryType, channel) => {
+    const version = await fetchLatestVersion(binaryType, clientSettingsBaseUrl, channel);
     logger.info(`Version: ${version}. Channel: ${channel}`);
-    await downloadVersion(version);
+    await downloadVersion(binaryType, version);
 };
 
 const launchAutoUpdater = async (binaryType) => {
     if (!BINARY_TYPES.includes(binaryType)) {
-        throw new Error(`Unknown binary type: ${runnerType}. Must be WindowsPlayer or WindowsStudio64.`);
+        throw new Error(`Unknown binary type: ${binaryType}. Must be WindowsPlayer or WindowsStudio64.`);
     }
-    runnerType = binaryType;
-    const isPlayer = isPlayerBinaryType(runnerType);
+    const isPlayer = isPlayerBinaryType(binaryType);
     const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
-    logger.info(`Checking for ${runnerType} updates...`);
-    logger.info("Fetching latest version from channel: Live...");
+    logger.info(`Checking for ${binaryType} updates...`);
     if (!clientSettingsBaseUrl) {
-        clientSettingsBaseUrl = await getRobloxClientSettingsBaseUrl(runnerType);
+        clientSettingsBaseUrl = await getRobloxClientSettingsBaseUrl(binaryType);
     }
-    const latestVersion = await fetchLatestVersion(runnerType, clientSettingsBaseUrl);
+    if (!runnerConfig.preferredChannel) {
+        runnerConfig.preferredChannel = "live";
+    }
+    if (runnerConfig.letRobloxChooseChannels) {
+        runnerChannel = await getConfiguredRobloxChannelName(isPlayer ? PLAYER_CHANNEL_KEYPATH : STUDIO_CHANNEL_KEYPATH);
+    } else if (!runnerChannel) {
+        runnerChannel = runnerConfig.preferredChannel.toLowerCase();
+    }
+    logger.info(`Fetching latest version from channel: ${runnerChannel}...`);
+    const latestVersion = await fetchLatestVersion(binaryType, clientSettingsBaseUrl, runnerChannel);
     logger.info("Successfully fetched latest version!");
+    if (!PRODUCTION_CHANNEL_NAMES.includes(runnerChannel)) {
+        logger.info("Fetching latest version from channel: live...");
+        const liveLatestVersion = await fetchLatestVersion(binaryType, clientSettingsBaseUrl, "live");
+        logger.info("Successfully fetched latest version!");
+        const laterVersion = compareRobloxClientVersions(latestVersion, liveLatestVersion);
+        if (laterVersion === liveLatestVersion) {
+            logger.warn(`Channel ${runnerChannel} is behind the live channel.`);
+        } else {
+            logger.info(`Channel ${runnerChannel} is ahead of the live channel.`);
+        }
+    }
     const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
     const versions = await getExistingVersions(versionsPath);
     if (versions.length === 0) {
         logger.warn("No installed version found!");
-        await downloadVersion(latestVersion);
+        await downloadVersion(binaryType, latestVersion);
         return latestVersion;
     }
     console.log(`${CLI_COLORS.MAGENTA}Available versions:`);
@@ -400,7 +440,7 @@ const launchAutoUpdater = async (binaryType) => {
         logger.info(`Only one version found: ${selectedVersion}. Skipping prompt...`);
     } else if (runnerConfig.alwaysRunLatest) {
         logger.info(`Configured to always run the latest version: ${latestVersion}. Skipping prompt...`);
-        await downloadVersion(latestVersion, true);
+        await downloadVersion(binaryType, latestVersion, true);
         return latestVersion;
     } else {
         const answer = await createPrompt("Type and enter to select a version (1/2/3...): ");
@@ -411,7 +451,7 @@ const launchAutoUpdater = async (binaryType) => {
         selectedVersion = versions[versionIndex];
     }
     logger.info(`Selected version: ${selectedVersion}`);
-    if (latestVersion === "") {
+    if (!latestVersion) {
         logger.warn("Unable to determine the latest version!");
         return selectedVersion;
     }
@@ -421,15 +461,15 @@ const launchAutoUpdater = async (binaryType) => {
         return selectedVersion;
     }
     logger.info("A new version is available!");
-    await downloadVersion(latestVersion, true);
+    await downloadVersion(binaryType, latestVersion, true);
     return latestVersion;
 };
 
-const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunchArgv = []) => {
-    if (!BINARY_TYPES.includes(runnerType)) {
-        throw new Error(`Unknown runner type: ${runnerType}. Must be WindowsPlayer or WindowsStudio64.`);
+const launchRoblox = async (binaryType, hasPromptArgs = false, selectedVersion, robloxLaunchArgv = []) => {
+    if (!BINARY_TYPES.includes(binaryType)) {
+        throw new Error(`Unknown runner type: ${binaryType}. Must be WindowsPlayer or WindowsStudio64.`);
     }
-    const isPlayer = isPlayerBinaryType(runnerType);
+    const isPlayer = isPlayerBinaryType(binaryType);
     const binaryName = isPlayer ? "RobloxPlayerBeta.exe" : "RobloxStudioBeta.exe";
     const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
     const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
@@ -441,12 +481,12 @@ const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunch
     }
     await installEdgeWebView(selectedVersionPath);
     if (isPlayer) {
-        await setRegistryData(getPlayerRegistryData(binaryPath, selectedVersion), REGISTER_PLAYER_KEY_PATHS);
+        await setRegistryData(getPlayerRegistryData(binaryPath, selectedVersion, runnerChannel), REGISTER_PLAYER_KEY_PATHS);
         await checkUnsetValuePaths([...CORPORATION_UNSET_VALUE_PATHS, ...PLAYER_UNSET_VALUE_PATHS]);
     } else {
         await setRegistryData(
             {
-                ...getStudioRegistryData(binaryPath, selectedVersion),
+                ...getStudioRegistryData(binaryPath, selectedVersion, runnerChannel),
                 ...getStudioPlaceRegistryData(binaryPath),
                 ...getStudioFileExtensionsRegistryData(),
             },
@@ -474,7 +514,7 @@ const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunch
         }
     }
     const launchArgs = spawnArgs.join(" ");
-    logger.info(`Launching with command: "${binaryPath}"${launchArgs === "" ? "" : ` "${launchArgs}"`}`);
+    logger.info(`Launching with command: "${binaryPath}"${launchArgs ? ` "${launchArgs}"` : ""}`);
     const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
     await attemptKillProcesses(runnerProcesses);
     const childProcess = nodeChildProcess.spawn(binaryPath, spawnArgs, { detached: true, stdio: "ignore" });
@@ -484,14 +524,22 @@ const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunch
 
 async function showMainMenu(binaryType) {
     if (!BINARY_TYPES.includes(binaryType)) {
-        throw new Error(`Unknown binary type: ${runnerType}. Must be WindowsPlayer or WindowsStudio64.`);
+        throw new Error(`Unknown binary type: ${binaryType}. Must be WindowsPlayer or WindowsStudio64.`);
     }
-    runnerType = binaryType;
     console.clear();
     const packageData = await getPackageData();
     logPackageVersion(packageData, logger);
     if (!clientSettingsBaseUrl) {
-        clientSettingsBaseUrl = await getRobloxClientSettingsBaseUrl(runnerType);
+        clientSettingsBaseUrl = await getRobloxClientSettingsBaseUrl(binaryType);
+    }
+    if (!runnerConfig.preferredChannel) {
+        runnerConfig.preferredChannel = "live";
+    }
+    if (runnerConfig.letRobloxChooseChannels) {
+        runnerChannel = await getConfiguredRobloxChannelName(isPlayerBinaryType(binaryType) ? PLAYER_CHANNEL_KEYPATH : STUDIO_CHANNEL_KEYPATH);
+    }
+    if (!runnerChannel) {
+        runnerChannel = runnerConfig.preferredChannel;
     }
     // No ascii art lol
     const asciiArt = `rbxclistrap  Copyright (C) 2025  xayanide
@@ -499,7 +547,7 @@ This program comes with ABSOLUTELY NO WARRANTY; for details type '8'.
 This is free software, and you are welcome to redistribute it
 under certain conditions; type '8' for details.
 
-Download and launch ${runnerType} versions using just the command line.
+Download and launch ${binaryType} versions using just the command line.
 `;
     const mainMenu = `
 ${CLI_COLORS.BLUE}${asciiArt}${CLI_COLORS.RESET}
@@ -507,8 +555,8 @@ ${CLI_COLORS.CYAN}1. Download latest version/update${CLI_COLORS.RESET}
 ${CLI_COLORS.CYAN}2. Download the last LIVE version (downgrade)${CLI_COLORS.RESET}
 ${CLI_COLORS.CYAN}3. Download a custom version hash${CLI_COLORS.RESET}
 ${CLI_COLORS.CYAN}4. Download from a specific channel${CLI_COLORS.RESET}
-${CLI_COLORS.CYAN}5. Launch ${runnerType}${CLI_COLORS.RESET}
-${CLI_COLORS.CYAN}6. Launch ${runnerType} with args${CLI_COLORS.RESET}
+${CLI_COLORS.CYAN}5. Launch ${binaryType}${CLI_COLORS.RESET}
+${CLI_COLORS.CYAN}6. Launch ${binaryType} with args${CLI_COLORS.RESET}
 ${CLI_COLORS.GREEN}7. Settings${CLI_COLORS.RESET}
 ${CLI_COLORS.YELLOW}8. License${CLI_COLORS.RESET}
 ${CLI_COLORS.RED}9. Exit${CLI_COLORS.RESET}
@@ -518,51 +566,51 @@ ${CLI_COLORS.RED}9. Exit${CLI_COLORS.RESET}
     switch (answer) {
         case "1":
             console.clear();
-            await downloadLatestVersion();
+            await downloadLatestVersion(binaryType, runnerChannel);
             break;
         case "2": {
             console.clear();
             if (!cdnBaseUrl) {
                 cdnBaseUrl = await getRobloxCDNBaseUrl();
             }
-            const previousVersion = await fetchPreviousVersion(runnerType, cdnBaseUrl);
+            const previousVersion = await fetchPreviousVersion(binaryType, cdnBaseUrl);
             if (!previousVersion) {
                 break;
             }
-            await downloadVersion(previousVersion);
+            await downloadVersion(binaryType, previousVersion);
             break;
         }
         case "3": {
             console.clear();
             const versionHash = await createPrompt("Type and enter to set a custom version hash: ");
-            await downloadCustomVersion(versionHash);
+            await downloadCustomVersion(binaryType, versionHash);
             break;
         }
         case "4": {
             console.clear();
             const channel = await createPrompt("Type and enter to set a channel name: ");
-            await downloadFromChannel(channel);
+            await downloadFromChannel(binaryType, channel);
             break;
         }
         case "5": {
             console.clear();
-            const selectedVersion = await launchAutoUpdater(runnerType);
-            await launchRoblox(false, selectedVersion);
+            const selectedVersion = await launchAutoUpdater(binaryType);
+            await launchRoblox(binaryType, false, selectedVersion);
             break;
         }
         case "6": {
             console.clear();
-            const selectedVersion = await launchAutoUpdater(runnerType);
-            await launchRoblox(true, selectedVersion);
+            const selectedVersion = await launchAutoUpdater(binaryType);
+            await launchRoblox(binaryType, true, selectedVersion);
             break;
         }
         case "7":
             console.clear();
-            await showSettingsMenu();
+            await showSettingsMenu(binaryType);
             break;
         case "8":
             console.clear();
-            await showLicenseMenu();
+            await showLicenseMenu(binaryType);
             break;
         case "9":
             console.clear();
@@ -572,7 +620,7 @@ ${CLI_COLORS.RED}9. Exit${CLI_COLORS.RESET}
         default:
             console.clear();
             console.log(`${CLI_COLORS.RED}Invalid option selected. Please try again.${CLI_COLORS.RESET}`);
-            await showMainMenu(runnerType);
+            await showMainMenu(binaryType);
             break;
     }
 }
