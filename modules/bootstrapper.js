@@ -15,7 +15,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import * as nodeFs from "node:fs";
+import * as nodeFsPromises from "node:fs/promises";
 import * as nodePath from "node:path";
 import * as nodeProcess from "node:process";
 import * as nodeChildProcess from "node:child_process";
@@ -29,7 +29,7 @@ import fetchLatestVersion from "./fetchLatestVersion.js";
 import fetchPreviousVersion from "./fetchPreviousVersion.js";
 import { createPrompt } from "./prompt.js";
 import { killProcesses, isProcessesRunning } from "./processes.js";
-import { deleteFolderRecursive, saveJson, loadJson, getDirname } from "./fileUtils.js";
+import { deleteFolderRecursive, saveJson, loadJson, getDirname, isFileExists, isDirectoryExists } from "./fileUtils.js";
 import { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } from "./robloxUrls.js";
 import { installEdgeWebView } from "./webview.js";
 import {
@@ -101,11 +101,13 @@ const loadFastFlags = async (binaryType) => {
     runnerFastFlags = await loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS);
 };
 
-const getExistingVersions = (existingVersionsPath) => {
-    if (!nodeFs.existsSync(existingVersionsPath)) {
-        nodeFs.mkdirSync(existingVersionsPath, { recursive: true });
+const getExistingVersions = async (existingVersionsPath) => {
+    const isFolderExists = await isDirectoryExists(existingVersionsPath);
+    if (!isFolderExists) {
+        await nodeFsPromises.mkdir(existingVersionsPath, { recursive: true });
     }
-    return nodeFs.readdirSync(existingVersionsPath).filter((folderName) => {
+    const folders = await nodeFsPromises.readdir(existingVersionsPath);
+    return folders.filter((folderName) => {
         return folderName.startsWith("version-");
     });
 };
@@ -130,13 +132,16 @@ const attemptKillProcesses = async (processes) => {
 
 const applyFastFlags = async (clientSettingsPath) => {
     const clientSettingsFolderPath = nodePath.join(clientSettingsPath, "ClientSettings");
-    if (!nodeFs.existsSync(clientSettingsFolderPath)) {
-        nodeFs.mkdirSync(clientSettingsFolderPath, { recursive: true });
+    const isFolderExists = await isDirectoryExists(clientSettingsFolderPath);
+    if (!isFolderExists) {
+        await nodeFsPromises.mkdir(clientSettingsFolderPath, { recursive: true });
     }
     const clientAppSettingsJsonPath = nodePath.join(clientSettingsFolderPath, "ClientAppSettings.json");
     let existingSettingsJson = "";
-    if (nodeFs.existsSync(clientAppSettingsJsonPath)) {
-        existingSettingsJson = nodeFs.readFileSync(clientAppSettingsJsonPath, "utf8").trim();
+    const isJsonExists = await isFileExists(clientAppSettingsJsonPath);
+    if (isJsonExists) {
+        const textContent = await nodeFsPromises.readFile(clientAppSettingsJsonPath, "utf8");
+        existingSettingsJson = textContent.trim();
     }
     if (existingSettingsJson === JSON.stringify(runnerFastFlags, null, 2)) {
         return;
@@ -254,14 +259,14 @@ const downloadVersion = async (version, isUpdate = false) => {
         isProcessKilled = await attemptKillProcesses(runnerProcesses);
     }
     if (runnerConfig.onlyKeepLatest && isProcessKilled) {
-        const existingVersions = getExistingVersions(versionsPath);
+        const existingVersions = await getExistingVersions(versionsPath);
         if (existingVersions[0] !== versionFolder) {
             logger.info(`Configured to only keep the latest version: ${versionFolder}. Deleting existing versions except latest...`);
         }
-        for (let i = 0, n = existingVersions.length; i < n; i++) {
-            const folderName = existingVersions[i];
+        for (const folderName of existingVersions) {
             const folderPath = nodePath.join(versionsPath, folderName);
-            if (!nodeFs.statSync(folderPath).isDirectory() || folderName === versionFolder) {
+            const isFolderExists = await isDirectoryExists(folderPath);
+            if (!isFolderExists || folderName === versionFolder) {
                 continue;
             }
             logger.info(`Deleting existing folder: ${folderPath}...`);
@@ -269,18 +274,19 @@ const downloadVersion = async (version, isUpdate = false) => {
             logger.info("Successfully deleted existing folder!");
         }
     }
-    if (nodeFs.existsSync(dumpDir) && !runnerConfig.forceUpdate) {
+    const isDumpDirExists = await isDirectoryExists(dumpDir);
+    if (isDumpDirExists && !runnerConfig.forceUpdate) {
         logger.info(`${version} is already downloaded!`);
         return;
     }
     logger.info(`Downloading ${version}...`);
-    if (nodeFs.existsSync(dumpDir) && runnerConfig.deleteExistingVersion && isProcessKilled) {
+    if (isDumpDirExists && runnerConfig.deleteExistingVersion && isProcessKilled) {
         logger.info(`Configured to delete the existing version: ${version}. Deleting existing version...`);
         logger.info(`Deleting existing folder: ${dumpDir}...`);
         await deleteFolderRecursive(dumpDir);
         logger.info("Successfully deleted existing folder!");
     }
-    nodeFs.mkdirSync(dumpDir, { recursive: true });
+    await nodeFsPromises.mkdir(dumpDir, { recursive: true });
     if (!cdnBaseUrl) {
         cdnBaseUrl = await getRobloxCDNBaseUrl();
     }
@@ -318,7 +324,7 @@ const downloadVersion = async (version, isUpdate = false) => {
         const isChecksumValid = await verifyChecksum(filePath, checksum);
         if (!isChecksumValid) {
             logger.error(`Checksum mismatch for file: ${fileName}. Deleting file...`);
-            nodeFs.unlinkSync(filePath);
+            await nodeFsPromises.unlink(filePath);
             logger.error(`Successfully deleted file: ${fileName}!`);
             continue;
         }
@@ -328,13 +334,13 @@ const downloadVersion = async (version, isUpdate = false) => {
             await extractZip(filePath, dumpDir, FOLDER_MAPPINGS);
             logger.info(`Successfully extracted zip file ${fileName}!`);
             logger.info(`Deleting zip file: ${fileName}...`);
-            nodeFs.unlinkSync(filePath);
+            await nodeFsPromises.unlink(filePath);
             logger.info(`Successfully deleted zip file: ${fileName}!`);
         }
     }
     logger.info(`Successfully downloaded and extracted ${version} to ${dumpDir}!`);
     logger.info("Creating AppSettings.xml...");
-    nodeFs.writeFileSync(`${dumpDir}/AppSettings.xml`, APP_SETTINGS);
+    await nodeFsPromises.writeFile(`${dumpDir}/AppSettings.xml`, APP_SETTINGS, "utf-8");
     logger.info("Successfully created AppSettings.xml!");
 };
 
@@ -377,7 +383,7 @@ const launchAutoUpdater = async (binaryType) => {
     const latestVersion = await fetchLatestVersion(runnerType, clientSettingsBaseUrl);
     logger.info("Successfully fetched latest version!");
     const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
-    const versions = getExistingVersions(versionsPath);
+    const versions = await getExistingVersions(versionsPath);
     if (versions.length === 0) {
         logger.warn("No installed version found!");
         await downloadVersion(latestVersion);
@@ -429,9 +435,9 @@ const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunch
     const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
     const selectedVersionPath = nodePath.join(versionsPath, selectedVersion);
     const binaryPath = nodePath.join(selectedVersionPath, binaryName);
-    if (!nodeFs.existsSync(binaryPath)) {
-        logger.warn(`${binaryName} was not found in ${selectedVersionPath}`);
-        return;
+    const isBinaryExists = await isFileExists(binaryPath);
+    if (!isBinaryExists) {
+        throw new Error(`Unable to launch as ${binaryName} was not found in ${selectedVersionPath}`);
     }
     await installEdgeWebView(selectedVersionPath);
     if (isPlayer) {

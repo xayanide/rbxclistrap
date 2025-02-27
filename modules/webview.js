@@ -1,9 +1,9 @@
-import * as nodeFs from "node:fs";
 import * as nodePath from "node:path";
 import * as nodeChildProcess from "node:child_process";
 import logger from "./logger.js";
 import { promisified as promisifiedRegedit } from "regedit";
 import { WEBVIEW_REGISTRY_KEYPATHS } from "./constants.js";
+import { isDirectoryExists, isFileExists } from "./fileUtils.js";
 
 const isWebViewInstalled = async () => {
     logger.info("Checking for Microsoft Edge WebView2 Runtime...");
@@ -22,12 +22,14 @@ const installEdgeWebView = async (installerPath) => {
         return;
     }
     const webViewSetupPath = nodePath.join(installerPath, "WebView2RuntimeInstaller");
-    if (!nodeFs.existsSync(webViewSetupPath)) {
+    const isWebViewFolderExists = await isDirectoryExists(webViewSetupPath);
+    if (!isWebViewFolderExists) {
         logger.warn(`WebView2RuntimeInstaller folder not found in ${installerPath}`);
         return;
     }
     const webviewSetupFilePath = nodePath.join(webViewSetupPath, "MicrosoftEdgeWebview2Setup.exe");
-    if (!nodeFs.existsSync(webviewSetupFilePath)) {
+    const isInstallerExists = await isFileExists(webviewSetupFilePath);
+    if (!isInstallerExists) {
         logger.warn(`MicrosoftEdgeWebview2Setup.exe not found in ${webViewSetupPath}`);
         return;
     }
