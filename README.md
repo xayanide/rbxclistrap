@@ -112,6 +112,10 @@ Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This
 
 ## FAQ
 
+#### Roblox Studio launches a new window when trying to relogin in using browser
+
+- Happens when studio fails to login and asks you to login via browser. This is a very old ongoing issue with third-party bootstrappers using `roblox-studio-auth`
+
 #### Roblox Studio is stuck at the intro screen "Loading Studio..."
 
 - Try running `rbxclistrap` with elevated "Administrator" permissions and run Studio from there.
