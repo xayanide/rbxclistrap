@@ -474,7 +474,7 @@ const launchRoblox = async (hasPromptArgs = false, selectedVersion, robloxLaunch
         }
     }
     const launchArgs = spawnArgs.join(" ");
-    logger.info(`Launching with command: "${binaryPath}"${launchArgs === "" ? "" : ` "${launchArgs}`}"`);
+    logger.info(`Launching with command: "${binaryPath}"${launchArgs === "" ? "" : ` "${launchArgs}"`}`);
     const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
     await attemptKillProcesses(runnerProcesses);
     const childProcess = nodeChildProcess.spawn(binaryPath, spawnArgs, { detached: true, stdio: "ignore" });

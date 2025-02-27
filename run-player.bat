@@ -1,4 +1,7 @@
 @echo off
+setlocal
+set "scriptDir=%~dp0"
 set "args=player"
-if not "%~1"=="" set "args=player "%*""
-node "%~dp0index.js" %args%
+if not "%~1"=="" set args=%args% "%~1"
+node "%scriptDir%index.js" %args%
+endlocal
