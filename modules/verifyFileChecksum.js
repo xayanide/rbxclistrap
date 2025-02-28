@@ -1,7 +1,7 @@
 import * as nodeFs from "node:fs";
 import * as nodeCrypto from "node:crypto";
 
-const verifyChecksum = (filePath, expectedChecksum) => {
+const verifyFileChecksum = (filePath, expectedChecksum) => {
     return new Promise((resolve, reject) => {
         const cryptoHash = nodeCrypto.createHash("md5");
         const readStream = nodeFs.createReadStream(filePath);
@@ -16,4 +16,4 @@ const verifyChecksum = (filePath, expectedChecksum) => {
     });
 };
 
-export default verifyChecksum;
+export default verifyFileChecksum;
