@@ -3,7 +3,7 @@ import logger from "./logger.js";
 
 const isProcessesRunning = (processNames) => {
     try {
-        const stdout = nodeChildProcess.execSync("tasklist", { encoding: "utf8" }).toLowerCase();
+        const stdout = nodeChildProcess.execSync("tasklist", { encoding: "utf-8" }).toLowerCase();
         if (Array.isArray(processNames)) {
             return processNames.some((processName) => {
                 return stdout.includes(processName.toLowerCase());
