@@ -23,7 +23,7 @@ import cliProgress from "cli-progress";
 import axios from "axios";
 import logger from "./logger.js";
 import downloadFile from "./downloadFile.js";
-import verifyChecksum from "./verifyChecksum.js";
+import verifyFileChecksum from "./verifyFileChecksum.js";
 import extractZip from "./extractZip.js";
 import fetchLatestVersion from "./fetchLatestVersion.js";
 import fetchPreviousVersion from "./fetchPreviousVersion.js";
@@ -330,41 +330,83 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
         return;
     }
     logger.info(`Manifest version: ${firstLine}`);
-    const progressBar = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
+    const filesToDownload = [];
     for (let i = 1, n = manifestContent.length; i < n; i += 4) {
         const fileName = manifestContent[i].trim();
-        const checksum = manifestContent[i + 1].trim();
-        /**
-        const compressedSize = parseInt(manifestContent[i + 2], 10);
-        const uncompressedSize = parseInt(manifestContent[i + 3], 10);
-        */
-        if (!(fileName.endsWith(".zip") || fileName.endsWith(".exe"))) {
-            logger.warn(`Unknown file extension! Skipping entry: ${fileName}...`);
+        const fileChecksum = manifestContent[i + 1].trim();
+        if (!fileName.endsWith(".zip") && !fileName.endsWith(".exe")) {
+            logger.warn(`${fileName} has an unsupported file extension! Skipping entry...`);
             continue;
         }
         const packageUrl = `${versionDownloadUrl}-${fileName}`;
         const filePath = `${dumpDir}/${fileName}`;
-        logger.info(`Downloading file ${fileName} from ${packageUrl}`);
-        await downloadFile(packageUrl, filePath, progressBar);
-        logger.info(`Successfully downloaded file ${fileName}!`);
-        logger.info(`Verifying file checksum: ${fileName}...`);
-        const isChecksumValid = await verifyChecksum(filePath, checksum);
-        if (!isChecksumValid) {
-            logger.error(`Checksum mismatch for file: ${fileName}. Deleting file...`);
-            await nodeFsPromises.unlink(filePath);
-            logger.error(`Successfully deleted file: ${fileName}!`);
-            continue;
-        }
-        logger.info(`Successfully verified file checksum: ${fileName}!`);
-        if (fileName.endsWith(".zip")) {
-            logger.info(`Extracting zip file ${fileName} to ${dumpDir}...`);
-            await extractZip(filePath, dumpDir, FOLDER_MAPPINGS);
-            logger.info(`Successfully extracted zip file ${fileName}!`);
-            logger.info(`Deleting zip file: ${fileName}...`);
-            await nodeFsPromises.unlink(filePath);
-            logger.info(`Successfully deleted zip file: ${fileName}!`);
-        }
+        filesToDownload.push({ fileName, packageUrl, filePath, fileChecksum });
     }
+    const multibar = new cliProgress.MultiBar(
+        {
+            format: "[{bar}] {percentage}% | {filename} | {value}/{total}",
+        },
+        cliProgress.Presets.shades_classic,
+    );
+    const totalFiles = filesToDownload.length;
+    const zipFiles = filesToDownload.filter(({ fileName }) => {
+        return fileName.endsWith(".zip");
+    });
+    const totalZipFiles = zipFiles.length;
+    logger.info("STEP 1: Downloading files...");
+    await Promise.all(
+        filesToDownload.map(async ({ packageUrl, filePath }) => {
+            const { data: fileData, headers: fileHeaders } = await axios.get(packageUrl, { responseType: "stream" });
+            const fileTotalSize = parseInt(fileHeaders["content-length"], 10) || 0;
+            const bar = multibar.create(fileTotalSize, 0);
+            await downloadFile(fileData, filePath, bar);
+        }),
+    );
+    multibar.stop();
+    logger.info("STEP 1: Successfully downloaded files!");
+    logger.info("STEP 2: Verifying file checksums...");
+    const singleBar = new cliProgress.SingleBar(
+        {
+            format: "[{bar}] | {percentage}% | {filename} | {value}/{total}",
+        },
+        cliProgress.Presets.shades_classic,
+    );
+    singleBar.start(totalFiles);
+    await Promise.all(
+        filesToDownload.map(async ({ fileName, fileChecksum, filePath }) => {
+            const isChecksumValid = await verifyFileChecksum(filePath, fileChecksum);
+            if (isChecksumValid) {
+                singleBar.increment(1, { filename: fileName });
+                return;
+            }
+            logger.error(`Checksum mismatch: ${fileName}. Deleting file...`);
+            await nodeFsPromises.unlink(filePath);
+            logger.error("Successfully deleted file!");
+            singleBar.increment(0, { filename: fileName });
+        }),
+    );
+    singleBar.stop();
+    logger.info("STEP 2: Successfully completed file checksums verification!");
+    logger.info("STEP 3: Extracting file archives...");
+    singleBar.start(totalZipFiles);
+    await Promise.all(
+        zipFiles.map(async ({ fileName, filePath }) => {
+            await extractZip(filePath, dumpDir, FOLDER_MAPPINGS);
+            singleBar.increment(1, { filename: fileName });
+        }),
+    );
+    singleBar.stop();
+    logger.info("STEP 3: File archives extraction complete!");
+    logger.info("STEP 4: Deleting file archives...");
+    singleBar.start(totalZipFiles);
+    await Promise.all(
+        zipFiles.map(async ({ fileName, filePath }) => {
+            await nodeFsPromises.unlink(filePath);
+            singleBar.increment(1, { filename: fileName });
+        }),
+    );
+    singleBar.stop();
+    logger.info("STEP 4: Successfully deleted file archives!");
     logger.info(`Successfully downloaded and extracted ${version} to ${dumpDir}!`);
     logger.info("Creating AppSettings.xml...");
     await nodeFsPromises.writeFile(`${dumpDir}/AppSettings.xml`, APP_SETTINGS_XML, "utf-8");
