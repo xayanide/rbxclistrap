@@ -185,6 +185,7 @@ const EXCLUDED_DEFAULT_FAST_FLAGS = {
     FIntRenderShadowIntensity: 0,
     FIntTerrainArraySliceSize: 0,
     FLogNetwork: 7,
+    FStringDebugShowFlagState: "DFIntVoiceChatRollOffMinDistance, DFIntVoiceChatRollOffMaxDistance",
 };
 
 const PLAYER_CHANNEL_KEYPATH = "HKCU\\Software\\ROBLOX Corporation\\Environments\\RobloxPlayer\\Channel";
