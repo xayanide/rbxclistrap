@@ -15,7 +15,7 @@
     "cli:player": "npm run cli:base -- player",
     "cli:studio": "npm run cli:base -- studio",
     "lint": "eslint . --ignore-pattern '**/.config/'",
-    "lint:fix": "npm run lint:fix -- --fix",
+    "lint:fix": "npm run lint -- --fix",
     "format:base": "prettier .",
     "format:write": "npm run format:base -- --write",
     "format:check": "npm run format:base -- --check",
