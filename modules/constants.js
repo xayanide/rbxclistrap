@@ -149,6 +149,7 @@ https://github.com/slattist/nvrmaintain
 https://github.com/MaximumADHD/Roblox-FFlag-Tracker/blob/main/PCDesktopClient.json
 */
 const DEFAULT_FAST_FLAGS = {
+    DFIntConnectionMTUSize: 1472,
     DFIntTaskSchedulerTargetFps: 240,
     DFIntTextureQualityOverride: 3,
     DFFlagDisableDPIScale: true,
