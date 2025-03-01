@@ -104,7 +104,7 @@ const loadConfig = async (binaryType) => {
 
 const loadFastFlags = async (binaryType) => {
     const FAST_FLAGS_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-fflags.json`);
-    runnerFastFlags = await loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS, true);
+    runnerFastFlags = await loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS, false);
 };
 
 const getExistingVersions = async (existingVersionsPath) => {
