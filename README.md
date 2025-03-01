@@ -15,7 +15,7 @@ That's all I can think of the high-level differences between the two.
 
 Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This will also install npm (Node Package Manager), which is required to install the dependencies for rbxclistrap.
 
-Due to the application having to make changes to Windows' Registry to operate correctly, this forcibly drops support for other platforms and targets Windows only.
+Some of application's core features require modifying the Windows Registry to function properly especially deeplinks and Roblox URIs, therefore support is limited exclusively to Windows, making other platforms incompatible.
 - 64-bit Operating System: Microsoft Windows 10 (or higher)
 - JavaScript Runtime Environment: Node.js v20 (or higher)
 
