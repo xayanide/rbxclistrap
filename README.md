@@ -1,4 +1,4 @@
-# rbxclistrap
+# rbxclistrap - A fork of rbxcli
 
 A CLI tool for managing Roblox Player and Roblox Studio versions, allowing you to download the latest, previous, or custom version hash of Roblox. This tool also includes the ability to launch Roblox through deeplinks, with or without custom arguments and apply fast flags.
 
@@ -15,6 +15,7 @@ That's all I can think of the high-level differences between the two.
 
 Before you begin, ensure you have [Node.js](https://nodejs.org/) installed. This will also install npm (Node Package Manager), which is required to install the dependencies for rbxclistrap.
 
+Some of application's core features require modifying the Windows Registry to function properly especially deeplinks and Roblox URIs, therefore support is limited exclusively to Windows, making other platforms incompatible.
 - 64-bit Operating System: Microsoft Windows 10 (or higher)
 - JavaScript Runtime Environment: Node.js v20 (or higher)
 
@@ -140,6 +141,7 @@ Doing these will ensure complete removal of any set registry entries associated 
 
 > [!WARNING]
 > The uninstallation is only for the bootstrapper. However, any user specific data made by Roblox itself will not be removed. Users should manually navigate through those files to completely remove Roblox because automating that process can result in loss of data so it was not implemented.
+> A directory you should inspect during this process is `%localappdata%\roblox`
 
 #### Can this be used to downgrade Roblox?
 
