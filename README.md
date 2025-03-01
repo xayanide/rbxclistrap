@@ -1,4 +1,4 @@
-# rbxclistrap
+# rbxclistrap - A fork of rbxcli
 
 A CLI tool for managing Roblox Player and Roblox Studio versions, allowing you to download the latest, previous, or custom version hash of Roblox. This tool also includes the ability to launch Roblox through deeplinks, with or without custom arguments and apply fast flags.
 
