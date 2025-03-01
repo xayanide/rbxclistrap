@@ -29,7 +29,7 @@ import fetchLatestVersion from "./fetchLatestVersion.js";
 import fetchPreviousVersion from "./fetchPreviousVersion.js";
 import { createPrompt } from "./prompt.js";
 import { killProcesses, isProcessesRunning } from "./processes.js";
-import { deleteFolderRecursive, saveJson, loadJson, getDirname, isFileExists, isDirectoryExists } from "./fileutils.js";
+import { deleteFolderRecursive, saveJson, loadJson, getDirname, isFileExists, isDirectoryExists } from "./fileUtils.js";
 import { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } from "./robloxUrls.js";
 import { installEdgeWebView } from "./webview.js";
 import {

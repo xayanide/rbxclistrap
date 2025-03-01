@@ -1,5 +1,5 @@
 import * as nodePath from "node:path";
-import { getDirname, loadJson } from "./fileutils.js";
+import { getDirname, loadJson } from "./fileUtils.js";
 
 const packageDataPath = nodePath.join(getDirname(import.meta.url), "..", "package.json");
 
