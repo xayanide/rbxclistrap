@@ -54,5 +54,5 @@ export default [
     https://eslint.org/docs/latest/use/configure/configuration-files#globally-ignoring-files-with-ignores
     https://github.com/eslint/eslint/discussions/18304#discussioncomment-9069706
     */
-    { ignores: ["**/node_modules/", "**/.git/", "**/logs/", "**/dist/", "**/PlayerVersions", "**/StudioVersions", "**/version-*/"] },
+    { ignores: ["**/node_modules/", "**/.git/", "**/logs/", "**/dist/", "**/sandbox/", "**/PlayerVersions", "**/StudioVersions", "**/version-*/"] },
 ];
