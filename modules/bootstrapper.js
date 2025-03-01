@@ -29,7 +29,7 @@ import fetchLatestVersion from "./fetchLatestVersion.js";
 import fetchPreviousVersion from "./fetchPreviousVersion.js";
 import { createPrompt } from "./prompt.js";
 import { killProcesses, isProcessesRunning } from "./processes.js";
-import { deleteFolderRecursive, saveJson, loadJson, getDirname, isFileExists, isDirectoryExists } from "./fileUtils.js";
+import { deleteFolderRecursive, saveJson, loadJson, getDirname, isFileExists, isDirectoryExists } from "./fileutils.js";
 import { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } from "./robloxUrls.js";
 import { installEdgeWebView } from "./webview.js";
 import {
@@ -99,12 +99,12 @@ const saveFastFlags = async (clientAppSettingsPath) => {
 
 const loadConfig = async (binaryType) => {
     const CONFIG_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-config.json`);
-    runnerConfig = await loadJson(CONFIG_FILE_PATH, DEFAULT_CONFIG);
+    runnerConfig = await loadJson(CONFIG_FILE_PATH, DEFAULT_CONFIG, true);
 };
 
 const loadFastFlags = async (binaryType) => {
     const FAST_FLAGS_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-fflags.json`);
-    runnerFastFlags = await loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS);
+    runnerFastFlags = await loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS, true);
 };
 
 const getExistingVersions = async (existingVersionsPath) => {

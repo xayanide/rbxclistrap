@@ -1,10 +1,10 @@
 import * as nodePath from "node:path";
-import { getDirname, loadJson } from "./fileUtils.js";
+import { getDirname, loadJson } from "./fileutils.js";
 
 const packageDataPath = nodePath.join(getDirname(import.meta.url), "..", "package.json");
 
 async function getPackageData() {
-    return await loadJson(packageDataPath, null);
+    return await loadJson(packageDataPath, null, false);
 }
 
 function logPackageVersion(packageData, logger = console) {

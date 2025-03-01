@@ -46,14 +46,15 @@ const saveJson = async (filePath, data) => {
     return await nodeFsPromises.writeFile(filePath, JSON.stringify(data, null, 2), "utf-8");
 };
 
-const loadJson = async (filePath, defaultData) => {
+const loadJson = async (filePath, defaultData, isReconcile = false) => {
     if (!isFileExists) {
         await saveJson(filePath, defaultData);
         return defaultData;
     }
+    let existingData = {};
     try {
         const buffer = await nodeFsPromises.readFile(filePath, "utf-8");
-        return JSON.parse(buffer);
+        existingData = JSON.parse(buffer);
     } catch (parseErr) {
         logger.fatal(
             `Inspect the JSON file and follow its strict formatting rules and syntax.\nAn error occured while parsing JSON file: ${filePath}:\n${parseErr.message}\n${parseErr.stack}`,
@@ -61,6 +62,13 @@ const loadJson = async (filePath, defaultData) => {
         await createPrompt("Something went wrong! Press Enter key to exit.");
         nodeProcess.exit(1);
     }
+    /** Merge missing properties from defaultData only if isReconcile is true */
+    const data = isReconcile ? { ...defaultData, ...existingData } : existingData;
+    /** Save the merged config only if reconciliation changed something */
+    if (isReconcile && JSON.stringify(existingData, null, 2) !== JSON.stringify(data, null, 2)) {
+        await saveJson(filePath, data);
+    }
+    return data;
 };
 
 const getDirname = (metaUrl) => {
