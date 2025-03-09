@@ -1,7 +1,8 @@
 name: PRAutoApprover
 on:
   pull_request_target:
-    branches: [dev]
+    branches:
+      - dev
 
 permissions:
   pull-requests: write
@@ -10,7 +11,7 @@ permissions:
 
 jobs:
   approve-pr:
-    name: Approve dependabot PR for non-major updates only
+    name: Approve dependabot for non-major updates only
     if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'xayanide/rbxclistrap'
     runs-on: ubuntu-latest
     steps:
@@ -19,7 +20,7 @@ jobs:
         uses: dependabot/fetch-metadata@v2
       - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Approve PR for non-major updates only
+      - name: Approve dependabot for non-major updates only
         if: steps.dependabot-metadata.outputs.update-type != 'version-update:semver-major'
         run: |
           gh pr checkout "$PR_URL"

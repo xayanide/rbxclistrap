@@ -1,28 +1,27 @@
 {
   "name": "rbxclistrap",
   "version": "3.8.0",
-  "type": "module",
-  "engines": {
-    "node": ">=20.11.0"
-  },
   "description": "A CLI alternative Roblox Player and Roblox Studio bootstrapper",
+  "license": "GPL-3.0-only",
+  "author": {
+    "name": "xayanide"
+  },
+  "type": "module",
   "main": "index.js",
   "scripts": {
-    "start:base": "node index.js",
-    "start:player": "npm run start:base -- player",
-    "start:studio": "npm run start:base -- studio",
     "cli:base": "node index.cli.js",
     "cli:player": "npm run cli:base -- player",
     "cli:studio": "npm run cli:base -- studio",
-    "lint": "eslint . --ignore-pattern '**/.config/'",
-    "lint:fix": "npm run lint -- --fix",
     "format:base": "prettier .",
-    "format:write": "npm run format:base -- --write",
     "format:check": "npm run format:base -- --check",
-    "postinstall": "patch-package"
+    "format:write": "npm run format:base -- --write",
+    "postinstall": "patch-package",
+    "lint": "eslint .",
+    "lint:fix": "npm run lint -- --fix",
+    "start:base": "node index.js",
+    "start:player": "npm run start:base -- player",
+    "start:studio": "npm run start:base -- studio"
   },
-  "author": "xayanide",
-  "license": "GPL-3.0-only",
   "dependencies": {
     "adm-zip": "^0.5.16",
     "axios": "^1.8.1",
@@ -38,6 +37,10 @@
     "eslint-config-prettier": "^10.0.2",
     "globals": "^16.0.0",
     "prettier": "3.5.2",
-    "semantic-release": "^24.2.3"
+    "semantic-release": "^24.2.3",
+    "typescript-eslint": "^8.26.0"
+  },
+  "engines": {
+    "node": ">=20.11.0"
   }
 }

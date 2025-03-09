@@ -1,3 +1,16 @@
+# Roblox versions
+PlayerVersions/*
+StudioVersions/*
+
+# Bootstrapper Configs
+/player-config.json
+/studio-config.json
+/player-fflags.json
+/studio-fflags.json
+
+sandbox
+
+# Source: https://github.com/github/gitignore/blob/main/Node.gitignore
 # Logs
 logs
 *.log
@@ -128,16 +141,3 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-
-# Roblox versions
-PlayerVersions/*
-StudioVersions/*
-
-# Bootstrapper Configs
-/player-config.json
-/studio-config.json
-/player-fflags.json
-/studio-fflags.json
-
-# Tests
-sandbox

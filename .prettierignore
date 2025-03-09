@@ -2,8 +2,22 @@
 *
 
 # But not these files
-!*.ts
 !*.js
+!*.mjs
+!*.cjs
+!*.ts
+!*.cts
+!*.mts
 
 # Check subdirectories too
 !*/
+
+# Others
+**/node_modules
+**/.git
+**/logs
+**/sandbox
+
+# Roblox versions
+**/PlayerVersions
+**/StudioVersions
