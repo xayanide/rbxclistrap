@@ -279,15 +279,13 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
     const dumpDir = nodePath.join(versionsPath, versionFolder);
     const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
-    let isProcessKilled = false;
-    if (isUpdate) {
-        isProcessKilled = await attemptKillProcesses(runnerProcesses);
-    }
-    if (runnerConfig.onlyKeepLatest && isProcessKilled) {
-        const existingVersions = await getExistingVersions(versionsPath);
-        if (existingVersions[0] !== versionFolder) {
-            logger.info(`Configured to only keep the latest version: ${versionFolder}. Deleting existing versions except latest...`);
-        }
+    const isProcessKilled = await attemptKillProcesses(runnerProcesses);
+    const existingVersions = await getExistingVersions(versionsPath);
+    const hasDifferentVersion = existingVersions.some((folderName) => {
+        return folderName !== versionFolder;
+    });
+    if (runnerConfig.onlyKeepLatest && isUpdate && hasDifferentVersion) {
+        logger.info(`Configured to only keep the latest version: ${versionFolder}. Deleting existing versions except latest...`);
         for (const folderName of existingVersions) {
             const folderPath = nodePath.join(versionsPath, folderName);
             const isFolderExists = await isDirectoryExists(folderPath);
