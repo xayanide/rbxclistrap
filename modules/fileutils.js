@@ -24,7 +24,8 @@ const isDirectoryExists = async (path) => {
 };
 
 const deleteFolderRecursive = async (folderPath) => {
-    if (!isDirectoryExists(folderPath)) {
+    const isFolderExists = await isDirectoryExists(folderPath);
+    if (!isFolderExists) {
         return;
     }
     const folderFiles = await nodeFsPromises.readdir(folderPath);
