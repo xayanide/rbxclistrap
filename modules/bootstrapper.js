@@ -29,7 +29,7 @@ import fetchLatestVersion from "./fetchLatestVersion.js";
 import fetchPreviousVersion from "./fetchPreviousVersion.js";
 import { createPrompt } from "./prompt.js";
 import { killProcesses, isProcessesRunning } from "./processes.js";
-import { deleteFolderRecursive, saveJson, loadJson, getDirname, isFileExists, isDirectoryExists } from "./fileUtils.js";
+import { deleteFolderRecursive, saveJson, loadJson, getDirname, isDirectoryExists, isPathAccessible } from "./fileutils.js";
 import { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } from "./robloxUrls.js";
 import { installEdgeWebView } from "./webview.js";
 import {
@@ -143,8 +143,8 @@ const applyFastFlags = async (clientSettingsPath) => {
     }
     const clientAppSettingsJsonPath = nodePath.join(clientSettingsFolderPath, "ClientAppSettings.json");
     let existingSettingsJson = "";
-    const isJsonExists = await isFileExists(clientAppSettingsJsonPath);
-    if (isJsonExists) {
+    const isJsonAccessible = await isPathAccessible(clientAppSettingsJsonPath);
+    if (isJsonAccessible) {
         const textContent = await nodeFsPromises.readFile(clientAppSettingsJsonPath, "utf8");
         existingSettingsJson = textContent.trim();
     }
@@ -514,8 +514,8 @@ const launchRoblox = async (binaryType, hasPromptArgs = false, selectedVersion, 
     const versionsPath = nodePath.join(rootDirPath, runnerVersionsFolder);
     const selectedVersionPath = nodePath.join(versionsPath, selectedVersion);
     const binaryPath = nodePath.join(selectedVersionPath, binaryName);
-    const isBinaryExists = await isFileExists(binaryPath);
-    if (!isBinaryExists) {
+    const isBinaryAccessible = await isPathAccessible(binaryPath);
+    if (!isBinaryAccessible) {
         throw new Error(`Unable to launch as ${binaryName} was not found in ${selectedVersionPath}`);
     }
     await installEdgeWebView(selectedVersionPath);

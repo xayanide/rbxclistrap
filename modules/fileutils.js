@@ -5,7 +5,7 @@ import * as nodeProcess from "node:process";
 import logger from "./logger.js";
 import { createPrompt } from "./prompt.js";
 
-const isFileExists = async (path) => {
+const isPathAccessible = async (path) => {
     try {
         await nodeFsPromises.access(path);
         return true;
@@ -47,7 +47,8 @@ const saveJson = async (filePath, data) => {
 };
 
 const loadJson = async (filePath, defaultData, isReconcile = false) => {
-    if (!isFileExists) {
+    const isJsonAccessible = await isPathAccessible(filePath);
+    if (!isJsonAccessible) {
         await saveJson(filePath, defaultData);
         return defaultData;
     }
@@ -76,4 +77,4 @@ const getDirname = (metaUrl) => {
     return nodePath.dirname(filename);
 };
 
-export { deleteFolderRecursive, saveJson, loadJson, getDirname, isFileExists, isDirectoryExists };
+export { deleteFolderRecursive, saveJson, loadJson, getDirname, isPathAccessible, isDirectoryExists };
