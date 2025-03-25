@@ -67,8 +67,7 @@ import { getRobloxDownloadUrl } from "./robloxDownloadUrl.js";
 import { getBootstrapperAppSettings } from "./appSettings.js";
 import { compareRobloxClientVersions } from "./helpers.js";
 
-/** This path is associated with the location of the bootstrapper file. Must point to root. */
-const dirName = `${getDirname(import.meta.url)}/../`;
+const rootDirPath = nodePath.join(getDirname(import.meta.url), "..");
 
 let runnerConfig = { ...DEFAULT_CONFIG };
 let runnerFastFlags = { ...DEFAULT_FAST_FLAGS };
@@ -89,7 +88,7 @@ const getAppType = (binaryType) => {
 };
 
 const saveConfig = async (binaryType) => {
-    const CONFIG_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-config.json`);
+    const CONFIG_FILE_PATH = nodePath.join(rootDirPath, `${getAppType(binaryType)}-config.json`);
     return await saveJson(CONFIG_FILE_PATH, runnerConfig);
 };
 
@@ -98,12 +97,12 @@ const saveFastFlags = async (clientAppSettingsPath) => {
 };
 
 const loadConfig = async (binaryType) => {
-    const CONFIG_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-config.json`);
+    const CONFIG_FILE_PATH = nodePath.join(rootDirPath, `${getAppType(binaryType)}-config.json`);
     runnerConfig = await loadJson(CONFIG_FILE_PATH, DEFAULT_CONFIG, true);
 };
 
 const loadFastFlags = async (binaryType) => {
-    const FAST_FLAGS_FILE_PATH = nodePath.join(dirName, `${getAppType(binaryType)}-fflags.json`);
+    const FAST_FLAGS_FILE_PATH = nodePath.join(rootDirPath, `${getAppType(binaryType)}-fflags.json`);
     runnerFastFlags = await loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS, false);
 };
 
@@ -276,7 +275,7 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     const isPlayer = isPlayerBinaryType(binaryType);
     const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
     const versionFolder = version.startsWith("version-") ? version : `version-${version}`;
-    const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
+    const versionsPath = nodePath.join(rootDirPath, runnerVersionsFolder);
     const dumpDir = nodePath.join(versionsPath, versionFolder);
     const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
     const isProcessKilled = await attemptKillProcesses(runnerProcesses);
@@ -387,22 +386,22 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     logger.info("STEP 2: Successfully completed file checksums verification!");
     logger.info("STEP 3: Extracting file archives...");
     singleBar.start(totalZipFiles);
-    await Promise.all(
-        zipFiles.map(async ({ fileName, filePath }) => {
-            await extractZip(filePath, dumpDir, FOLDER_MAPPINGS);
-            singleBar.increment(1, { filename: fileName });
-        }),
-    );
+    for (const zipFile of zipFiles) {
+        const fileName = zipFile.fileName;
+        const filePath = zipFile.filePath;
+        await extractZip(filePath, dumpDir, FOLDER_MAPPINGS);
+        singleBar.increment(1, { filename: fileName });
+    }
     singleBar.stop();
     logger.info("STEP 3: File archives extraction complete!");
     logger.info("STEP 4: Deleting file archives...");
     singleBar.start(totalZipFiles);
-    await Promise.all(
-        zipFiles.map(async ({ fileName, filePath }) => {
-            await nodeFsPromises.unlink(filePath);
-            singleBar.increment(1, { filename: fileName });
-        }),
-    );
+    for (const zipFile of zipFiles) {
+        const fileName = zipFile.fileName;
+        const filePath = zipFile.filePath;
+        await nodeFsPromises.unlink(filePath);
+        singleBar.increment(1, { filename: fileName });
+    }
     singleBar.stop();
     logger.info("STEP 4: Successfully deleted file archives!");
     logger.info(`Successfully downloaded and extracted ${version} to ${dumpDir}!`);
@@ -462,7 +461,7 @@ const launchAutoUpdater = async (binaryType) => {
             logger.info(`Channel ${runnerChannel} is ahead of the live channel.`);
         }
     }
-    const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
+    const versionsPath = nodePath.join(rootDirPath, runnerVersionsFolder);
     const versions = await getExistingVersions(versionsPath);
     if (versions.length === 0) {
         logger.warn("No installed version found!");
@@ -512,7 +511,7 @@ const launchRoblox = async (binaryType, hasPromptArgs = false, selectedVersion, 
     const isPlayer = isPlayerBinaryType(binaryType);
     const binaryName = isPlayer ? "RobloxPlayerBeta.exe" : "RobloxStudioBeta.exe";
     const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
-    const versionsPath = nodePath.join(dirName, runnerVersionsFolder);
+    const versionsPath = nodePath.join(rootDirPath, runnerVersionsFolder);
     const selectedVersionPath = nodePath.join(versionsPath, selectedVersion);
     const binaryPath = nodePath.join(selectedVersionPath, binaryName);
     const isBinaryExists = await isFileExists(binaryPath);
