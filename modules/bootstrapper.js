@@ -339,9 +339,9 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
         const filePath = `${dumpDir}/${fileName}`;
         filesToDownload.push({ fileName, packageUrl, filePath, fileChecksum });
     }
-    const multibar = new cliProgress.MultiBar(
+    const downloadSingleBar = new cliProgress.SingleBar(
         {
-            format: "[{bar}] {percentage}% | {filename} | {value}/{total}",
+            format: "{bar} {percentage}% | File {fileNumber}/{totalFiles} | {filename} | {value}/{total}",
         },
         cliProgress.Presets.shades_classic,
     );
@@ -351,20 +351,21 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     });
     const totalZipFiles = zipFiles.length;
     logger.info("STEP 1: Downloading files...");
-    await Promise.all(
-        filesToDownload.map(async ({ packageUrl, filePath }) => {
-            const { data: fileData, headers: fileHeaders } = await axios.get(packageUrl, { responseType: "stream" });
-            const fileTotalSize = parseInt(fileHeaders["content-length"], 10) || 0;
-            const bar = multibar.create(fileTotalSize, 0);
-            await downloadFile(fileData, filePath, bar);
-        }),
-    );
-    multibar.stop();
+
+    let fileNumber = 1;
+    for (const { packageUrl, filePath, fileName } of filesToDownload) {
+        const { data: fileData, headers: fileHeaders } = await axios.get(packageUrl, { responseType: "stream" });
+        const fileTotalSize = parseInt(fileHeaders["content-length"], 10) || 0;
+        downloadSingleBar.start(fileTotalSize, 0, { filename: fileName, fileNumber, totalFiles });
+        await downloadFile(fileData, filePath, downloadSingleBar);
+        downloadSingleBar.stop();
+        fileNumber++;
+    }
     logger.info("STEP 1: Successfully downloaded files!");
     logger.info("STEP 2: Verifying file checksums...");
     const singleBar = new cliProgress.SingleBar(
         {
-            format: "[{bar}] | {percentage}% | {filename} | {value}/{total}",
+            format: "{bar} | {percentage}% | {filename} | {value}/{total}",
         },
         cliProgress.Presets.shades_classic,
     );
