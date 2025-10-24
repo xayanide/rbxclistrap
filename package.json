@@ -1,6 +1,6 @@
 {
   "name": "rbxclistrap",
-  "version": "3.8.4",
+  "version": "3.8.5",
   "description": "A CLI alternative Roblox Player and Roblox Studio bootstrapper",
   "license": "GPL-3.0-only",
   "author": {
