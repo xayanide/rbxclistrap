@@ -341,7 +341,7 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     }
     const downloadSingleBar = new cliProgress.SingleBar(
         {
-            format: "{bar} {percentage}% | File {fileNumber}/{totalFiles} | {filename} | {value}/{total}",
+            format: "{bar} | File {fileNumber}/{totalFiles} | {filename} | {percentage}% | {value}/{total}",
         },
         cliProgress.Presets.shades_classic,
     );
@@ -365,7 +365,7 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     logger.info("STEP 2: Verifying file checksums...");
     const singleBar = new cliProgress.SingleBar(
         {
-            format: "{bar} | {percentage}% | {filename} | {value}/{total}",
+            format: "{bar} | {filename} | {percentage}% | {value}/{total}",
         },
         cliProgress.Presets.shades_classic,
     );
