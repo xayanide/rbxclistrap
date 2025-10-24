@@ -12,7 +12,7 @@ permissions:
 jobs:
   approve-pr:
     name: Approve dependabot for non-major updates only
-    if: github.event.pull_request.user.login == 'dependabot[bot]' && github.repository == 'xayanide/rbxclistrap'
+    if: github.event.pull_request.user.id == 49699333 && github.repository == 'xayanide/rbxclistrap'
     runs-on: ubuntu-latest
     steps:
       - name: Fetch dependabot metadata
