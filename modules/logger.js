@@ -38,7 +38,7 @@ const appType = argv.find((arg) => {
 const binaryType = BINARY_TYPES_MAP[appType];
 
 function printLog({ level, message, timestamp }) {
-    return `${timestamp} [${level}]  ${binaryType}: ${message}`;
+    return `${timestamp} [${level}]  ${binaryType}: ${typeof message === "object" ? JSON.stringify(message, null, 2) : message}`;
 }
 const logsFilePath = nodePath.join(getDirname(metaUrl), "..", "logs", `${binaryType ?? "unknown"}-${logFileISOTimestamp}.log`);
 await deleteOldLogFiles(nodePath.dirname(logsFilePath));

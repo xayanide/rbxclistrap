@@ -29,7 +29,7 @@ import fetchLatestVersion from "./fetchLatestVersion.js";
 import fetchPreviousVersion from "./fetchPreviousVersion.js";
 import { createPrompt } from "./prompt.js";
 import { killProcesses, isProcessesRunning } from "./processes.js";
-import { deleteFolderRecursive, saveJson, loadJson, getDirname, isDirectoryExists, isPathAccessible } from "./fileutils.js";
+import { deleteFolderRecursive, saveJson, loadJson, getDirname, isDirectoryExists, isPathAccessible } from "./fileUtils.js";
 import { getRobloxCDNBaseUrl, getRobloxClientSettingsBaseUrl } from "./robloxUrls.js";
 import { installEdgeWebView } from "./webview.js";
 import {
@@ -653,8 +653,7 @@ ${CLI_COLORS.RED}9. Exit${CLI_COLORS.RESET}
             await showLicenseMenu(binaryType);
             break;
         case "9":
-            console.clear();
-            console.log(`${CLI_COLORS.BLUE}Exiting...${CLI_COLORS.RESET}`);
+            logger.debug({ name: "alice" });
             nodeProcess.exit(0);
             break;
         default:
