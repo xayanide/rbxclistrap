@@ -150,14 +150,12 @@ https://github.com/MaximumADHD/Roblox-FFlag-Tracker/blob/main/PCDesktopClient.js
 */
 const DEFAULT_FAST_FLAGS = {
     DFIntConnectionMTUSize: 1472,
-    DFIntTaskSchedulerTargetFps: 240,
     DFIntTextureQualityOverride: 3,
+    _DFIntDebugFRMQualityLevelOverride: 1,
     DFFlagDisableDPIScale: true,
     DFFlagTextureQualityOverrideEnabled: true,
     FFlagDebugGraphicsPreferD3D11: true,
     FFlagHandleAltEnterFullscreenManually: false,
-    FFlagTaskSchedulerLimitTargetFpsTo2402: false,
-    FIntCameraMaxZoomDistance: 1000000000000000,
     FIntDebugForceMSAASamples: 4,
 };
 
@@ -168,6 +166,9 @@ would probably look and behave just slightly different
 compared to clients with unmodified fast flags.
 */
 const EXCLUDED_DEFAULT_FAST_FLAGS = {
+    DFIntTaskSchedulerTargetFps: 240,
+    FFlagTaskSchedulerLimitTargetFpsTo2402: false,
+    FIntCameraMaxZoomDistance: 1000000000000000,
     DFIntCullFactorPixelThresholdShadowMapHighQuality: 2147483647,
     DFIntCullFactorPixelThresholdShadowMapLowQuality: 2147483647,
     DFIntDebugFRMQualityLevelOverride: 1,
