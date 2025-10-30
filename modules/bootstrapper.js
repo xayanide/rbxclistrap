@@ -500,6 +500,9 @@ const launchAutoUpdater = async (binaryType) => {
         logger.info("You're already on the latest version!");
         return selectedVersion;
     }
+    if (selectedVersion && !runnerConfig.forceUpdate) {
+        return selectedVersion;
+    }
     logger.info("A new version is available!");
     await downloadVersion(binaryType, latestVersion, true);
     return latestVersion;
