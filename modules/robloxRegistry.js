@@ -290,15 +290,15 @@ const getStudioFileExtensionsRegistryData = () => {
         "HKCU\\Software\\Classes\\.rbxl": {
             DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
         },
-        "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place\\ShellNew": {
-            DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
-        },
+        // "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place\\ShellNew": {
+        //     DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
+        // },
         "HKCU\\Software\\Classes\\.rbxlx": {
             DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
         },
-        "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place\\ShellNew": {
-            DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
-        },
+        // "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place\\ShellNew": {
+        //     DEFAULT_VALUE_NAME: { value: "Roblox.Place", type: "REG_DEFAULT" },
+        // },
     };
 };
 

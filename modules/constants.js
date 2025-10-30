@@ -247,11 +247,11 @@ const REGISTER_STUDIO_PLACE_KEY_PATHS = [
 /** Keys to create when registering Roblox Studio File Extensions */
 const REGISTER_STUDIO_FILE_EXTENSIONS_KEY_PATHS = [
     "HKCU\\Software\\Classes\\.rbxl",
-    "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place",
-    "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place\\ShellNew",
+    // "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place",
+    // "HKCU\\Software\\Classes\\.rbxl\\Roblox.Place\\ShellNew",
     "HKCU\\Software\\Classes\\.rbxlx",
-    "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place",
-    "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place\\ShellNew",
+    // "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place",
+    // "HKCU\\Software\\Classes\\.rbxlx\\Roblox.Place\\ShellNew",
 ];
 
 /** Values to delete when unregistering Roblox Player */
