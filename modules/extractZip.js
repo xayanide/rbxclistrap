@@ -13,7 +13,7 @@ function getMapType(folderMappings, fileName) {
 
 function getMappedPath(folderMappings, mapType, fileName) {
     const mappedPath = folderMappings[mapType][fileName];
-    if (!mappedPath) {
+    if (mappedPath === undefined || mappedPath === null) {
         logger.warn(`File '${fileName}' has no mapped path! This file will be extracted at root!`);
         return "";
     }
