@@ -11,14 +11,10 @@ const CLI_COLORS = {
 const FOLDER_MAPPINGS = {
     // Blobs which both RobloxPlayer and RobloxStudio have.
     _common: {
-        // Root
-        // WebView2
         "WebView2.zip": "",
         "WebView2RuntimeInstaller.zip": "WebView2RuntimeInstaller/",
-        // Others
         "shaders.zip": "shaders/",
         "ssl.zip": "ssl/",
-        // Content
         "content-avatar.zip": "content/avatar/",
         "content-configs.zip": "content/configs/",
         "content-fonts.zip": "content/fonts/",
@@ -28,10 +24,8 @@ const FOLDER_MAPPINGS = {
         "content-textures2.zip": "content/textures/",
         "content-textures3.zip": "PlatformContent/pc/textures/",
         "content-terrain.zip": "PlatformContent/pc/terrain/",
-        // Content-Platform
         "content-platform-fonts.zip": "PlatformContent/pc/fonts/",
         "content-platform-dictionaries.zip": "PlatformContent/pc/shared_compression_dictionaries/",
-        // ExtraContent
         "extracontent-luapackages.zip": "ExtraContent/LuaPackages/",
         "extracontent-translations.zip": "ExtraContent/translations/",
         "extracontent-models.zip": "ExtraContent/models/",
@@ -39,34 +33,26 @@ const FOLDER_MAPPINGS = {
     },
     // Blobs which RobloxPlayer only have.
     _playerOnly: {
-        // Root
         "RobloxApp.zip": "",
         "RobloxPlayerInstaller.exe": "",
-        // ExtraContent
         "extracontent-places.zip": "ExtraContent/places/",
     },
     // Blobs which RobloxStudio only have.
     _studioOnly: {
-        // Root
         "redist.zip": "",
         "RobloxStudio.zip": "",
         "Libraries.zip": "",
         "LibrariesQt5.zip": "",
-        // Others
         "ApplicationConfig.zip": "ApplicationConfig/",
         "Plugins.zip": "Plugins/",
         "StudioFonts.zip": "StudioFonts/",
         "RibbonConfig.zip": "RibbonConfig/",
-        // Content
         "content-api-docs.zip": "content/api_docs/",
         "content-studio_svg_textures.zip": "content/studio_svg_textures/",
         "content-qt_translations.zip": "content/qt_translations/",
-        // ExtraContent
         "extracontent-scripts.zip": "ExtraContent/scripts/",
-        // BuiltIn
         "BuiltInPlugins.zip": "BuiltInPlugins/",
         "BuiltInStandalonePlugins.zip": "BuiltInStandalonePlugins/",
-        // StudioContent
         "studiocontent-models.zip": "StudioContent/models/",
         "studiocontent-textures.zip": "StudioContent/textures/",
     },
