@@ -330,6 +330,10 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     const filesToDownload = [];
     for (let i = 1, n = manifestContent.length; i < n; i += 4) {
         const fileName = manifestContent[i].trim();
+        // annoying little bi
+        if (fileName === "RobloxPlayerInstaller.exe") {
+            continue;
+        }
         const fileChecksum = manifestContent[i + 1].trim();
         if (!fileName.endsWith(".zip") && !fileName.endsWith(".exe")) {
             logger.warn(`${fileName} has an unsupported file extension! Skipping entry...`);
