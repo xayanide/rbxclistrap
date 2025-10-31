@@ -340,7 +340,7 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
             continue;
         }
         const packageUrl = `${versionDownloadUrl}-${fileName}`;
-        const filePath = `${dumpDir}\\${fileName}`;
+        const filePath = `${dumpDir}/${fileName}`;
         filesToDownload.push({ fileName, packageUrl, filePath, fileChecksum });
     }
     const downloadSingleBar = new cliProgress.SingleBar(
