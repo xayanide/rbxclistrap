@@ -12,7 +12,6 @@ const FOLDER_MAPPINGS = {
     // Blobs which both RobloxPlayer and RobloxStudio have.
     _common: {
         // Root
-        "redist.zip": "",
         // WebView2
         "WebView2.zip": "",
         "WebView2RuntimeInstaller.zip": "WebView2RuntimeInstaller/",
@@ -42,20 +41,20 @@ const FOLDER_MAPPINGS = {
     _playerOnly: {
         // Root
         "RobloxApp.zip": "",
-        "RobloxPlayerLauncher.exe": "",
+        "RobloxPlayerInstaller.exe": "",
         // ExtraContent
         "extracontent-places.zip": "ExtraContent/places/",
     },
     // Blobs which RobloxStudio only have.
     _studioOnly: {
         // Root
+        "redist.zip": "",
         "RobloxStudio.zip": "",
         "Libraries.zip": "",
         "LibrariesQt5.zip": "",
         // Others
         "ApplicationConfig.zip": "ApplicationConfig/",
         "Plugins.zip": "Plugins/",
-        "Qml.zip": "Qml/",
         "StudioFonts.zip": "StudioFonts/",
         "RibbonConfig.zip": "RibbonConfig/",
         // Content
@@ -67,6 +66,9 @@ const FOLDER_MAPPINGS = {
         // BuiltIn
         "BuiltInPlugins.zip": "BuiltInPlugins/",
         "BuiltInStandalonePlugins.zip": "BuiltInStandalonePlugins/",
+        // StudioContent
+        "studiocontent-models.zip": "StudioContent/models/",
+        "studiocontent-textures.zip": "StudioContent/textures/",
     },
 };
 
