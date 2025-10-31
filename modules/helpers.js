@@ -18,6 +18,23 @@ function isPureEmptyObject(value) {
     return isEmptyObject(value);
 }
 
+function verifyMapping(manifestFiles, folderMappings, isPlayer) {
+    const expectedFiles = new Set(Object.keys(folderMappings._common));
+    if (isPlayer) {
+        for (const key of Object.keys(folderMappings._playerOnly)) {
+            expectedFiles.add(key);
+        }
+    } else if (isPlayer === false) {
+        for (const key of Object.keys(folderMappings._studioOnly)) {
+            expectedFiles.add(key);
+        }
+    }
+    const manifestSet = new Set(manifestFiles);
+    const missingMaps = [...manifestSet].filter(function (fileName) { return !expectedFiles.has(fileName); });
+    const excessMaps = [...expectedFiles].filter(function (fileName) { return !manifestSet.has(fileName); });
+    return { missingMaps, excessMaps };
+}
+
 function compareRobloxClientVersions(a, b) {
     const v1Parts = a.split(".").map(Number);
     const v2Parts = b.split(".").map(Number);
@@ -34,4 +51,4 @@ function compareRobloxClientVersions(a, b) {
     return null;
 }
 
-export { isEmptyObject, isPureEmptyObject, compareRobloxClientVersions };
+export { isEmptyObject, isPureEmptyObject, compareRobloxClientVersions, verifyMapping };

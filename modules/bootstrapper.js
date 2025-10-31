@@ -65,7 +65,7 @@ import {
 import { getPackageData, logPackageVersion } from "./packageData.js";
 import { getRobloxDownloadUrl } from "./robloxDownloadUrl.js";
 import { getBootstrapperAppSettings } from "./appSettings.js";
-import { compareRobloxClientVersions } from "./helpers.js";
+import { compareRobloxClientVersions, verifyMapping } from "./helpers.js";
 
 const rootDirPath = nodePath.join(getDirname(import.meta.url), "..");
 
@@ -342,6 +342,18 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
         const packageUrl = `${versionDownloadUrl}-${fileName}`;
         const filePath = `${dumpDir}/${fileName}`;
         filesToDownload.push({ fileName, packageUrl, filePath, fileChecksum });
+    }
+    const manifestFiles = filesToDownload.map(function (file) {
+        return file.fileName;
+    });
+    const { missingMaps, excessMaps } = verifyMapping(manifestFiles, FOLDER_MAPPINGS, isPlayer);
+    if (missingMaps.length === 0 && excessMaps.length === 0) {
+        logger.info("Folder mappings verified: no missing or excess mapped files.");
+    } else {
+        if (missingMaps.length > 0)
+            logger.warn(`Missing in folder mappings: ${missingMaps.join(", ")}`);
+        if (excessMaps.length > 0)
+            logger.warn(`Excess in folder mappings: ${excessMaps.join(", ")}`);
     }
     const downloadSingleBar = new cliProgress.SingleBar(
         {
