@@ -114,11 +114,12 @@ const supportsRange = async (url) => {
         const responseStatus = response.status;
         try {
             const responseData = response.data;
-            if (responseData && responseData.destroy) {
-                responseData.destroy();
+            const dataDestroy = responseData.destroy;
+            if (responseData && dataDestroy) {
+                dataDestroy();
             }
         } catch (err) {
-            logger.error(`Encountered error responseData.destroy():\n${err.message}\n${err.stack}`);
+            logger.error(`Encountered error dataDestroy():\n${err.message}\n${err.stack}`);
         }
         return responseStatus === 206 || (responseHeaders && (responseHeaders["accept-ranges"] || "").includes("bytes"));
     } catch {
