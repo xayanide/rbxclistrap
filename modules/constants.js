@@ -8,6 +8,14 @@ const CLI_COLORS = {
     CYAN: "\x1b[36m",
 };
 
+const DEFAULT_BOOTSTRAPPER_STATE = {
+    version: "",
+    step: "download",
+    completedSteps: [],
+    downloaded: [],
+    extracted: [],
+};
+
 const FOLDER_MAPPINGS = {
     // Blobs which both RobloxPlayer and RobloxStudio have.
     _common: {

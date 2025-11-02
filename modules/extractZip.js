@@ -2,7 +2,7 @@ import * as nodePath from "node:path";
 import AdmZip from "adm-zip";
 import logger from "./logger.js";
 
-function getMapType(folderMappings, fileName) {
+function getMapType(fileName, folderMappings) {
     if (folderMappings._playerOnly[fileName]) {
         return "_playerOnly";
     } else if (folderMappings._studioOnly[fileName]) {
@@ -11,10 +11,10 @@ function getMapType(folderMappings, fileName) {
     return "_common";
 }
 
-function getMappedPath(folderMappings, mapType, fileName) {
+function resolveMappedPath(mapType, fileName, folderMappings) {
     const mappedPath = folderMappings[mapType][fileName];
-    if (mappedPath === undefined || mappedPath === null) {
-        logger.warn(`File '${fileName}' has no mapped path! This file will be extracted at root!`);
+    if (mappedPath === null) {
+        logger.warn(`File '${fileName}' has no mapped path! This file will be extracted at root.`);
         return "";
     }
     return mappedPath;
@@ -22,8 +22,8 @@ function getMappedPath(folderMappings, mapType, fileName) {
 
 const extractZip = (filePath, extractPath, folderMappings) => {
     const fileName = nodePath.basename(filePath);
-    const mapType = getMapType(folderMappings, fileName);
-    const mappedPath = getMappedPath(folderMappings, mapType, fileName);
+    const mapType = getMapType(fileName, folderMappings);
+    const mappedPath = resolveMappedPath(mapType, fileName, folderMappings);
     const targetPath = nodePath.join(extractPath, mappedPath);
     return new Promise((resolve, reject) => {
         try {
