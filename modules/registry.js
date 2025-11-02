@@ -189,7 +189,7 @@ const getConfiguredRobloxChannelName = async (keyPath) => {
     const registryItems = await promisifiedRegedit.list(keyPath);
     const key = registryItems[keyPath];
     const valueData = key.values["www.roblox.com"].value;
-    if (!key || !key.exists || !valueData) {
+    if (!key || !key.exists || typeof valueData !== "string") {
         return "live";
     }
     return valueData;
