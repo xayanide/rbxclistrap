@@ -215,14 +215,14 @@ const tryDownloadWithResume = async (packageUrl, filePath, fileChecksum, bar) =>
         logger.warn(`Incomplete downloaded file '${nodePath.basename(tmpPath)}'`);
         return "partial";
     }
-    await nodeFsPromises.rename(tmpPath, filePath).catch(async (err) => {
-        if (!err) {
-            return;
-        }
-        logger.error(`There was an error while renaming '${nodePath.basename(tmpPath)}'. Copied instead.`);
+    try {
+        await nodeFsPromises.rename(tmpPath, filePath);
+    } catch (err) {
+        logger.error(`There was an error while renaming '${nodePath.basename(tmpPath)}' to '${nodePath.basename(filePath)}'. Copying file instead...`);
+        logger.error(`${err.message}\n${err.stack}`);
         await nodeFsPromises.copyFile(tmpPath, filePath);
         await nodeFsPromises.unlink(tmpPath);
-    });
+    }
     return "downloaded";
 };
 
