@@ -106,7 +106,6 @@ const supportsRange = async (url) => {
             method: "GET",
             headers: { Range: "bytes=0-0" },
             responseType: "stream",
-            validateStatus: null,
             maxRedirects: 5,
         });
         const responseHeaders = response.headers;
@@ -162,7 +161,6 @@ const tryDownloadWithResume = async (packageUrl, filePath, fileChecksum, bar) =>
     const response = await axios.get(packageUrl, {
         responseType: "stream",
         headers,
-        validateStatus: null,
         maxRedirects: 5,
     });
     const responseStatus = response.status;
@@ -190,7 +188,6 @@ const tryDownloadWithResume = async (packageUrl, filePath, fileChecksum, bar) =>
             logger.warn(`Retrying full download for file '${nodePath.basename(tmpPath)}'`);
             const retryRes = await axios.get(packageUrl, {
                 responseType: "stream",
-                validateStatus: null,
                 maxRedirects: 5,
             });
             if (retryRes.status !== 200) {
@@ -206,7 +203,7 @@ const tryDownloadWithResume = async (packageUrl, filePath, fileChecksum, bar) =>
             throw new Error(`Download failed with status ${responseStatus}`);
         }
     }
-    const headResponse = await axios.head(packageUrl, { validateStatus: null, maxRedirects: 5 });
+    const headResponse = await axios.head(packageUrl, { maxRedirects: 5 });
     let remoteSize = null;
     if (headResponse && headResponse.status === 200) {
         remoteSize = parseInt(headResponse.headers["content-length"] || "0", 10);
@@ -411,6 +408,25 @@ const showSettingsMenu = async (binaryType) => {
     }
 };
 
+// SIGINT handler: save current runnerState and exit
+let isSigintAttached = false;
+const attachSigint = (statePath) => {
+    if (isSigintAttached) {
+        return;
+    }
+    isSigintAttached = true;
+    process.on("SIGINT", async function () {
+        try {
+            logger.warn("Interrupted by user (SIGINT). Saving state...");
+            await saveState(statePath);
+        } catch (err) {
+            logger.error(`Failed to save state on SIGINT:\n${err.message}\n${err.stack}`,);
+        } finally {
+            process.exit(0);
+        }
+    });
+};
+
 const downloadVersion = async (binaryType, version, isUpdate = false) => {
     const isPlayer = isPlayerBinaryType(binaryType);
     const runnerVersionsFolder = isPlayer ? "PlayerVersions" : "StudioVersions";
@@ -418,26 +434,7 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     const versionsPath = nodePath.join(rootDirPath, runnerVersionsFolder);
     const dumpDir = nodePath.join(versionsPath, versionFolder);
     const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
-    // Save path for state file
     const statePath = nodePath.join(dumpDir, ".bootstrapper-state.json");
-    // SIGINT handler: save current runnerState and exit
-    let isSigintAttached = false;
-    const attachSigint = () => {
-        if (isSigintAttached) {
-            return;
-        }
-        isSigintAttached = true;
-        process.on("SIGINT", async function () {
-            try {
-                logger.warn("Interrupted by user (SIGINT). Saving state...");
-                await saveState(statePath);
-            } catch (err) {
-                logger.error(`Failed to save state on SIGINT:\n${err.message}\n${err.stack}`,);
-            } finally {
-                process.exit(0);
-            }
-        });
-    };
     const isProcessKilled = await attemptKillProcesses(runnerProcesses);
     const existingVersions = await getExistingVersions(versionsPath);
     const hasDifferentVersion = existingVersions.some((folderName) => {
@@ -457,7 +454,6 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
         }
     }
     const isDumpDirExists = await isDirectoryExists(dumpDir);
-    // initialize or load state
     await loadState(statePath, version);
     if (isDumpDirExists && !runnerConfig.forceUpdate && runnerState.step === "complete") {
         logger.info(`${version} is already downloaded!`);
@@ -471,7 +467,7 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
         logger.info("Successfully deleted existing folder!");
     }
     await nodeFsPromises.mkdir(dumpDir, { recursive: true });
-    attachSigint();
+    attachSigint(statePath);
     if (!cdnBaseUrl) {
         cdnBaseUrl = await getRobloxCDNBaseUrl();
     }
@@ -526,17 +522,15 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     logger.info("STEP 1: Downloading files...");
     let fileNumber = 1;
     for (const { packageUrl, filePath, fileName, fileChecksum } of filesToDownload) {
-        // if already downloaded in state and exists -> skip
         if (runnerState.downloaded.includes(fileName) && (await isPathAccessible(filePath))) {
             logger.info(`Skipping already downloaded file: ${fileName}`);
             fileNumber++;
             continue;
         }
-        // start progress bar for this file
         let fileTotalSize = 0;
         try {
-            // attempt a HEAD for size (may fail)
-            const headRes = await axios.head(packageUrl, { validateStatus: null });
+            // may fail
+            const headRes = await axios.head(packageUrl);
             if (headRes && headRes.status === 200) fileTotalSize = parseInt(headRes.headers["content-length"] || "0", 10);
         } catch (err) {
             logger.error(`Error attempting head.\n${err.message}\n${err.stack}`);
@@ -548,12 +542,10 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
                 logger.info(`Already present and valid: ${fileName}`);
             } else if (result === "partial") {
                 logger.warn(`Partial download for ${fileName} — saved progress. Run again to continue.`);
-                // save state and abort so user can run again to resume
                 await saveState(statePath);
                 downloadSingleBar.stop();
                 throw new Error(`Partial download for ${fileName}`);
             } else {
-                // mark downloaded
                 if (!runnerState.downloaded.includes(fileName)) runnerState.downloaded.push(fileName);
                 await saveState(statePath);
             }
