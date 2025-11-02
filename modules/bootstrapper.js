@@ -441,7 +441,7 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
         return folderName !== versionFolder;
     });
     if (runnerConfig.onlyKeepLatest && isUpdate && hasDifferentVersion) {
-        logger.info(`Configured to only keep the latest version: ${versionFolder}. Deleting existing versions except latest...`);
+        logger.info(`Configured to only keep the latest version: ${versionFolder}. Deleting existing non-latest versions...`);
         for (const folderName of existingVersions) {
             const folderPath = nodePath.join(versionsPath, folderName);
             const isFolderExists = await isDirectoryExists(folderPath);
