@@ -3,9 +3,12 @@ import AdmZip from "adm-zip";
 import logger from "./logger.js";
 
 function getMapType(fileName, folderMappings) {
-    if (folderMappings._playerOnly[fileName]) {
+    const playerOnly = folderMappings._playerOnly;
+    if (playerOnly && fileName in playerOnly) {
         return "_playerOnly";
-    } else if (folderMappings._studioOnly[fileName]) {
+    }
+    const studioOnly = folderMappings._playerOnly;
+    if (studioOnly && fileName in studioOnly) {
         return "_studioOnly";
     }
     return "_common";
@@ -13,9 +16,13 @@ function getMapType(fileName, folderMappings) {
 
 function resolveMappedPath(mapType, fileName, folderMappings) {
     const mappedPath = folderMappings[mapType][fileName];
+    // do not use !mappedPath guard because "" should be accepted
     if (mappedPath === null) {
         logger.warn(`File '${fileName}' has no mapped path! This file will be extracted at root.`);
         return "";
+    }
+    if (mappedPath === undefined) {
+        throw new Error(`File '${fileName}' has an undefined mapped path!`);
     }
     return mappedPath;
 }
@@ -25,7 +32,7 @@ const extractZip = (filePath, extractPath, folderMappings) => {
     const mapType = getMapType(fileName, folderMappings);
     const mappedPath = resolveMappedPath(mapType, fileName, folderMappings);
     const targetPath = nodePath.join(extractPath, mappedPath);
-    return new Promise((resolve, reject) => {
+    return new Promise(function (resolve, reject) {
         try {
             const admZip = new AdmZip(filePath);
             admZip.extractAllTo(targetPath, true);
