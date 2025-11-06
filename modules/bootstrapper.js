@@ -15,13 +15,12 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
-import * as nodeStream from "node:stream";
+import * as nodeStreamPromises from "node:stream/promises";
 import * as nodeFsPromises from "node:fs/promises";
 import * as nodeFs from "node:fs";
 import * as nodePath from "node:path";
 import * as nodeProcess from "node:process";
 import * as nodeChildProcess from "node:child_process";
-import cliProgress from "cli-progress";
 import axios from "axios";
 import logger from "./logger.js";
 import verifyFileChecksum from "./verifyFileChecksum.js";
@@ -96,11 +95,10 @@ const saveState = async (statePath) => {
 
 const loadState = async (statePath, version) => {
     runnerState = await loadJson(statePath, { ...DEFAULT_BOOTSTRAPPER_STATE, version }, false);
-    if (runnerState.version !== version) throw new Error("Version mismatch");
 };
 
 // because Some CDNs block ranged HEAD; GET shows real behavior.
-const supportsRange = async (url) => {
+const isRangePermitted = async (url) => {
     try {
         const response = await axios.get(url, {
             method: "GET",
@@ -108,36 +106,38 @@ const supportsRange = async (url) => {
             responseType: "stream",
             maxRedirects: 5,
         });
-        const responseHeaders = response.headers;
         // 206 = accepts range requests. 200 = ignores range. 403 = blocked.
-        const responseStatus = response.status;
-        try {
-            const responseData = response.data;
-            const dataDestroy = responseData.destroy;
-            if (responseData && dataDestroy) {
-                dataDestroy();
-            }
-        } catch (err) {
-            logger.error(`Encountered error dataDestroy():\n${err.message}\n${err.stack}`);
+        const responseData = response.data;
+        const dataDestroy = responseData?.destroy;
+        if (responseData && typeof dataDestroy === "function") {
+            dataDestroy();
         }
-        return responseStatus === 206 || (responseHeaders && (responseHeaders["accept-ranges"] || "").includes("bytes"));
+        return response.status === 206;
     } catch {
         return false;
     }
 };
 
-const safeStreamToFile = async (stream, destPath, flags = "w") => {
-    const tmp = `${destPath}.part`;
-    const writeStream = nodeFs.createWriteStream(tmp, { flags });
-    await new Promise((resolve, reject) => {
-        nodeStream.pipeline(stream, writeStream, function (err) {
-            if (err) reject(err);
-            else resolve();
-        });
-    });
+const streamToFileSafe = async (stream, destPath, flags = "w") => {
+    const writeStream = nodeFs.createWriteStream(destPath, { flags });
+    try {
+        await nodeStreamPromises.pipeline(stream, writeStream);
+        logger.info(`Streaming success: ${destPath}`);
+    } catch (err) {
+        logger.error(`There was an error while streaming file ${destPath}\n${err.message}\n${err.stack}`);
+    }
 };
 
-const tryDownloadWithResume = async (packageUrl, filePath, fileChecksum, bar) => {
+const getFileSize = async (filePath) => {
+    try {
+        const stats = await nodeFsPromises.stat(filePath);
+        return stats.size;
+    } catch {
+        return 0;
+    }
+};
+
+const tryDownloadWithResume = async (packageUrl, filePath, fileChecksum) => {
     const tmpPath = `${filePath}.part`;
     if (await isPathAccessible(filePath)) {
         const isValid = await verifyFileChecksum(filePath, fileChecksum);
@@ -147,15 +147,13 @@ const tryDownloadWithResume = async (packageUrl, filePath, fileChecksum, bar) =>
         logger.warn(`Corrupted file '${nodePath.basename(filePath)}'. This file will be re-downloaded.`);
         await nodeFsPromises.unlink(filePath);
     }
-    if (await isPathAccessible(tmpPath)) {
+    if (!(await isPathAccessible(tmpPath))) {
         // We can't verify checksum until fully downloaded; we'll attempt resume if supported
     }
-    const isRangeSupported = await supportsRange(packageUrl);
-    const stats = await nodeFsPromises.stat(tmpPath).catch(function () { return { size: 0 }; });
-    const existingBytes = stats.size || 0;
+    const isRangeSupported = await isRangePermitted(packageUrl);
+    const existingBytes = await getFileSize(tmpPath);
     const headers = {};
     if (existingBytes > 0 && isRangeSupported) {
-        logger.info("Download server supports Range and Partial for resuming downloads.");
         headers.Range = `bytes=${existingBytes}-`;
     }
     const response = await axios.get(packageUrl, {
@@ -165,52 +163,49 @@ const tryDownloadWithResume = async (packageUrl, filePath, fileChecksum, bar) =>
     });
     const responseStatus = response.status;
     const responseData = response.data;
-    let downloadedBytes = existingBytes;
-    const downloadPayload = { filename: filePath };
-    bar.update(downloadedBytes, downloadPayload);
-    responseData.on("data", function (chunk) {
-        downloadedBytes += chunk.length;
-        bar.update(downloadedBytes, downloadPayload);
-    });
+    const totalSize = isRangeSupported
+        ? existingBytes + parseInt(response.headers["content-length"] || "0", 10)
+        : parseInt(response.headers["content-length"] || "0", 10);
     if ([200, 206].includes(responseStatus)) {
         // 206 -> append; 200 -> overwrite
         const writeFlags = responseStatus === 206 ? "a" : "w";
         if (writeFlags === "w") {
             try {
                 await nodeFsPromises.unlink(tmpPath);
-            } catch {
-                logger.info(`Unable to delete file '${nodePath.basename(tmpPath)}'. Overwriting...`);
-            }
+            } catch { /* empty */ }
         }
-        await safeStreamToFile(responseData, filePath, writeFlags);
+        await streamToFileSafe(responseData, tmpPath, writeFlags);
     } else {
-        if (responseStatus === 403 && existingBytes > 0) {
-            logger.warn(`Retrying full download for file '${nodePath.basename(tmpPath)}'`);
-            const retryRes = await axios.get(packageUrl, {
-                responseType: "stream",
-                maxRedirects: 5,
-            });
-            if (retryRes.status !== 200) {
-                throw new Error(`Download failed with status ${retryRes.status}`);
-            }
-            try {
-                await nodeFsPromises.unlink(tmpPath);
-            } catch {
-                logger.info(`Unable to delete file '${nodePath.basename(tmpPath)}'. Overwriting...`);
-            }
-            await safeStreamToFile(retryRes.data, filePath, "w");
-        } else {
+        if (responseStatus !== 403 && existingBytes < 1) {
             throw new Error(`Download failed with status ${responseStatus}`);
         }
+        logger.warn(`Retrying full download for file '${nodePath.basename(tmpPath)}'`);
+        const retryRes = await axios.get(packageUrl, {
+            responseType: "stream",
+            maxRedirects: 5,
+        });
+        if (retryRes.status !== 200) {
+            throw new Error(`Download failed with status ${retryRes.status}`);
+        }
+        try {
+            await nodeFsPromises.unlink(tmpPath);
+        } catch {
+            logger.info(`Unable to delete file '${nodePath.basename(tmpPath)}'. Overwriting...`);
+        }
+        await streamToFileSafe(retryRes.data, tmpPath, "w");
     }
-    const headResponse = await axios.head(packageUrl, { maxRedirects: 5 });
-    let remoteSize = null;
-    if (headResponse && headResponse.status === 200) {
-        remoteSize = parseInt(headResponse.headers["content-length"] || "0", 10);
-    }
-    const localSize = (await nodeFsPromises.stat(tmpPath).catch(function () { return { size: 0 }; })).size || 0;
-    if (remoteSize && localSize !== 0 && localSize !== remoteSize) {
-        logger.warn(`Incomplete downloaded file '${nodePath.basename(tmpPath)}'`);
+    const localSize = await getFileSize(tmpPath);
+    if (totalSize && localSize !== 0 && localSize !== totalSize) {
+        const diff = totalSize - localSize;
+        const percent = ((localSize / totalSize) * 100).toFixed(2);
+        logger.warn(
+            [
+                `Incomplete download detected for '${nodePath.basename(tmpPath)}'.`,
+                `Downloaded ${localSize.toLocaleString()} / ${totalSize.toLocaleString()} bytes (${percent}%).`,
+                `Missing ${diff.toLocaleString()} bytes.`,
+                "This file will be marked as partial and can be resumed later if the server supports Range requests."
+            ].join(" ")
+        );
         return "partial";
     }
     try {
@@ -243,15 +238,38 @@ const loadFastFlags = async (binaryType) => {
     runnerFastFlags = await loadJson(FAST_FLAGS_FILE_PATH, DEFAULT_FAST_FLAGS, false);
 };
 
-const getExistingVersions = async (existingVersionsPath) => {
+const getExistingVersions = async (isPlayer, existingVersionsPath) => {
     const isFolderExists = await isDirectoryExists(existingVersionsPath);
     if (!isFolderExists) {
         await nodeFsPromises.mkdir(existingVersionsPath, { recursive: true });
     }
-    const folders = await nodeFsPromises.readdir(existingVersionsPath);
-    return folders.filter((folderName) => {
-        return folderName.startsWith("version-");
-    });
+    const entries = await nodeFsPromises.readdir(existingVersionsPath);
+    const validVersions = [];
+    for (const folderName of entries) {
+        const versionDir = nodePath.join(existingVersionsPath, folderName);
+        const statePath = nodePath.join(versionDir, ".bootstrapper-state.json");
+        if (!await isPathAccessible(statePath)) {
+            continue;
+        }
+        try {
+            await loadState(statePath, folderName);
+        } catch {
+            continue;
+        }
+        if (!runnerState || runnerState.step !== "complete") {
+            continue;
+        }
+        const exeName = isPlayer ? "RobloxPlayerBeta.exe" : "RobloxStudioBeta.exe";
+        const exePath = nodePath.join(versionDir, exeName);
+        if (!(await isPathAccessible(exePath))) {
+            continue;
+        }
+        if (!folderName.startsWith("version-")) {
+            continue;
+        }
+        validVersions.push(folderName);
+    }
+    return validVersions;
 };
 
 const attemptKillProcesses = async (processes) => {
@@ -436,7 +454,7 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
     const statePath = nodePath.join(dumpDir, ".bootstrapper-state.json");
     const isProcessKilled = await attemptKillProcesses(runnerProcesses);
-    const existingVersions = await getExistingVersions(versionsPath);
+    const existingVersions = await getExistingVersions(isPlayer, versionsPath);
     const hasDifferentVersion = existingVersions.some((folderName) => {
         return folderName !== versionFolder;
     });
@@ -454,7 +472,6 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
         }
     }
     const isDumpDirExists = await isDirectoryExists(dumpDir);
-    await loadState(statePath, version);
     if (isDumpDirExists && !runnerConfig.forceUpdate && runnerState.step === "complete") {
         logger.info(`${version} is already downloaded!`);
         return;
@@ -487,77 +504,68 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     }
     logger.info(`Manifest version: ${firstLine}`);
     const filesToDownload = [];
-    for (let i = 1, n = manifestContent.length; i < n; i += 4) {
-        const fileName = manifestContent[i].trim();
+    const zipFiles = [];
+    for (let i = 1; i < manifestContent.length; i += 4) {
+        const fileName = manifestContent[i]?.trim();
         if (fileName === "RobloxPlayerInstaller.exe") {
             continue;
         }
-        const fileChecksum = manifestContent[i + 1].trim();
-        if (!fileName.endsWith(".zip") && !fileName.endsWith(".exe")) {
+        const isZipFile = fileName.endsWith(".zip");
+        if (!isZipFile && !fileName.endsWith(".exe")) {
             logger.warn(`${fileName} has an unsupported file extension! Skipping entry...`);
             continue;
         }
         const packageUrl = `${versionDownloadUrl}-${fileName}`;
-        const filePath = `${dumpDir}/${fileName}`;
-        filesToDownload.push({ fileName, packageUrl, filePath, fileChecksum });
+        const filePath = nodePath.join(dumpDir, fileName);
+        const fileChecksum = manifestContent[i + 1].trim();
+        const compressedSize = Number(manifestContent[i + 2]);
+        const uncompressedSize = Number(manifestContent[i + 3]);
+        const fileData = { fileName, packageUrl, filePath, fileChecksum, compressedSize, uncompressedSize };
+        filesToDownload.push(fileData);
+        if (isZipFile) {
+            zipFiles.push(fileData);
+        }
     }
     const manifestFiles = filesToDownload.map(function (f) { return f.fileName; });
     const { missingMaps, excessMaps } = verifyMapping(manifestFiles, FOLDER_MAPPINGS, isPlayer);
     if (missingMaps.length === 0 && excessMaps.length === 0) {
         logger.info("Folder mappings verified: no missing or excess mapped files.");
     } else {
-        if (missingMaps.length > 0) logger.warn(`Missing in folder mappings: ${missingMaps.join(", ")}`);
-        if (excessMaps.length > 0) logger.warn(`Excess in folder mappings: ${excessMaps.join(", ")}`);
+        if (missingMaps.length > 0) {
+            logger.warn(`Missing in folder mappings: ${missingMaps.join(", ")}`);
+        }
+        if (excessMaps.length > 0) {
+            logger.warn(`Excess in folder mappings: ${excessMaps.join(", ")}`);
+        }
     }
-    const downloadSingleBar = new cliProgress.SingleBar(
-        {
-            format: "{bar} | File {fileNumber}/{totalFiles} | {filename} | {percentage}% | {value}/{total}",
-        },
-        cliProgress.Presets.shades_classic,
-    );
     const totalFiles = filesToDownload.length;
-    const zipFiles = filesToDownload.filter(function ({ fileName }) { return fileName.endsWith(".zip"); });
-    const totalZipFiles = zipFiles.length;
     // ===== STEP 1: Download (resumable per-file) =====
     logger.info("STEP 1: Downloading files...");
-    let fileNumber = 1;
     for (const { packageUrl, filePath, fileName, fileChecksum } of filesToDownload) {
         if (runnerState.downloaded.includes(fileName) && (await isPathAccessible(filePath))) {
             logger.info(`Skipping already downloaded file: ${fileName}`);
-            fileNumber++;
             continue;
         }
-        let fileTotalSize = 0;
         try {
-            // may fail
-            const headRes = await axios.head(packageUrl);
-            if (headRes && headRes.status === 200) fileTotalSize = parseInt(headRes.headers["content-length"] || "0", 10);
-        } catch (err) {
-            logger.error(`Error attempting head.\n${err.message}\n${err.stack}`);
-        }
-        downloadSingleBar.start(fileTotalSize, 0, { filename: fileName, fileNumber, totalFiles });
-        try {
-            const result = await tryDownloadWithResume(packageUrl, filePath, fileChecksum, downloadSingleBar);
+            const result = await tryDownloadWithResume(packageUrl, filePath, fileChecksum);
             if (result === "verified") {
                 logger.info(`Already present and valid: ${fileName}`);
             } else if (result === "partial") {
                 logger.warn(`Partial download for ${fileName} — saved progress. Run again to continue.`);
                 await saveState(statePath);
-                downloadSingleBar.stop();
                 throw new Error(`Partial download for ${fileName}`);
             } else {
-                if (!runnerState.downloaded.includes(fileName)) runnerState.downloaded.push(fileName);
+                if (!runnerState.downloaded.includes(fileName)) {
+                    runnerState.downloaded.push(fileName);
+                }
                 await saveState(statePath);
             }
         } catch (err) {
             logger.error(`Download failed for ${fileName}: ${err.message}`);
-            downloadSingleBar.stop();
             await saveState(statePath);
             throw err;
         }
-        downloadSingleBar.stop();
-        fileNumber++;
-    }
+    };
     logger.info("STEP 1: Successfully downloaded files!");
     if (!runnerState.completedSteps.includes("download")) {
         runnerState.completedSteps.push("download");
@@ -566,22 +574,13 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     }
     // ===== STEP 2: Verify per-file checksums =====
     logger.info("STEP 2: Verifying file checksums...");
-    const verifyBar = new cliProgress.SingleBar(
-        {
-            format: "{bar} | {filename} | {percentage}% | {value}/{total}",
-        },
-        cliProgress.Presets.shades_classic,
-    );
-    verifyBar.start(totalFiles, 0, { filename: "" });
     for (const { fileName, fileChecksum, filePath } of filesToDownload) {
         if (runnerState.verified && runnerState.verified.includes && runnerState.verified.includes(fileName)) {
-            verifyBar.increment(1, { filename: fileName });
             continue;
         }
         const exists = await isPathAccessible(filePath);
         if (!exists) {
             logger.error(`Expected file missing for verification: ${fileName}`);
-            verifyBar.increment(0, { filename: fileName });
             continue;
         }
         const isChecksumValid = await verifyFileChecksum(filePath, fileChecksum);
@@ -589,18 +588,17 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
             runnerState.verified = runnerState.verified || [];
             runnerState.verified.push(fileName);
             await saveState(statePath);
-            verifyBar.increment(1, { filename: fileName });
             continue;
         }
         // checksum mismatch -> delete file and fail (user can retry to re-download)
         logger.error(`Checksum mismatch: ${fileName}. Deleting file...`);
-        await nodeFsPromises.unlink(filePath).catch(() => { });
+        try {
+            await nodeFsPromises.unlink(filePath);
+        } catch { /* empty */ }
         // also remove from downloaded state if present
         runnerState.downloaded = runnerState.downloaded.filter(function (n) { return n !== fileName; });
         await saveState(statePath);
-        verifyBar.increment(0, { filename: fileName });
     }
-    verifyBar.stop();
     logger.info("STEP 2: Successfully completed file checksums verification!");
     if (!runnerState.completedSteps.includes("verify")) {
         runnerState.completedSteps.push("verify");
@@ -609,32 +607,22 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     }
     // ===== STEP 3: Extract archives (resumable per-file) =====
     logger.info("STEP 3: Extracting file archives...");
-    const extractBar = new cliProgress.SingleBar(
-        { format: "{bar} | {filename} | {percentage}% | {value}/{total}" },
-        cliProgress.Presets.shades_classic,
-    );
-    extractBar.start(totalZipFiles, 0, { filename: "" });
-    for (const zipFile of zipFiles) {
-        const fileName = zipFile.fileName;
-        const filePath = zipFile.filePath;
+    for (const { fileName, filePath } of zipFiles) {
         runnerState.extracted = runnerState.extracted || [];
         if (runnerState.extracted.includes(fileName)) {
-            extractBar.increment(1, { filename: fileName });
             continue;
         }
         try {
+            logger.info(`Extracting file archive ${filePath}...`);
             await extractZip(filePath, dumpDir, FOLDER_MAPPINGS);
             runnerState.extracted.push(fileName);
             await saveState(statePath);
-            extractBar.increment(1, { filename: fileName });
         } catch (err) {
             logger.error(`Extraction failed for ${fileName}: ${err.message}`);
             await saveState(statePath);
-            extractBar.stop();
             throw err;
         }
     }
-    extractBar.stop();
     logger.info("STEP 3: File archives extraction complete!");
     if (!runnerState.completedSteps.includes("extract")) {
         runnerState.completedSteps.push("extract");
@@ -643,38 +631,26 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     }
     // ===== STEP 4: Delete archives (cleanup) =====
     logger.info("STEP 4: Deleting file archives...");
-    const cleanupBar = new cliProgress.SingleBar(
-        { format: "{bar} | {filename} | {percentage}% | {value}/{total}" },
-        cliProgress.Presets.shades_classic,
-    );
-    cleanupBar.start(totalZipFiles, 0, { filename: "" });
     runnerState.deleted = runnerState.deleted || [];
-    for (const zipFile of zipFiles) {
-        const fileName = zipFile.fileName;
-        const filePath = zipFile.filePath;
+    for (const { fileName, filePath } of zipFiles) {
         if (runnerState.deleted.includes(fileName)) {
-            cleanupBar.increment(1, { filename: fileName });
             continue;
         }
         try {
+            logger.info(`Deleting file archive ${filePath}...`);
             await nodeFsPromises.unlink(filePath);
             runnerState.deleted.push(fileName);
             await saveState(statePath);
-            cleanupBar.increment(1, { filename: fileName });
         } catch (err) {
             logger.warn(`Failed to delete archive ${fileName}: ${err.message}`);
             // don't abort for deletion failures; mark deleted anyway if missing
             const exists = await isPathAccessible(filePath);
-            if (exists) {
-                cleanupBar.increment(0, { filename: fileName });
-            } else {
+            if (!exists) {
                 runnerState.deleted.push(fileName);
                 await saveState(statePath);
-                cleanupBar.increment(1, { filename: fileName });
             }
         }
     }
-    cleanupBar.stop();
     logger.info("STEP 4: Successfully deleted file archives!");
     if (!runnerState.completedSteps.includes("cleanup")) {
         runnerState.completedSteps.push("cleanup");
@@ -743,7 +719,7 @@ const launchAutoUpdater = async (binaryType) => {
         }
     }
     const versionsPath = nodePath.join(rootDirPath, runnerVersionsFolder);
-    const versions = await getExistingVersions(versionsPath);
+    const versions = await getExistingVersions(isPlayer, versionsPath);
     if (versions.length === 0) {
         logger.warn("No installed version found!");
         await downloadVersion(binaryType, latestVersion);
