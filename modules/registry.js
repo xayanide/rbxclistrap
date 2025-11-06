@@ -139,14 +139,16 @@ const getValuePathsWithEmptyValueNames = (registryItems) => {
     return valuePaths;
 };
 
+const sanitizeValuePath = (path) => {
+    return path.replace(`\\${NULL_CHAR}`, "");
+};
+
 const checkUnsetValuePaths = async (unsetValuePaths) => {
     /**
     Sanitize first, remove the NULL_CHAR from the end of each path to list them as keys,
     because the unsanitized value paths are used only for when we are deleting values
     */
-    const sanitizedPaths = unsetValuePaths.map((path) => {
-        return path.replace(`\\${NULL_CHAR}`, "");
-    });
+    const sanitizedPaths = unsetValuePaths.map(sanitizeValuePath);
     const registryItems = await promisifiedRegedit.list(sanitizedPaths);
     /** Find paths that have a default value set */
     const defaultValuePaths = getValuePathsWithEmptyValueNames(registryItems);
