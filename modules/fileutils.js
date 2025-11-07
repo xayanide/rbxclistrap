@@ -58,7 +58,7 @@ const loadJson = async (filePath, defaultData, isReconcile = false) => {
         const buffer = await nodeFsPromises.readFile(filePath, "utf-8");
         existingData = JSON.parse(buffer);
     } catch (parseErr) {
-        logger.fatal(
+        logger.error(
             `Inspect the JSON file and follow its strict formatting rules and syntax.\nAn error occured while parsing JSON file: ${filePath}:\n${parseErr.message}\n${parseErr.stack}`,
         );
         await createPrompt("Something went wrong! Press Enter key to exit.");
