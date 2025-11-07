@@ -10,11 +10,8 @@ const isProcessesRunning = (processNames) => {
             });
         }
         return stdout.includes(processNames.toLowerCase());
-    } catch (processErr) {
-        if (processErr instanceof Error) {
-            return false;
-        }
-        return false;
+    } catch {
+        throw new Error("Error while executing execSync('tasklist')");
     }
 };
 
