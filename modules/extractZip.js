@@ -4,11 +4,11 @@ import logger from "./logger.js";
 
 function getMapType(fileName, folderMappings) {
     const playerOnly = folderMappings._playerOnly;
-    if (playerOnly && fileName in playerOnly) {
+    if (playerOnly && Object.hasOwn(playerOnly, fileName)) {
         return "_playerOnly";
     }
     const studioOnly = folderMappings._studioOnly;
-    if (studioOnly && fileName in studioOnly) {
+    if (studioOnly && Object.hasOwn(studioOnly, fileName)) {
         return "_studioOnly";
     }
     return "_common";
