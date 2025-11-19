@@ -538,7 +538,6 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
             logger.warn(`Excess in folder mappings: ${excessMaps.join(", ")}`);
         }
     }
-    const totalFiles = filesToDownload.length;
     // ===== STEP 1: Download (resumable per-file) =====
     logger.info("STEP 1: Downloading files...");
     for (const { packageUrl, filePath, fileName, fileChecksum } of filesToDownload) {
