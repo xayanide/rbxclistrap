@@ -163,16 +163,16 @@ const tryDownloadWithResume = async (packageUrl, filePath, fileChecksum) => {
     });
     const responseStatus = response.status;
     const responseData = response.data;
-    const totalSize = isRangeSupported
-        ? existingBytes + parseInt(response.headers["content-length"] || "0", 10)
-        : parseInt(response.headers["content-length"] || "0", 10);
+    const totalSize = isRangeSupported ? existingBytes + parseInt(response.headers["content-length"] || "0", 10) : parseInt(response.headers["content-length"] || "0", 10);
     if ([200, 206].includes(responseStatus)) {
         // 206 -> append; 200 -> overwrite
         const writeFlags = responseStatus === 206 ? "a" : "w";
         if (writeFlags === "w") {
             try {
                 await nodeFsPromises.unlink(tmpPath);
-            } catch { /* empty */ }
+            } catch {
+                /* empty */
+            }
         }
         await streamToFileSafe(responseData, tmpPath, writeFlags);
     } else {
@@ -203,8 +203,8 @@ const tryDownloadWithResume = async (packageUrl, filePath, fileChecksum) => {
                 `Incomplete download detected for '${nodePath.basename(tmpPath)}'.`,
                 `Downloaded ${localSize.toLocaleString()} / ${totalSize.toLocaleString()} bytes (${percent}%).`,
                 `Missing ${diff.toLocaleString()} bytes.`,
-                "This file will be marked as partial and can be resumed later if the server supports Range requests."
-            ].join(" ")
+                "This file will be marked as partial and can be resumed later if the server supports Range requests.",
+            ].join(" "),
         );
         return "partial";
     }
@@ -248,7 +248,7 @@ const getExistingVersions = async (isPlayer, existingVersionsPath) => {
     for (const folderName of entries) {
         const versionDir = nodePath.join(existingVersionsPath, folderName);
         const statePath = nodePath.join(versionDir, ".bootstrapper-state.json");
-        if (!await isPathAccessible(statePath)) {
+        if (!(await isPathAccessible(statePath))) {
             continue;
         }
         try {
@@ -438,7 +438,7 @@ const attachSigint = (statePath) => {
             logger.warn("Interrupted by user (SIGINT). Saving state...");
             await saveState(statePath);
         } catch (err) {
-            logger.error(`Failed to save state on SIGINT:\n${err.message}\n${err.stack}`,);
+            logger.error(`Failed to save state on SIGINT:\n${err.message}\n${err.stack}`);
         } finally {
             process.exit(0);
         }
@@ -526,7 +526,9 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
             zipFiles.push(fileData);
         }
     }
-    const manifestFiles = filesToDownload.map(function (f) { return f.fileName; });
+    const manifestFiles = filesToDownload.map(function (f) {
+        return f.fileName;
+    });
     const { missingMaps, excessMaps } = verifyMapping(manifestFiles, FOLDER_MAPPINGS, isPlayer);
     if (missingMaps.length === 0 && excessMaps.length === 0) {
         logger.info("Folder mappings verified: no missing or excess mapped files.");
@@ -564,7 +566,7 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
             await saveState(statePath);
             throw err;
         }
-    };
+    }
     logger.info("STEP 1: Successfully downloaded files!");
     if (!runnerState.completedSteps.includes("download")) {
         runnerState.completedSteps.push("download");
@@ -593,9 +595,13 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
         logger.error(`Checksum mismatch: ${fileName}. Deleting file...`);
         try {
             await nodeFsPromises.unlink(filePath);
-        } catch { /* empty */ }
+        } catch {
+            /* empty */
+        }
         // also remove from downloaded state if present
-        runnerState.downloaded = runnerState.downloaded.filter(function (n) { return n !== fileName; });
+        runnerState.downloaded = runnerState.downloaded.filter(function (n) {
+            return n !== fileName;
+        });
         await saveState(statePath);
     }
     logger.info("STEP 2: Successfully completed file checksums verification!");
@@ -720,11 +726,11 @@ const launchAutoUpdater = async (binaryType) => {
     const versionsPath = nodePath.join(rootDirPath, runnerVersionsFolder);
     const versions = await getExistingVersions(isPlayer, versionsPath);
     if (versions.length === 0) {
-        logger.warn("No installed version found!");
+        logger.warn(`${latestVersion} is not yet downloaded!`);
         await downloadVersion(binaryType, latestVersion);
         return latestVersion;
     }
-    console.log(`${CLI_COLORS.MAGENTA}Available versions:`);
+    console.log(`${CLI_COLORS.MAGENTA}Available downloaded versions:`);
     for (let i = 0, n = versions.length; i < n; i++) {
         const version = versions[i];
         console.log(`${CLI_COLORS.CYAN}${i + 1}. ${versions[i]}${CLI_COLORS.RESET}${version === latestVersion ? " (Latest)" : ""}`);
