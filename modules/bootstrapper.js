@@ -94,7 +94,7 @@ const saveState = async (statePath) => {
 };
 
 const loadState = async (statePath, version) => {
-    runnerState = await loadJson(statePath, { ...DEFAULT_BOOTSTRAPPER_STATE, version }, false);
+    runnerState = await loadJson(statePath, { ...DEFAULT_BOOTSTRAPPER_STATE, version }, true);
 };
 
 // because Some CDNs block ranged HEAD; GET shows real behavior.
