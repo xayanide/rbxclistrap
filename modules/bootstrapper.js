@@ -61,6 +61,7 @@ import {
 import {
   CLI_COLORS,
   DEFAULT_BOOTSTRAPPER_STATE,
+  DEFAULT_VERSION_STATES,
   FOLDER_MAPPINGS,
   APP_SETTINGS_XML,
   PLAYER_PROCESSES,
@@ -86,7 +87,7 @@ const rootDirPath = nodePath.join(getDirname(import.meta.url), "..");
 
 let runnerConfig = { ...DEFAULT_CONFIG };
 let runnerFastFlags = { ...DEFAULT_FAST_FLAGS };
-let runnerState = { ...DEFAULT_BOOTSTRAPPER_STATE };
+let runnerVersionStates = { ...DEFAULT_VERSION_STATES }; // Centralized state for all versions
 let runnerChannel = null;
 let clientSettingsBaseUrl = null;
 let cdnBaseUrl = null;
@@ -103,16 +104,41 @@ const getAppType = (binaryType) => {
   return appType;
 };
 
-const saveState = async (statePath) => {
-  return await saveJson(statePath, runnerState);
+// Get the centralized state file path based on binary type
+const getStatesFilePath = (binaryType) => {
+  const isPlayer = isPlayerBinaryType(binaryType);
+  const stateFileName = isPlayer ? "player-states.json" : "studio-states.json";
+  return nodePath.join(rootDirPath, stateFileName);
 };
 
-const loadState = async (statePath, version) => {
-  runnerState = await loadJson(
-    statePath,
-    { ...DEFAULT_BOOTSTRAPPER_STATE, version },
+// Save all version states to centralized file
+const saveVersionStates = async (binaryType) => {
+  const statesPath = getStatesFilePath(binaryType);
+  return await saveJson(statesPath, runnerVersionStates);
+};
+
+// Load all version states from centralized file
+const loadVersionStates = async (binaryType) => {
+  const statesPath = getStatesFilePath(binaryType);
+  runnerVersionStates = await loadJson(
+    statesPath,
+    { ...DEFAULT_VERSION_STATES },
     true,
   );
+};
+
+// Get state for a specific version
+const getVersionState = (version) => {
+  const versionKey = version.startsWith("version-")
+    ? version
+    : `version-${version}`;
+  if (!runnerVersionStates.versions[versionKey]) {
+    runnerVersionStates.versions[versionKey] = {
+      ...DEFAULT_BOOTSTRAPPER_STATE,
+      version: versionKey,
+    };
+  }
+  return runnerVersionStates.versions[versionKey];
 };
 
 // because Some CDNs block ranged HEAD; GET shows real behavior.
@@ -286,32 +312,30 @@ const getExistingVersions = async (isPlayer, existingVersionsPath) => {
   if (!isFolderExists) {
     await nodeFsPromises.mkdir(existingVersionsPath, { recursive: true });
   }
-  const entries = await nodeFsPromises.readdir(existingVersionsPath);
+
   const validVersions = [];
-  for (const folderName of entries) {
-    const versionDir = nodePath.join(existingVersionsPath, folderName);
-    const statePath = nodePath.join(versionDir, ".bootstrapper-state.json");
-    if (!(await isPathAccessible(statePath))) {
+  const exeName = isPlayer ? "RobloxPlayerBeta.exe" : "RobloxStudioBeta.exe";
+
+  // Check each version in the centralized state
+  for (const [versionKey, versionState] of Object.entries(
+    runnerVersionStates.versions,
+  )) {
+    // Only include versions that are marked as complete
+    if (versionState.step !== "complete") {
       continue;
     }
-    try {
-      await loadState(statePath, folderName);
-    } catch {
-      continue;
-    }
-    if (!runnerState || runnerState.step !== "complete") {
-      continue;
-    }
-    const exeName = isPlayer ? "RobloxPlayerBeta.exe" : "RobloxStudioBeta.exe";
+
+    // Verify the version folder and executable exist on disk
+    const versionDir = nodePath.join(existingVersionsPath, versionKey);
     const exePath = nodePath.join(versionDir, exeName);
+
     if (!(await isPathAccessible(exePath))) {
       continue;
     }
-    if (!folderName.startsWith("version-")) {
-      continue;
-    }
-    validVersions.push(folderName);
+
+    validVersions.push(versionKey);
   }
+
   return validVersions;
 };
 
@@ -511,9 +535,9 @@ const showSettingsMenu = async (binaryType) => {
   }
 };
 
-// SIGINT handler: save current runnerState and exit
+// SIGINT handler: save current centralized state and exit
 let isSigintAttached = false;
-const attachSigint = (statePath) => {
+const attachSigint = (binaryType) => {
   if (isSigintAttached) {
     return;
   }
@@ -521,7 +545,7 @@ const attachSigint = (statePath) => {
   process.on("SIGINT", async function () {
     try {
       logger.warn("Interrupted by user (SIGINT). Saving state...");
-      await saveState(statePath);
+      await saveVersionStates(binaryType);
     } catch (err) {
       logger.error(
         `Failed to save state on SIGINT:\n${err.message}\n${err.stack}`,
@@ -541,7 +565,10 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
   const versionsPath = nodePath.join(rootDirPath, runnerVersionsFolder);
   const dumpDir = nodePath.join(versionsPath, versionFolder);
   const runnerProcesses = isPlayer ? PLAYER_PROCESSES : STUDIO_PROCESSES;
-  const statePath = nodePath.join(dumpDir, ".bootstrapper-state.json");
+
+  // Load centralized state
+  await loadVersionStates(binaryType);
+
   const isProcessKilled = await attemptKillProcesses(runnerProcesses);
   const existingVersions = await getExistingVersions(isPlayer, versionsPath);
   const hasDifferentVersion = existingVersions.some((folderName) => {
@@ -559,14 +586,21 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
       }
       logger.info(`Deleting existing folder: ${folderPath}...`);
       await deleteFolderRecursive(folderPath);
+      // Remove from centralized state
+      delete runnerVersionStates.versions[folderName];
       logger.info("Successfully deleted existing folder!");
     }
+    await saveVersionStates(binaryType);
   }
+
+  // Get state for this specific version
+  const versionState = getVersionState(versionFolder);
+
   const isDumpDirExists = await isDirectoryExists(dumpDir);
   if (
     isDumpDirExists &&
     !runnerConfig.forceUpdate &&
-    runnerState.step === "complete"
+    versionState.step === "complete"
   ) {
     logger.info(`${version} is already downloaded!`);
     return;
@@ -585,7 +619,7 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     logger.info("Successfully deleted existing folder!");
   }
   await nodeFsPromises.mkdir(dumpDir, { recursive: true });
-  attachSigint(statePath);
+  attachSigint(binaryType);
   if (!cdnBaseUrl) {
     cdnBaseUrl = await getRobloxCDNBaseUrl();
   }
@@ -671,9 +705,9 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     fileChecksum,
   } of filesToDownload) {
     if (
-      runnerState.downloaded &&
-      runnerState.downloaded.includes &&
-      runnerState.downloaded.includes(fileName) &&
+      versionState.downloaded &&
+      versionState.downloaded.includes &&
+      versionState.downloaded.includes(fileName) &&
       (await isPathAccessible(filePath))
     ) {
       logger.info(`Skipping already downloaded file: ${fileName}`);
@@ -691,33 +725,33 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
         logger.warn(
           `Partial download for ${fileName} — saved progress. Run again to continue.`,
         );
-        await saveState(statePath);
+        await saveVersionStates(binaryType);
         throw new Error(`Partial download for ${fileName}`);
       } else {
-        if (!runnerState.downloaded.includes(fileName)) {
-          runnerState.downloaded.push(fileName);
+        if (!versionState.downloaded.includes(fileName)) {
+          versionState.downloaded.push(fileName);
         }
-        await saveState(statePath);
+        await saveVersionStates(binaryType);
       }
     } catch (err) {
       logger.error(`Download failed for ${fileName}: ${err.message}`);
-      await saveState(statePath);
+      await saveVersionStates(binaryType);
       throw err;
     }
   }
   logger.info("STEP 1: Successfully downloaded files!");
-  if (!runnerState.completedSteps.includes("download")) {
-    runnerState.completedSteps.push("download");
-    runnerState.step = "verify";
-    await saveState(statePath);
+  if (!versionState.completedSteps.includes("download")) {
+    versionState.completedSteps.push("download");
+    versionState.step = "verify";
+    await saveVersionStates(binaryType);
   }
   // ===== STEP 2: Verify per-file checksums =====
   logger.info("STEP 2: Verifying file checksums...");
   for (const { fileName, fileChecksum, filePath } of filesToDownload) {
     if (
-      runnerState.verified &&
-      runnerState.verified.includes &&
-      runnerState.verified.includes(fileName)
+      versionState.verified &&
+      versionState.verified.includes &&
+      versionState.verified.includes(fileName)
     ) {
       continue;
     }
@@ -728,8 +762,8 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     }
     const isChecksumValid = await verifyFileChecksum(filePath, fileChecksum);
     if (isChecksumValid) {
-      runnerState.verified.push(fileName);
-      await saveState(statePath);
+      versionState.verified.push(fileName);
+      await saveVersionStates(binaryType);
       continue;
     }
     // checksum mismatch -> delete file and fail (user can retry to re-download)
@@ -740,47 +774,47 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
       /* empty */
     }
     // also remove from downloaded state if present
-    runnerState.downloaded = runnerState.downloaded.filter(function (n) {
+    versionState.downloaded = versionState.downloaded.filter(function (n) {
       return n !== fileName;
     });
-    await saveState(statePath);
+    await saveVersionStates(binaryType);
   }
   logger.info("STEP 2: Successfully completed file checksums verification!");
-  if (!runnerState.completedSteps.includes("verify")) {
-    runnerState.completedSteps.push("verify");
-    runnerState.step = "extract";
-    await saveState(statePath);
+  if (!versionState.completedSteps.includes("verify")) {
+    versionState.completedSteps.push("verify");
+    versionState.step = "extract";
+    await saveVersionStates(binaryType);
   }
   // ===== STEP 3: Extract archives (resumable per-file) =====
   logger.info("STEP 3: Extracting file archives...");
   for (const { fileName, filePath } of zipFiles) {
-    if (runnerState.extracted.includes(fileName)) {
+    if (versionState.extracted.includes(fileName)) {
       continue;
     }
     try {
       logger.info(`Extracting file archive ${filePath}...`);
       await extractZip(filePath, dumpDir, FOLDER_MAPPINGS);
-      runnerState.extracted.push(fileName);
-      await saveState(statePath);
+      versionState.extracted.push(fileName);
+      await saveVersionStates(binaryType);
     } catch (err) {
       logger.error(`Extraction failed for ${fileName}: ${err.message}`);
-      await saveState(statePath);
+      await saveVersionStates(binaryType);
       throw err;
     }
   }
   logger.info("STEP 3: File archives extraction complete!");
-  if (!runnerState.completedSteps.includes("extract")) {
-    runnerState.completedSteps.push("extract");
-    runnerState.step = "cleanup";
-    await saveState(statePath);
+  if (!versionState.completedSteps.includes("extract")) {
+    versionState.completedSteps.push("extract");
+    versionState.step = "cleanup";
+    await saveVersionStates(binaryType);
   }
   // ===== STEP 4: Delete archives (cleanup) =====
   logger.info("STEP 4: Deleting file archives...");
   for (const { fileName, filePath } of zipFiles) {
-    if (runnerState.deleted.includes(fileName)) {
+    if (versionState.deleted.includes(fileName)) {
       continue;
     }
-    if (!runnerState.extracted.includes(fileName)) {
+    if (!versionState.extracted.includes(fileName)) {
       logger.error(
         `Skipping cleanup for ${fileName} because it was never extracted!`,
       );
@@ -789,22 +823,22 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     try {
       logger.info(`Deleting file archive ${filePath}...`);
       await nodeFsPromises.unlink(filePath);
-      runnerState.deleted.push(fileName);
-      await saveState(statePath);
+      versionState.deleted.push(fileName);
+      await saveVersionStates(binaryType);
     } catch (err) {
       logger.warn(`Failed to delete archive ${fileName}: ${err.message}`);
       // don't abort for deletion failures; mark deleted anyway if missing
       const exists = await isPathAccessible(filePath);
       if (!exists) {
-        runnerState.deleted.push(fileName);
-        await saveState(statePath);
+        versionState.deleted.push(fileName);
+        await saveVersionStates(binaryType);
       }
     }
   }
   logger.info("STEP 4: Successfully deleted file archives!");
-  if (!runnerState.completedSteps.includes("cleanup")) {
-    runnerState.completedSteps.push("cleanup");
-    await saveState(statePath);
+  if (!versionState.completedSteps.includes("cleanup")) {
+    versionState.completedSteps.push("cleanup");
+    await saveVersionStates(binaryType);
   }
   logger.info(
     `Successfully downloaded and extracted ${version} to ${dumpDir}!`,
@@ -816,10 +850,10 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     "utf-8",
   );
   logger.info("STEP 5: Successfully created AppSettings.xml!");
-  if (!runnerState.completedSteps.includes("appsettings")) {
-    runnerState.completedSteps.push("appsettings");
-    runnerState.step = "complete";
-    await saveState(statePath);
+  if (!versionState.completedSteps.includes("appsettings")) {
+    versionState.completedSteps.push("appsettings");
+    versionState.step = "complete";
+    await saveVersionStates(binaryType);
   }
 };
 
@@ -898,6 +932,8 @@ const launchAutoUpdater = async (binaryType) => {
     }
   }
   const versionsPath = nodePath.join(rootDirPath, runnerVersionsFolder);
+  // Load centralized state to check existing versions
+  await loadVersionStates(binaryType);
   const versions = await getExistingVersions(isPlayer, versionsPath);
   if (versions.length === 0) {
     logger.warn(`${latestVersion} is not yet downloaded!`);

@@ -13,7 +13,14 @@ const DEFAULT_BOOTSTRAPPER_STATE = {
   step: "download",
   completedSteps: [],
   downloaded: [],
+  verified: [],
   extracted: [],
+  deleted: [],
+};
+
+// Centralized state tracking for all versions
+const DEFAULT_VERSION_STATES = {
+  versions: {}, // { "version-hash": { ...DEFAULT_BOOTSTRAPPER_STATE } }
 };
 
 const FOLDER_MAPPINGS = {
@@ -292,6 +299,7 @@ const UNREGISTER_STUDIO_KEY_PATHS = [
 
 export {
   DEFAULT_BOOTSTRAPPER_STATE,
+  DEFAULT_VERSION_STATES,
   PLAYER_CHANNEL_KEYPATH,
   STUDIO_CHANNEL_KEYPATH,
   BOOTSTRAPPER_DEPLOYMENT_TYPES_MAP,

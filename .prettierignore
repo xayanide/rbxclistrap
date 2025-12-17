@@ -21,3 +21,6 @@
 # Roblox versions
 **/PlayerVersions
 **/StudioVersions
+
+player-states.json
+studio-states.json
