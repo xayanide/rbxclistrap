@@ -18,6 +18,7 @@
     "postinstall": "patch-package",
     "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
+    "style": "npm run lint:fix && npm run format:write",
     "start:base": "node index.js",
     "start:player": "npm run start:base -- player",
     "start:studio": "npm run start:base -- studio"
