@@ -671,6 +671,8 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
     fileChecksum,
   } of filesToDownload) {
     if (
+      runnerState.downloaded &&
+      runnerState.downloaded.includes &&
       runnerState.downloaded.includes(fileName) &&
       (await isPathAccessible(filePath))
     ) {
@@ -776,6 +778,12 @@ const downloadVersion = async (binaryType, version, isUpdate = false) => {
   logger.info("STEP 4: Deleting file archives...");
   for (const { fileName, filePath } of zipFiles) {
     if (runnerState.deleted.includes(fileName)) {
+      continue;
+    }
+    if (!runnerState.extracted.includes(fileName)) {
+      logger.error(
+        `Skipping cleanup for ${fileName} because it was never extracted!`,
+      );
       continue;
     }
     try {
