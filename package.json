@@ -24,7 +24,7 @@
     "start:studio": "npm run start:base -- studio"
   },
   "dependencies": {
-    "adm-zip": "^0.5.17",
+    "adm-zip": "^0.5.18",
     "axios": "^1.18.1",
     "patch-package": "^8.0.1",
     "regedit": "^5.1.3",
