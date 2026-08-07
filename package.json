@@ -40,7 +40,7 @@
     "globals": "^16.5.0",
     "prettier": "3.9.6",
     "semantic-release": "^24.2.9",
-    "typescript-eslint": "^8.65.0"
+    "typescript-eslint": "^8.66.0"
   },
   "engines": {
     "node": ">=20.11.0"
